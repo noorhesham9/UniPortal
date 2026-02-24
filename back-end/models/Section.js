@@ -11,7 +11,11 @@ const sectionSchema = new mongoose.Schema({
     start_time: { type: String, required: true }, 
     end_time: { type: String, required: true },
     capacity: { type: Number, required: true },
-    waitlist_array: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
+    waitlist: [{
+        user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        joined_at: { type: Date, default: Date.now },
+        priority: { type: Number, default: 0 } 
+    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Section', sectionSchema);
