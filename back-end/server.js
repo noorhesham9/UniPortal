@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const seedDatabase = require("./utils/seedDatabase");
+
 dotenv.config({ path: "./config.env" });
 process.on("uncaughtException", (err) => {
   console.log(err.name, err.message);
@@ -15,6 +17,8 @@ if (process.env.NODE_ENV == "production") {
 const app = require("./app");
 mongoose.connect(process.env.CONN_STR, { dbName: dbnamee }).then((CONN) => {
   console.log("DB COnnection Successful");
+
+  seedDatabase();
 });
 
 const port = process.env.PORT;
