@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
+    firebaseUid: { type: String, required: true, unique: true },
     name: {
       type: String,
       required: [true, "Please provide a name"],
@@ -15,9 +16,13 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
+    studentId: {
+      type: String,
+      unique: true,
+      sparse: true, // يسمح بتركه فارغاً للأدوار الأخرى غير الطلاب
+    },
     password: {
       type: String,
-      required: [true, "Please provide a password"],
       minlength: 8,
       select: false,
     },
@@ -40,15 +45,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);

@@ -1,13 +1,96 @@
-import React, { useState } from "react";
+import axios from "axios";
+import {
+  deleteUser,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { useState } from "react";
+import { FiEye, FiEyeOff, FiLock, FiUser } from "react-icons/fi";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { loginSuccess } from "../../services/store/reducers/authSlice";
+import { auth, googleProvider } from "../../utils/firebaseConfig";
 import "./Login.css";
-import { Link } from "react-router-dom";
 import loginLogoSvg from "./login_logo.svg";
-import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 function Login() {
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleEmailLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await result.user.getIdToken();
+
+      const response = await axios.post(
+        "http://localhost:3100/api/v1/auth/login",
+        { idToken },
+        { withCredentials: true },
+      );
+
+      dispatch(loginSuccess(response.data.user));
+      navigate("/dashboard");
+    } catch (error) {
+      if (error.response) {
+        const { code, message } = error.response.data;
+        if (code === "auth/user-not-found") {
+          alert("الحساب ده مش موجود عندنا في قاعدة البيانات، سجل الأول");
+        } else {
+          alert(message || "حدث خطأ ما");
+        }
+      } else {
+        console.error("Error without response:", error.message);
+      }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      // const userEmail = result.user.email;
+      // const methods = await fetchSignInMethodsForEmail(auth, userEmail);
+      // console.log("Sign-in methods for email:", methods);
+      // if (methods.length > 0 && !methods.includes("google.com")) {
+      //   console.log(methods);
+      //   console.log("الحساب موجود بالباسورد، جاري الربط...");
+
+      //   // هنا المشكلة إن الربط (Link) بيحتاج اليوزر يكون مسجل دخول بالباسورد الأول
+      //   // فالحل الأفضل لليوزر هو إظهار رسالة:
+      //   alert(
+      //     "هذا الحساب مسجل بالباسورد. يرجى تسجيل الدخول بالباسورد مرة واحدة لربط حساب جوجل.",
+      //   );
+
+      //   // كحل بديل (لو مش عايز تضايق اليوزر):
+      //   // فيربيز أحياناً بيعمل الـ Linking تلقائياً لو الإعدادات "Link accounts with same email" مفعلة
+      //   // بس عشان تضمن إن الباسورد ميتمسحش، لازم اليوزر يكون عمل Login بالباسورد الأول.
+      // }
+      console.log("Firebase ID Token:", idToken);
+
+      const response = await axios.post(
+        "http://localhost:3100/api/v1/auth/login",
+        { idToken }, // الجسم بتاع الـ Request
+        { withCredentials: true }, // مهم جداً عشان الكوكيز تتبعت وتتحفظ
+      );
+
+      if (response.data.success) {
+        dispatch(loginSuccess(response.data.user));
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      const user = auth.currentUser;
+      await deleteUser(user);
+      console.error(
+        "Login Error:",
+        error.response?.data?.message || error.message,
+      );
+    }
   };
 
   return (
@@ -25,12 +108,17 @@ function Login() {
           <h3 className="welcome-text">Welcome Back</h3>
           <p className="instruction-text">Please sign in to continue.</p>
         </div>
-        <form className="login-form">
+        <form onSubmit={handleEmailLogin} className="login-form">
           <div className="input-group">
             <label>Student ID or Email</label>
             <div className="input-wrapper">
               <FiUser className="input-icon" />
-              <input type="text" placeholder="Enter your ID or email" />
+              <input
+                type="text"
+                placeholder="Enter your ID or email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
           </div>
 
@@ -51,6 +139,8 @@ function Login() {
             <div className="input-wrapper">
               <FiLock className="input-icon" />
               <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
               />
@@ -71,6 +161,16 @@ function Login() {
 
           <button type="submit" className="login-btn">
             Log In
+          </button>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            style={{
+              marginTop: "10px",
+            }}
+            className="login-btn"
+          >
+            Log In with Google
           </button>
 
           <p className="new-student">

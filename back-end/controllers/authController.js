@@ -1,131 +1,90 @@
-const User = require('../models/User');
-const Role = require('../models/Role');
-const jwt = require('jsonwebtoken');
-
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.SECRET_STR, {
-    expiresIn: process.env.LOGIN_EXPIRES,
-  });
-};
+const User = require("../models/User");
+const Role = require("../models/Role");
+const admin = require("../utils/firebaseAdmin");
+const AllowedStudentModel = require("../models/AllowedStudentModel");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, passwordConfirm } = req.body;
+    const { idToken, studentId, name } = req.body;
 
-    if (!email || !name || !password || !passwordConfirm) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide all required fields',
-      });
-    }
-
-    if (password !== passwordConfirm) {
-      return res.status(400).json({
-        success: false,
-        message: 'Passwords do not match',
-      });
-    }
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already in use',
-      });
-    }
-
-    const studentRole = await Role.findOne({ name: 'student' });
-
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: studentRole._id,
-      is_active: true,
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const firebaseUid = decodedToken.uid;
+    const allowed = await AllowedStudentModel.findOne({
+      studentId: studentId,
+      isActive: true,
     });
 
-    const token = signToken(user._id);
+    if (!allowed) {
+      return res.status(403).json({
+        success: false,
+        message: "This Student ID is not authorized by Admin or deactivated.",
+      });
+    }
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    const existingUser = await User.findOne({ studentId: studentId });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "This Student ID is already linked to another account.",
+      });
+    }
+    const studentRole = await Role.findOne({ name: "student" });
+
+    const newUser = await User.create({
+      firebaseUid: firebaseUid,
+      email: decodedToken.email,
+      name: name || decodedToken.name,
+      role: studentRole._id,
+      studentId: studentId,
+      is_active: true,
     });
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-      token,
+      message: "User created in DB successfully",
+      user: newUser,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    console.log("Login request received with body:", req.body);
+    const { idToken } = req.body;
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-    if (!email || !password) {
-      return res.status(400).json({
+    const user = await User.findOne({ firebaseUid: decodedToken.uid }).populate(
+      "role",
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        code: "auth/user-not-found",
         success: false,
-        message: 'Please provide email and password',
+        message: "No account found in our records. Please register first.",
       });
     }
 
-    const user = await User.findOne({ email }).select('+password').populate('role').populate('department');
-
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password',
-      });
-    }
-
-    if (!user.is_active) {
-      return res.status(403).json({
-        success: false,
-        message: 'User account is inactive',
-      });
-    }
-
-    const token = signToken(user._id);
-
-    res.cookie('token', token, {
+    res.clearCookie("token", {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    res.cookie("token", idToken, {
+      httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
-    res.status(200).json({
-      success: true,
-      message: 'Logged in successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role.name,
-      },
-      token,
-    });
+    res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    res.status(401).json({ success: false, message: "Invalid Token" });
   }
 };
 
 exports.logout = (req, res) => {
-  res.cookie('token', '', {
+  res.cookie("token", "", {
     httpOnly: true,
     secure: false,
     maxAge: 0,
@@ -133,7 +92,7 @@ exports.logout = (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'Logged out successfully',
+    message: "Logged out successfully",
   });
 };
 
@@ -141,10 +100,10 @@ exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
       .populate({
-        path: 'role',
-        populate: { path: 'permissions' },
+        path: "role",
+        populate: { path: "permissions" },
       })
-      .populate('department');
+      .populate("department");
 
     res.status(200).json({
       success: true,
