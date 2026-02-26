@@ -1,8 +1,7 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
-import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Profile from "../pages/Profile/Profile";
 
 const routesConfig = [
@@ -10,7 +9,6 @@ const routesConfig = [
   { path: "/register", element: <Register /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/profile", element: <Profile /> },
-
 ];
 
 const AppRoutes = () => {

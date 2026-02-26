@@ -8,8 +8,9 @@ app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-const authRouter = require("./Routes/authRoutes");
-const orderRoutes = require("./Routes/orderRoutes");
+//const authRouter = require("./Routes/authRoutes");
+//const orderRoutes = require("./Routes/orderRoutes");
+const enrollmentRoutes = require("./Routes/enrollment.routes");
 app.use(cookiesMiddleware());
 app.use(express.static("./public"));
 app.use(cookieParser());
@@ -22,8 +23,9 @@ app.use(
 // app.use("/home", (req, res, next) => {
 //   res.json("success");
 // });
-app.use("/api/v1/users", authRouter);
-app.use("/api/v1/orders", orderRoutes);
+//app.use("/api/v1/users", authRouter);
+//app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/enrollment",enrollmentRoutes);
 // app.use("/api/v1/orders", authRouter);
 // app.use(globalErrorHandler);
 
