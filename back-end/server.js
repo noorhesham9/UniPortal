@@ -9,16 +9,16 @@ process.on("uncaughtException", (err) => {
 });
 let dbnamee;
 if (process.env.NODE_ENV == "production") {
-  dbnamee = "seervoProduction";
+  dbnamee = "UNIPortal";
 } else if (process.env.NODE_ENV == "development") {
-  dbnamee = "seervoDevelopment";
+  dbnamee = "UNIPortalDEV";
 }
 
 const app = require("./app");
 mongoose.connect(process.env.CONN_STR, { dbName: dbnamee }).then((CONN) => {
   console.log("DB COnnection Successful");
 
-  seedDatabase();
+  // seedDatabase();
 });
 
 const port = process.env.PORT;

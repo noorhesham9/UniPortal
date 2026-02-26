@@ -1,10 +1,25 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { useState } from "react";
 import { FiMail } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { auth } from "../../utils/firebaseConfig";
 import logoSvg from "./forget_password_logo.svg";
 import "./ForgotPassword.css";
 
 const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleReset = async (e) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Check your email for password reset link!");
+    } catch (error) {
+      console.error(error.message);
+      setMessage("Error: User not found or invalid email.");
+    }
+  };
   return (
     <div className="forgot-page-container">
       <main className="forgot-main">
@@ -23,18 +38,25 @@ const ForgotPassword = () => {
             </p>
           </div>
 
-          <form className="forgot-form">
+          <form onSubmit={handleReset} className="forgot-form">
             <div className="input-group">
               <label>University Email</label>
               <div className="input-wrapper">
                 <FiMail className="input-icon" />
-                <input type="email" placeholder="name@university.edu" />
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  type="email"
+                  placeholder="name@university.edu"
+                />
               </div>
             </div>
 
             <button type="submit" className="reset-btn">
               Reset Password
             </button>
+            {message && <p>{message}</p>}
 
             <div className="back-to-login">
               <Link to="/login">

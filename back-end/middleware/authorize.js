@@ -6,7 +6,7 @@ exports.requireRole = (...roles) => {
         message: "Not authorized to access this route",
       });
     }
-
+    console.log(req.user.role);
     if (!roles.includes(req.user.role.name)) {
       return res.status(403).json({
         success: false,
