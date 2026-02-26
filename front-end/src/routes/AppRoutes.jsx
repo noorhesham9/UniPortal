@@ -1,14 +1,16 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Login from "../pages/Login/Login";
-import Register from "../pages/Register/Register";
 import Profile from "../pages/Profile/Profile";
+import Register from "../pages/Register/Register";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 
 const routesConfig = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/profile", element: <Profile /> },
+  { path: "/reset-password", element: <ResetPassword /> },
 ];
 
 const AppRoutes = () => {
