@@ -36,5 +36,4 @@ front-end/.env
 .env.production
 node_modules/
 yarn.lock
-
-uni-portal-64dc1-firebase-adminsdk-fbsvc-48769f8d91.json
+*-firebase-adminsdk-*.json
