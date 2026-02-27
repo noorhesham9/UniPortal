@@ -64,8 +64,8 @@ function Register() {
       );
 
       if (response.data.success) {
-        alert("Registration Complete!");
-        navigate("/dashboard");
+        alert("Registration Complete Go To Login Page!");
+        navigate("/login");
       }
     } catch (error) {
       // لو الباك إند رفض (مثلاً الـ ID مش مفعل)، لازم نمسح اليوزر من فايربيز عشان ميبقاش "معلق"
