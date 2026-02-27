@@ -1,0 +1,328 @@
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.unauthorized-page {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.unauthorized-header {
+  border-bottom: 1px solid var(--primary-subtle-border);
+  background-color: hsl(var(--background));
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.unauthorized-header-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.unauthorized-brand {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.unauthorized-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.unauthorized-brand-icon {
+  color: hsl(var(--primary));
+}
+
+.unauthorized-brand-title h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.unauthorized-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.unauthorized-nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease-in-out;
+}
+
+.unauthorized-nav-link:hover {
+  color: hsl(var(--primary));
+}
+
+.unauthorized-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.unauthorized-search {
+  position: relative;
+}
+
+.unauthorized-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: hsl(var(--muted-foreground));
+  font-size: 1.25rem;
+}
+
+.unauthorized-search-input {
+  background-color: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  font-size: 0.875rem;
+  outline: none;
+  width: 16rem;
+  color: hsl(var(--foreground));
+}
+
+.unauthorized-search-input:focus {
+  box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+.unauthorized-icon-button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  color: hsl(var(--foreground));
+}
+
+.unauthorized-icon-button:hover {
+  background-color: hsl(var(--accent));
+}
+
+.unauthorized-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+  color: hsl(var(--foreground));
+}
+.unauthorized-avatar:hover {
+  background-color: hsl(var(--accent));
+}
+
+.unauthorized-avatar span {
+  color: hsl(var(--primary));
+  font-size: 1.25rem;
+}
+
+.unauthorized-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1.5rem;
+}
+
+.unauthorized-content {
+  max-width: 42rem;
+  width: 100%;
+  text-align: center;
+}
+
+.unauthorized-code-block {
+  margin-bottom: 0.75rem;
+}
+
+.unauthorized-code {
+  color: hsl(var(--primary));
+  font-weight: 900;
+  font-size: 5rem;
+  letter-spacing: -0.08em;
+  opacity: 0.2;
+  user-select: none;
+}
+
+.unauthorized-title {
+  margin-top: -2.5rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.unauthorized-message {
+  margin: 1.5rem auto 0;
+  max-width: 28rem;
+}
+
+.unauthorized-underline {
+  width: 3rem;
+  height: 0.25rem;
+  background-color: hsl(var(--primary));
+  border-radius: 9999px;
+  margin: 0 auto 1rem;
+}
+
+.unauthorized-text {
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.75;
+}
+
+.unauthorized-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .unauthorized-actions {
+    flex-direction: row;
+  }
+}
+
+.unauthorized-primary-button,
+.unauthorized-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition:
+    transform 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+}
+
+.unauthorized-primary-button {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 10px 15px -3px hsl(var(--foreground) / 0.1);
+}
+
+.unauthorized-primary-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 25px -5px hsl(var(--foreground) / 0.15);
+}
+
+.unauthorized-primary-button:active {
+  transform: scale(0.97);
+}
+
+.unauthorized-secondary-button {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.unauthorized-secondary-button:hover {
+  background-color: hsl(var(--accent));
+}
+
+.unauthorized-security {
+  margin-top: 3rem;
+}
+
+.unauthorized-security-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--muted));
+}
+
+.unauthorized-security-text {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+
+.unauthorized-footer {
+  border-top: 1px solid hsl(var(--border));
+  padding: 2.5rem 0;
+}
+
+.unauthorized-footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 768px) {
+  .unauthorized-footer-inner {
+    flex-direction: row;
+  }
+}
+
+.unauthorized-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+}
+
+.unauthorized-footer-link {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.15s ease-in-out;
+}
+
+.unauthorized-footer-link:hover {
+  color: hsl(var(--primary));
+}
+
+.unauthorized-footer-text {
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}

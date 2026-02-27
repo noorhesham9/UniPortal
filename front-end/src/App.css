@@ -1,38 +1,173 @@
-.App {
-  text-align: center;
+/* ========== Light theme (:root) ========== */
+:root {
+  --radius: 0.5rem;
+
+  /* shadcn — raw HSL triples for hsl(var(--x)) */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --input-foreground: var(--foreground);
+  --ring: 221.2 83.2% 53.3%;
+
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* Semantic / layout tokens */
+  --textsecondary: hsl(var(--muted-foreground));
+  --accent-alt: rgb(183, 134, 11);
+  --accent-alt-rgb: 183, 134, 11;
+  --surface: hsl(var(--card));
+  --divider: hsl(var(--border));
+  --textprimary: hsl(var(--foreground));
+  --secondary-color: hsl(var(--primary));
+  --secondary-color-hover: hsl(221.2 83.2% 45%);
+  --success: 160 84% 39%;
+  --success-foreground: 0 0% 100%;
+  --primary-subtle-bg: hsl(var(--primary) / 0.1);
+  --primary-subtle-border: hsl(var(--primary) / 0.2);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ========== Dark theme (.dark) ========== */
+.dark {
+  --background: 222, 47%, 11%;
+  --foreground: 210 40% 98%;
+  --card: 0deg 0% 0% / 10%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 43, 89%, 38%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --input-foreground: var(--foreground);
+  --ring: 224.3 76.3% 48%;
+
+  --sidebar: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* Semantic / layout tokens */
+  --textsecondary: hsl(var(--muted-foreground));
+  --accent-alt: rgb(183, 134, 11);
+  --accent-alt-rgb: 183, 134, 11;
+  --surface: hsl(var(--card));
+  --divider: hsl(var(--border));
+  --textprimary: hsl(var(--foreground));
+  --secondary-color: hsl(var(--primary));
+  --secondary-color-hover: hsl(217.2 91.2% 52%);
+  --success: 160 84% 39%;
+  --success-foreground: 0 0% 100%;
+  --primary-subtle-bg: hsl(var(--primary) / 0.1);
+  --primary-subtle-border: hsl(var(--primary) / 0.2);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* ========== Base & shared utilities ========== */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html,
+  body,
+  #__next {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input::-ms-reveal,
+  input::-ms-clear,
+  input::-webkit-clear-button,
+  input::-webkit-password-toggle {
+    display: none !important;
+  }
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px hsl(var(--input)) inset !important;
+    -webkit-text-fill-color: hsl(var(--input-foreground)) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+[data-sonner-toast][data-type="success"] {
+  background-color: hsl(var(--success)) !important;
+  color: hsl(var(--success-foreground)) !important;
+  border-color: hsl(var(--success) / 0.8) !important;
 }
 
-.App-link {
-  color: #61dafb;
+/* Error */
+[data-sonner-toast][data-type="error"] {
+  background-color: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-foreground)) !important;
+  border-color: hsl(var(--destructive) / 0.8) !important;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Warning */
+[data-sonner-toast][data-type="warning"] {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--primary) / 0.8) !important;
+}
+
+/* Info */
+[data-sonner-toast][data-type="info"] {
+  background-color: hsl(var(--ring)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--ring) / 0.8) !important;
 }

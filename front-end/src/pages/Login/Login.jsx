@@ -3,6 +3,7 @@ import {
   deleteUser,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 import { useState } from "react";
 import { FiEye, FiEyeOff, FiLock, FiUser } from "react-icons/fi";
@@ -25,9 +26,24 @@ function Login() {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     try {
+      localStorage.clear();
+
+      // كود مسح الكوكيز اللي كتبناه فوق
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+        document.cookie =
+          name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+      await signOut(auth);
+      console.log("Previous Firebase session cleared");
       const result = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await result.user.getIdToken();
 
+      console.log("Result:", result);
+      console.log("Firebase ID Token:", idToken);
       const response = await axios.post(
         "http://localhost:3100/api/v1/auth/login",
         { idToken },
@@ -52,6 +68,20 @@ function Login() {
 
   const handleGoogleLogin = async () => {
     try {
+      localStorage.clear();
+
+      // كود مسح الكوكيز اللي كتبناه فوق
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
+        document.cookie =
+          name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+
+      await signOut(auth);
+      console.log("Previous Firebase session cleared");
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       // const userEmail = result.user.email;
@@ -80,8 +110,8 @@ function Login() {
       );
 
       if (response.data.success) {
-        dispatch(loginSuccess(response.data.user));
-        navigate("/dashboard");
+        // dispatch(loginSuccess(response.data.user));
+        // navigate("/dashboard");
       }
     } catch (error) {
       const user = auth.currentUser;
@@ -95,7 +125,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      <div className="login-cardd ">
         <div className="card-header">
           <img
             src={loginLogoSvg}

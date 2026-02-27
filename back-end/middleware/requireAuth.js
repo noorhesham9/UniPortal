@@ -3,11 +3,12 @@ const User = require("../models/User");
 
 exports.requireAuth = async (req, res, next) => {
   try {
+    console.log(req.cookies.token);
     let token = req.cookies.token || req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Not authorized to access this route",
+        message: "Not authenticated to access this route",
       });
     }
 

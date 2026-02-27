@@ -1,50 +1,39 @@
 import axios from "axios";
-import { onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
+import "./App.css";
 import AppRoutes from "./routes/AppRoutes.jsx";
-import { loginSuccess, logoutUser } from "./services/store/reducers/authSlice";
-import { auth } from "./utils/firebaseConfig";
+import {
+  loginSuccess,
+  logoutUser,
+} from "./services/store/reducers/authSlice.js";
 function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // 1. مراقبة حالة المستخدم في Firebase
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          // 2. الحصول على التوكن
-          const idToken = await firebaseUser.getIdToken();
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3100/api/v1/auth/me",
+          { withCredentials: true },
+        );
 
-          // 3. نبعت للسيرفر بتاعنا عشان نعرف "مين ده؟" وايه الـ Role بتاعته
-          // الـ Backend لازم يفك التوكن ويتأكد منه ويرجع بيانات اليوزر
-          const response = await axios.get(
-            "http://localhost:3100/api/v1/auth/me",
-            {
-              headers: { Authorization: `Bearer ${idToken}` },
-              withCredentials: true,
-            },
-          );
-
-          if (response.data.success) {
-            // 4. تحديث الـ Redux ببيانات اليوزر الكاملة (شاملة الـ Role)
-            dispatch(loginSuccess(response.data.user));
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          dispatch(logoutUser()); // لو التوكن باظ أو السيرفر رفض، سجل خروج
+        if (response.data.success) {
+          dispatch(loginSuccess(response.data.user));
+        } else {
+          dispatch(logoutUser());
         }
-      } else {
-        // لو مفيش يوزر مسجل في فيربيز
+      } catch (error) {
         dispatch(logoutUser());
       }
-    });
-    return () => unsubscribe();
+    };
+
+    checkAuth();
   }, [dispatch]);
   return (
     <Router>
-      <div className="App">
+      <div className="App dark ">
         <AppRoutes />
       </div>
     </Router>

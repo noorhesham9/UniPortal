@@ -5,20 +5,20 @@ const { requireAuth } = require("../middleware/requireAuth");
 const { requireRole } = require("../middleware/authorize");
 
 router.post(
-  "/addStudent",
+  "/allow_Student",
   requireAuth,
   requireRole("admin"),
   adminController.addAllowedStudent,
 );
 router.get(
-  "/allowed-students",
+  "/allowed_students",
   requireAuth,
   requireRole("admin"),
-  //   adminController.getAllowedStudents,
+  adminController.getAllowedStudents,
 );
 
 router.post(
-  "/bulk-add",
+  "/allow_Students",
   requireAuth,
   requireRole("admin"),
   adminController.bulkAddAllowedStudents,

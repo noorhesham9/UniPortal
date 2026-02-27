@@ -177,6 +177,11 @@ const permissions = [
     description: "Take attendance",
     category: "attendance",
   },
+  {
+    name: "admin_allowed_ids",
+    description: "View and manage allowed user IDs for registration",
+    category: "admin",
+  },
 ];
 
 const roles = [

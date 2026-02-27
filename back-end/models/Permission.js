@@ -22,6 +22,7 @@ const permissionSchema = new mongoose.Schema(
         "grades",
         "attendance",
         "allowed_students",
+        "admin",
       ],
       required: true,
     },

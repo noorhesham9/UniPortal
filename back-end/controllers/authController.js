@@ -55,9 +55,12 @@ exports.login = async (req, res) => {
     const { idToken } = req.body;
     const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-    const user = await User.findOne({ firebaseUid: decodedToken.uid }).populate(
-      "role",
-    );
+    const user = await User.findOne({ firebaseUid: decodedToken.uid })
+      .populate({
+        path: "role",
+        populate: { path: "permissions" },
+      })
+      .populate("department");
 
     if (!user) {
       return res.status(404).json({

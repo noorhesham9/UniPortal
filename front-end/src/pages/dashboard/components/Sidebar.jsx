@@ -37,6 +37,12 @@ function Sidebar({ userPermissions }) {
       icon: <FiEdit />,
       permission: "update_course",
     },
+    {
+      id: "Allowed_users",
+      label: "المستخدمين المسموح لهم",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
   ];
 
   const handleNavigation = (id) => {
