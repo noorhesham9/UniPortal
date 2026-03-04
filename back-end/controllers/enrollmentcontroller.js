@@ -1,6 +1,6 @@
 const Enrollment = require('../models/Enrollment');
-
-// Task 1: تسجيل طالب في سكشن
+const User = require('../models/User');
+const { sendPushNotification } = require('../services/notificationService');// Task 1: تسجيل طالب في سكشن
 const createEnrollment = async (req, res) => {
 try {
 const { student, section } = req.body;
@@ -12,8 +12,20 @@ const { student, section } = req.body;
     }  
 
     const enrollment = await Enrollment.create({ student, section });  
+    if (enrollment.status === 'Enrolled') {
+    const studentUser = await User.findById(student);
+    if (studentUser && studentUser.fcmToken) {
+        await sendPushNotification(
+            studentUser.fcmToken, 
+            "!تم قبولك", 
+
+            "تمت ترقيتك من قائمة الانتظار وأصبحت مسجلاً في السكشن الآن."
+        );
+    }
+}
     res.status(201).json(enrollment);  
 } catch (error) {  
+
     res.status(500).json({ message: error.message });  
 }
 
@@ -33,7 +45,18 @@ const enrollment = await Enrollment.findById(id);
     enrollment.status = 'Approved';  
     enrollment.advisor_notes = advisor_notes || '';  
     await enrollment.save();  
-
+// إشعار ملاحظات المرشد (قبول أو رفض)
+    const studentUser = await User.findById(enrollment.student);
+    if (studentUser && studentUser.fcmToken) {
+        const title = enrollment.status === 'Approved' ? "تم قبول جدولك" : "تنبيه من المرشد";
+        const body = `ملاحظات المرشد: ${enrollment.advisor_notes || 'لا يوجد ملاحظات '}`;
+        
+        try {
+            await sendPushNotification(studentUser.fcmToken, title, body);
+        } catch (err) {
+            console.log("Notification failed but data saved:", err.message);
+        }
+    }
     res.status(200).json(enrollment);  
 } catch (error) {  
     res.status(500).json({ message: error.message });  
