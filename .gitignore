@@ -1,17 +1,15 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+
 /coverage
 
-# production
+
 /build
 .vscode/
-# misc
+
 .DS_Store
 .env.local
 .env.development.local
@@ -28,6 +26,7 @@ backend/node_modules/
 backend/yarn.lock
 backend/.env
 front-end/node_modules/
+mobile/node_modules/
 front-end/yarn.lock
 front-end/.env
 
@@ -37,3 +36,50 @@ front-end/.env
 node_modules/
 yarn.lock
 *-firebase-adminsdk-*.json
+
+
+.expo/
+dist/
+web-build/
+mobile/expo-env.d.ts
+
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+.metro-health-check*
+
+mobile/npm-debug.*
+mobile/yarn-debug.*
+mobile/yarn-error.*
+
+.DS_Store
+*.pem
+
+.env*.local
+
+*.tsbuildinfo
+
+app-example
+
+/mobile/ios
+/mobile/android
+
+
+mobile/google-services.json
+mobile/GoogleService-Info.plist
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+.expo-shared/
+.expo/
+*.log
+mobile/package-lock.json
