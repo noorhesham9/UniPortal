@@ -14,7 +14,7 @@ export default function ProfileScreen({ navigation }) {
 
       <View style={styles.button}>
         <Button
-          title="Go to Settings"
+          title="Go to Settings Page"
           onPress={() => navigation.navigate("Settings")}
         />
       </View>
