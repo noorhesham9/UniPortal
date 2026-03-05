@@ -7,7 +7,7 @@ export default function SettingsScreen() {
       <Text style={styles.title}>Settings</Text>
 
       <View style={styles.row}>
-        <Text>Notifications</Text>
+        <Text>Enable Notifications</Text>
         <Switch value={true} />
       </View>
 
