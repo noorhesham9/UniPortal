@@ -13,6 +13,7 @@ if (process.env.NODE_ENV === "development") {
 //const authRouter = require("./Routes/authRoutes");
 //const orderRoutes = require("./Routes/orderRoutes");
 const enrollmentRoutes = require("./Routes/enrollment.routes");
+const courseRoutes = require("./Routes/courseRoutes");
 const authRouter = require("./Routes/authRoutes");
 app.use(cookiesMiddleware());
 app.use(express.static("./public"));
@@ -41,6 +42,7 @@ app.use("/api/v1/home", (req, res, next) => {
 app.use("/api/v1/auth", authRouter);
 // app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/enrollment", enrollmentRoutes);
+app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/admin", adminRoute);
 
 app.all(/(.*)/, (req, res) => {
