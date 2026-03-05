@@ -22,7 +22,7 @@ export default function ContactScreen() {
         multiline
       />
 
-      <Button title="Send Message" onPress={() => alert("Message Sent")} />
+      <Button title="Send Message" onPress={() => alert("Your message has been sent!")} />
     </View>
   );
 }
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#888",
     padding: 10,
     marginBottom: 15,
     borderRadius: 8,
