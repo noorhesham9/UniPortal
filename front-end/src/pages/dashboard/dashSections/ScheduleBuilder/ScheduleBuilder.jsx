@@ -4,7 +4,7 @@ import { ScheduleProvider, useSchedule } from './context/ScheduleContext';
 import Sidebar from './components/Sidebar'; 
 import CalendarGrid from './components/CalendarGrid';
 import DraggableCourseCard from './components/DraggableCourseCard';
-import Toast from './components/Toast'; // 👈 استدعاء مكون الرسالة
+import Toast from './components/Toast'; 
 import './ScheduleBuilder.css';
 
 const ScheduleLayout = () => {
@@ -29,7 +29,7 @@ const ScheduleLayout = () => {
     const calculateEndTime = (startTime) => {
       if (!startTime) return "09:20 AM";
       let [time, modifier] = startTime.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
+      let [hours] = time.split(':').map(Number);
       
       let endHours = hours + 1;
       if (endHours === 13) endHours = 1;
