@@ -41,7 +41,7 @@ const courseSchema = new mongoose.Schema({
     type: String,
     enum: {
       values: ['Lab', 'Lecture Hall', 'Tutorial'],
-      message: '{VALUE} نوع قاعة غير مدعوم'
+      message: '{VALUE} نوع القاعة غير مدعوم'
     },
     required: true
   },
