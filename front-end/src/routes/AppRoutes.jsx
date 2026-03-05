@@ -11,14 +11,13 @@ import ProtectedRoute from "../utils/ProtectedRoute";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" />} />
+      <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route path="/dashboard" element={<DashBoard />} />
       <Route element={<ProtectedRoute />}>
-        
+      <Route path="/dashboard" element={<DashBoard />} />  
         <Route path="/proff" element={<Proff />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>

@@ -14,8 +14,7 @@ function DashBoard() {
   const section = searchParams.get("section");
 
   const { user } = useSelector((state) => state.auth);
-  //const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
-const userPermissions = ["view_courses", "build_schedule"];
+  const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
 
   console.log("User Permissions in Dashboard:", user);
   const renderProtectedSection = () => {
