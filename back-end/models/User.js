@@ -35,10 +35,22 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
     },
+    level: {
+      type: String,
+      enum: ["First Year", "Second Year", "Third Year", "Fourth Year"],
+      sparse: true, // اختياري للأدوار غير الطلاب
+    },
     is_active: {
       type: Boolean,
       default: true,
     },
+  
+    
+    fcmToken: {
+      type: String,
+      default: null,
+    },
+
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

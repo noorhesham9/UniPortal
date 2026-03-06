@@ -1,4 +1,4 @@
-import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers } from "react-icons/fi";
+import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar } from "react-icons/fi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Sidebar({ userPermissions }) {
@@ -24,6 +24,12 @@ function Sidebar({ userPermissions }) {
       label: "عرض الكورسات",
       icon: <FiBook />,
       permission: "view_courses",
+    },
+    {
+      id: "schedule_builder",
+      label: "بناء الجدول",
+      icon: <FiCalendar />, 
+      permission: "build_schedule", 
     },
     {
       id: "view_enrollments",

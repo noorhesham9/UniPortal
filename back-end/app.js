@@ -5,6 +5,8 @@ const cors = require("cors");
 const cookiesMiddleware = require("universal-cookie-express");
 const globalErrorHandler = require("./utils/errorHandler");
 const adminRoute = require("./Routes/adminRoute");
+const notificationRouter = require('./Routes/notificationRoutes');
+
 let app = express();
 app.use(express.json());
 if (process.env.NODE_ENV === "development") {
@@ -13,6 +15,9 @@ if (process.env.NODE_ENV === "development") {
 //const authRouter = require("./Routes/authRoutes");
 //const orderRoutes = require("./Routes/orderRoutes");
 const enrollmentRoutes = require("./Routes/enrollment.routes");
+const semesterRoutes = require('./Routes/Semester.routes');
+app.use('/api/v1/semesters', semesterRoutes);
+const courseRoutes = require("./Routes/courseRoutes");
 const authRouter = require("./Routes/authRoutes");
 app.use(cookiesMiddleware());
 app.use(express.static("./public"));
@@ -41,8 +46,9 @@ app.use("/api/v1/home", (req, res, next) => {
 app.use("/api/v1/auth", authRouter);
 // app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/enrollment", enrollmentRoutes);
+app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/admin", adminRoute);
-
+app.use('/api/notifications', notificationRouter);
 app.all(/(.*)/, (req, res) => {
   return res.status(404).json({
     success: false,

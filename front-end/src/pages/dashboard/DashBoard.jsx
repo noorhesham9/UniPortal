@@ -4,7 +4,8 @@ import Sidebar from "./components/Sidebar";
 import AllUsers from "./dashSections/AllUsers";
 import Profile from "./dashSections/Profile/Profile";
 import UpdateCourse from "./dashSections/UpdateCourse";
-import ViewCourses from "./dashSections/ViewCourses";
+import ViewCourses from "./dashSections/ViewCourses/ViewCourses";
+import ScheduleBuilder from "./dashSections/ScheduleBuilder/ScheduleBuilder";
 import ViewEnrollment from "./dashSections/ViewEnrollment";
 import AllowedIDS from "./dashSections/allowedIDS/AllowedIDS";
 
@@ -53,7 +54,13 @@ function DashBoard() {
             عذراً، ليس لديك صلاحية لرؤية المستخدمين المسموح لهم
           </div>
         );
-
+      case "schedule_builder":
+        // لو حابين تغيروا اسم الصلاحية "build_schedule" لاسم تاني متفقين عليه في التيم غيره هنا
+        return userPermissions.includes("build_schedule") ? (
+          <ScheduleBuilder />
+        ) : (
+          <div className="error">عذراً، ليس لديك صلاحية لإنشاء الجدول</div>
+        );
       default:
         return (
           <div className="welcome-msg">
