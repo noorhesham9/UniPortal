@@ -1,5 +1,4 @@
-import React from "react";
-import { View, Text, StyleSheet, Switch } from "react-native";
+import { StyleSheet, Switch, Text, View } from "react-native";
 
 export default function SettingsScreen() {
   return (

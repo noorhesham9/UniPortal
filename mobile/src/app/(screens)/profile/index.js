@@ -1,5 +1,4 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, Button } from "react-native";
+import { Button, Image, StyleSheet, Text, View } from "react-native";
 
 export default function ProfileScreen({ navigation }) {
   return (
