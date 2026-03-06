@@ -15,6 +15,8 @@ if (process.env.NODE_ENV === "development") {
 //const authRouter = require("./Routes/authRoutes");
 //const orderRoutes = require("./Routes/orderRoutes");
 const enrollmentRoutes = require("./Routes/enrollment.routes");
+const semesterRoutes = require('./Routes/Semester.routes');
+app.use('/api/v1/semesters', semesterRoutes);
 const courseRoutes = require("./Routes/courseRoutes");
 const authRouter = require("./Routes/authRoutes");
 app.use(cookiesMiddleware());
