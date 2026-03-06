@@ -34,30 +34,34 @@ function RootLayoutContent() {
       <Stack>
         {isAuthenticated ? (
           // Main app screens
-          <>
+          <Stack.Group>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </>
+
+            <Stack.Screen
+              name="(screens)/settings/index"
+              options={{ title: "الإعدادات" }}
+            />
+            <Stack.Screen
+              name="(screens)/profile/index"
+              options={{ title: "الملف الشخصي" }}
+            />
+          </Stack.Group>
         ) : (
-          <>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          </>
+          <Stack.Group screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="(auth)/register"
+              options={{ title: "إنشاء حساب" }}
+            />
+            <Stack.Screen
+              name="(screens)/contact/index"
+              options={{ title: "اتصل بنا" }}
+            />
+            <Stack.Screen
+              name="(auth)/login"
+              options={{ title: "تسجيل الدخول" }}
+            />
+          </Stack.Group>
         )}
-        <Stack.Screen
-          name="(auth)/register"
-          options={{ title: "إنشاء حساب" }}
-        />
-        <Stack.Screen
-          name="(screens)/contact/index"
-          options={{ title: "اتصل بنا" }}
-        />
-        <Stack.Screen
-          name="(screens)/settings/index"
-          options={{ title: "الإعدادات" }}
-        />
-        <Stack.Screen
-          name="(screens)/profile/index"
-          options={{ title: "الملف الشخصي" }}
-        />
       </Stack>
     </ThemeProvider>
   );
