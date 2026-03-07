@@ -18,7 +18,7 @@ const app = require("./app");
 mongoose.connect(process.env.CONN_STR, { dbName: dbnamee }).then((CONN) => {
   console.log("DB COnnection Successful");
 
-  seedDatabase();
+  // seedDatabase();
 });
 
 const port = process.env.PORT;
