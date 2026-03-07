@@ -5,18 +5,16 @@ const cors = require("cors");
 const cookiesMiddleware = require("universal-cookie-express");
 const globalErrorHandler = require("./utils/errorHandler");
 const adminRoute = require("./Routes/adminRoute");
-const notificationRouter = require('./Routes/notificationRoutes');
+const notificationRouter = require("./Routes/notificationRoutes");
 
 let app = express();
 app.use(express.json());
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-//const authRouter = require("./Routes/authRoutes");
-//const orderRoutes = require("./Routes/orderRoutes");
-const enrollmentRoutes = require("./Routes/enrollment.routes");
-const semesterRoutes = require('./Routes/Semester.routes');
-app.use('/api/v1/semesters', semesterRoutes);
+const enrollmentRoutes = require("./Routes/enrollmentRoutes");
+const sectionRoutes = require("./Routes/sectionRoutes");
+const semesterRoutes = require("./Routes/SemesterRoutes");
 const courseRoutes = require("./Routes/courseRoutes");
 const authRouter = require("./Routes/authRoutes");
 app.use(cookiesMiddleware());
@@ -26,6 +24,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://your-university-domain.com",
+  "http://localhost:8081",
 ];
 
 app.use(
@@ -43,21 +42,26 @@ app.use(
 app.use("/api/v1/home", (req, res, next) => {
   res.json("success");
 });
+app.use("/api/v1/semesters", semesterRoutes);
 app.use("/api/v1/auth", authRouter);
-// app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/enrollment", enrollmentRoutes);
+app.use("/api/v1/sections", sectionRoutes);
+app.use("/api/v1/rooms", require("./Routes/roomRoutes"));
+app.use(
+  "/api/v1/registration-slices",
+  require("./Routes/registrationSliceRoutes"),
+);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/admin", adminRoute);
-app.use('/api/notifications', notificationRouter);
+app.use("/api/notifications", notificationRouter);
 app.all(/(.*)/, (req, res) => {
   return res.status(404).json({
     success: false,
     message: "Route not found",
   });
 });
-// app.use("/api/v1/orders", authRouter);
 app.use(globalErrorHandler);
 
-app.use(express.static("public"));
+// app.use(express.static("public"));
 
 module.exports = app;

@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { ScheduleProvider, useSchedule } from './context/ScheduleContext';
-import Sidebar from './components/Sidebar'; 
-import CalendarGrid from './components/CalendarGrid';
-import DraggableCourseCard from './components/DraggableCourseCard';
-import Toast from './components/Toast'; 
-import './ScheduleBuilder.css';
+import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { useState } from "react";
+import CalendarGrid from "./components/CalendarGrid";
+import DraggableCourseCard from "./components/DraggableCourseCard";
+import Sidebar from "./components/Sidebar";
+import Toast from "./components/Toast";
+import { ScheduleProvider, useSchedule } from "./context/ScheduleContext";
+import "./ScheduleBuilder.css";
 
 const ScheduleLayout = () => {
   const { addCourseToSchedule } = useSchedule();
@@ -19,7 +19,7 @@ const ScheduleLayout = () => {
   const handleDragEnd = (event) => {
     setActiveCourse(null);
     const { active, over } = event;
-    
+
     if (!over) return;
 
     const draggedCourse = active.data.current.course;
@@ -28,14 +28,15 @@ const ScheduleLayout = () => {
 
     const calculateEndTime = (startTime) => {
       if (!startTime) return "09:20 AM";
-      let [time, modifier] = startTime.split(' ');
-      let [hours] = time.split(':').map(Number);
-      
+      let [time, modifier] = startTime.split(" ");
+      let [hours] = time.split(":").map(Number);
+
       let endHours = hours + 1;
       if (endHours === 13) endHours = 1;
-      let endModifier = (hours === 11) ? (modifier === 'AM' ? 'PM' : 'AM') : modifier;
-      
-      return `${endHours < 10 ? '0'+endHours : endHours}:20 ${endModifier}`;
+      let endModifier =
+        hours === 11 ? (modifier === "AM" ? "PM" : "AM") : modifier;
+
+      return `${endHours < 10 ? "0" + endHours : endHours}:20 ${endModifier}`;
     };
 
     const updatedCourse = {
@@ -51,14 +52,14 @@ const ScheduleLayout = () => {
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {/* لازم نخلي الحاوية دي relative عشان الـ Toast يظهر جواها في الكورنر */}
-      <div className="schedule-workspace" style={{ position: 'relative' }}>
+      <div className="schedule-workspace" style={{ position: "relative" }}>
         <Sidebar />
         <div className="calendar-section">
           <CalendarGrid />
         </div>
-        
+
         {/* 👈 عرض الرسالة هنا */}
-        <Toast /> 
+        <Toast />
       </div>
 
       <DragOverlay>
