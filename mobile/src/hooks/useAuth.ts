@@ -1,0 +1,12 @@
+import { useSelector } from 'react-redux';
+
+export const useAuth = () => {
+    
+  const { user, token } = useSelector((state: any) => state.auth);
+
+  return {
+    user,
+    isAdmin: user?.role === 'admin', 
+    isAuthenticated: !!token,
+  };
+};

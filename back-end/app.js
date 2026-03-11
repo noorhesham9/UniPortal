@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "development") {
 }
 const enrollmentRoutes = require("./Routes/enrollmentRoutes");
 const sectionRoutes = require("./Routes/sectionRoutes");
-const semesterRoutes = require("./Routes/SemesterRoutes");
+// const semesterRoutes = require("./Routes/SemesterRoutes");
 const courseRoutes = require("./Routes/courseRoutes");
 const authRouter = require("./Routes/authRoutes");
 app.use(cookiesMiddleware());
@@ -42,7 +42,7 @@ app.use(
 app.use("/api/v1/home", (req, res, next) => {
   res.json("success");
 });
-app.use("/api/v1/semesters", semesterRoutes);
+// app.use("/api/v1/semesters", semesterRoutes);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/enrollment", enrollmentRoutes);
 app.use("/api/v1/sections", sectionRoutes);
