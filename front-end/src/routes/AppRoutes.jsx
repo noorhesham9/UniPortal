@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import Profile from "../pages/Profile/Profile";
 import DashBoard from "../pages/dashboard/DashBoard";
 import CourseSchedule from "../pages/dashboard/dashSections/CreateSections/CreateSections";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
@@ -13,6 +14,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/profile"element={<Profile/>}/>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
