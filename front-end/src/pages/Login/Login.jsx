@@ -5,9 +5,9 @@ import {
   signInWithPopup,
   signOut,
 } from "firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiEye, FiEyeOff, FiLock, FiUser } from "react-icons/fi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../services/store/reducers/authSlice";
 import { auth, googleProvider } from "../../utils/firebaseConfig";
@@ -15,10 +15,19 @@ import "./Login.css";
 import loginLogoSvg from "./login_logo.svg";
 function Login() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+
+  // التحقق من وجود token - إذا كان موجوداً، انتقل إلى dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

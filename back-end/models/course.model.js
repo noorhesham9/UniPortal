@@ -4,7 +4,7 @@ const courseSchema = new mongoose.Schema({
   department_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
-    required: [true, 'يجب تحديد القسم التابع له الكورس'],
+    required: false,
     index: true 
   },
 
@@ -33,7 +33,7 @@ const courseSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 1,
-    max: 10, 
+    max: 4, 
     index: true
   },
 

@@ -12,11 +12,10 @@ const CourseCard = ({ course, isSelected, onToggle }) => {
 
       <div className="vc-card-content">
         <div className="vc-tags">
-          <span className="vc-tag-code">{course.code}</span>
-          <span className={`vc-tag-status ${course.prereqsMet ? 'success' : 'warning'}`}>
-            {course.prereqsMet ? '✅ Prereqs Met' : '⚠️ Check Prereqs'}
-          </span>
+          <span className="vc-tag-code">{course.code} </span>
+          -    <span className="vc-tag-code"> {course.sectionNumber} </span>
         </div>
+ 
 
         <h3 className="vc-card-title">{course.title}</h3>
         <p className="vc-card-desc">{course.description}</p>
@@ -27,9 +26,6 @@ const CourseCard = ({ course, isSelected, onToggle }) => {
           </span>
           <span className="vc-meta-item">
             <FiUser className="vc-meta-icon" /> {course.instructor}
-          </span>
-          <span className={`vc-meta-item ${course.alertText ? 'alert' : ''}`}>
-             <FiInbox className="vc-meta-icon" /> {course.seatsInfo}
           </span>
         </div>
       </div>

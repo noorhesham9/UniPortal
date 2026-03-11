@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
-import AppRoutes from "./Routes/AppRoutes.jsx";
+import AppRoutes from './routes/AppRoutes';
 import {
   loginSuccess,
   logoutUser,

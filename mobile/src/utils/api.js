@@ -1,7 +1,8 @@
-import axios from 'axios';
-import { auth } from './firebaseConfig';
+import axios from "axios";
+import { auth } from "./firebaseConfig";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api';
+// const API_URL = "http://10.0.2.2:3100/api/v1";
+const API_URL = "http://localhost:3100/api/v1";
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -17,37 +18,47 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.error('Error getting Firebase token:', error);
+      console.error("Error getting Firebase token:", error);
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Auth endpoints
 export const authAPI = {
-  register: (userData) => apiClient.post('/auth/register', userData),
-  login: (email, password) => 
-    apiClient.post('/auth/login', { email, password }),
-  getMe: () => apiClient.get('/auth/me'),
-  logout: () => apiClient.get('/auth/logout'),
+  register: (userData) =>
+    apiClient.post("/auth/register", {
+      idToken: userData.idToken,
+      studentId: userData.StudentID,
+      name: userData.name,
+      email: userData.email,
+    }),
+  login: (email, password) =>
+    apiClient.post("/auth/login", { email, password }),
+  getMe: () => apiClient.get("/auth/me"),
+  logout: () => apiClient.get("/auth/logout"),
 };
 
 // Course endpoints
 export const courseAPI = {
+<<<<<<< HEAD
   getAvailableCourses: () => apiClient.get('/courses/available'),
   getCourseById: (id) => apiClient.get(`/courses/${id}`),
   updateCourse: (id, courseData) => apiClient.put(`/courses/${id}`, courseData),
+=======
+  getAvailableCourses: () => apiClient.get("/courses/available"),
+>>>>>>> f3d836ded5f36b42f4fedece3e4b0ce072a1cc14
 };
 
 // Enrollment endpoints
 export const enrollmentAPI = {
   createEnrollment: (enrollmentData) =>
-    apiClient.post('/enrollments', enrollmentData),
+    apiClient.post("/enrollments", enrollmentData),
   getCompletedHours: (studentId) =>
     apiClient.get(`/enrollments/${studentId}/completed-hours`),
   joinWaitlist: (enrollmentData) =>
-    apiClient.post('/enrollments/waitlist/join', enrollmentData),
+    apiClient.post("/enrollments/waitlist/join", enrollmentData),
 };
 
 export default apiClient;

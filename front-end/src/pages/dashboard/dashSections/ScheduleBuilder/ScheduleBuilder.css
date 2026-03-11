@@ -7,11 +7,11 @@
   align-items: flex-start;
   width: 1280px;
   height: 959px;
-  background: #F8F8F5;
+  background: hsl(var(--background));
   font-family: 'Lexend', sans-serif;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #E2E8F0;
+  border: 1px solid hsl(var(--border));
 }
 
 /* --- Sidebar Styles --- */
@@ -20,14 +20,14 @@
   flex-direction: column;
   width: 320px;
   height: 100%;
-  background: #FFFFFF;
-  border-right: 1px solid #E6E4DB;
+  background: hsl(var(--card));
+  border-right: 1px solid hsl(var(--border));
   z-index: 1;
 }
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid #E6E4DB;
+  border-bottom: 1px solid hsl(var(--border));
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -36,25 +36,25 @@
 .sidebar-title h3 {
   font-weight: 700;
   font-size: 18px;
-  color: #0F172A;
+  color: hsl(var(--foreground));
   margin: 0;
 }
 
 .sidebar-title p {
   font-weight: 400;
   font-size: 12px;
-  color: #64748B;
+  color: hsl(var(--muted-foreground));
   margin: 4px 0 0 0;
 }
 
 .search-input {
   width: 100%;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
   border-radius: 8px;
   padding: 9px 16px 9px 40px;
   font-size: 14px;
-  color: #6B7280;
+  color: hsl(var(--muted-foreground));
   box-sizing: border-box;
 }
 
@@ -71,21 +71,21 @@
   font-weight: 500;
   text-align: center;
   cursor: pointer;
-  border: 1px solid #E2E8F0;
-  background: #FFFFFF;
-  color: #64748B;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--muted-foreground));
 }
 
 .btn-filter.active {
-  background: rgba(242, 208, 13, 0.2);
+  background: rgba(var(--accent-alt-rgb), 0.2);
   border: 1px solid transparent;
   font-weight: 700;
-  color: #0F172A;
+  color: hsl(var(--foreground));
 }
 
 .courses-list {
   padding: 16px;
-  background: rgba(248, 250, 252, 0.5);
+  background: hsl(var(--muted) / 0.5);
   flex-grow: 1;
   overflow-y: auto;
   display: flex;
@@ -95,8 +95,8 @@
 
 .sidebar-footer {
   padding: 16px;
-  background: #F8FAFC;
-  border-top: 1px solid #E6E4DB;
+  background: hsl(var(--muted));
+  border-top: 1px solid hsl(var(--border));
 }
 
 .progress-text {
@@ -104,14 +104,14 @@
   justify-content: space-between;
   font-size: 12px;
   font-weight: 500;
-  color: #64748B;
+  color: hsl(var(--muted-foreground));
   margin-bottom: 8px;
 }
 
 .progress-bar-bg {
   width: 100%;
   height: 8px;
-  background: #E2E8F0;
+  background: hsl(var(--border));
   border-radius: 9999px;
   position: relative;
 }
@@ -121,14 +121,14 @@
   height: 100%;
   left: 0;
   width: 26%; /* 12/45 */
-  background: #F2D00D;
+  background: var(--accent-alt);
   border-radius: 9999px;
 }
 
 /* --- Draggable Card Styles --- */
 .draggable-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   padding: 12px;
