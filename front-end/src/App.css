@@ -95,6 +95,53 @@
   --primary-subtle-border: hsl(var(--primary) / 0.2);
 }
 
+/* ========== Global layout — background & accent used app-wide ========== */
+.App,
+.App main {
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+}
+.App {
+  color: hsl(var(--foreground));
+}
+
+/* Utility: use --accent-alt for highlights, badges, secondary buttons, etc. */
+.accent-alt-bg {
+  background-color: var(--accent-alt);
+}
+.accent-alt-border {
+  border-color: var(--accent-alt);
+}
+.accent-alt-text {
+  color: var(--accent-alt);
+}
+.accent-alt-subtle {
+  background-color: rgba(var(--accent-alt-rgb), 0.15);
+  border-color: var(--accent-alt);
+}
+
+/* Dashboard sidebar uses global theme */
+.dashboard-sidebar {
+  width: 250px;
+  background-color: hsl(var(--sidebar));
+  color: hsl(var(--sidebar-foreground));
+  height: 100vh;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+.dashboard-sidebar .dashboard-sidebar-logo {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+  border-bottom: 1px solid hsl(var(--sidebar-border));
+  padding-bottom: 10px;
+}
+.dashboard-sidebar .dashboard-sidebar-item.active {
+  background-color: hsl(var(--sidebar-accent));
+  color: hsl(var(--sidebar-accent-foreground));
+}
+
 /* ========== Base & shared utilities ========== */
 @layer base {
   * {
@@ -108,6 +155,8 @@
   }
 
   body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     @apply bg-background text-foreground;
     margin: 0;
     transition:

@@ -249,8 +249,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #020617;
-  color: #ffffff;
+  background-color: var(--accent-alt);
+  color: hsl(var(--foreground));
   transition:
     background-color 0.15s ease-in-out,
     transform 0.15s ease-in-out,
@@ -258,7 +258,7 @@ body {
 }
 
 .allowed-ids-submit:hover {
-  background-color: #020315;
+  filter: brightness(0.95);
   transform: translateY(-1px);
 }
 

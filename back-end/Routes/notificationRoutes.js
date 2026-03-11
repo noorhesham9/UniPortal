@@ -1,9 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const notificationController = require('../controllers/notificationController');
+const notificationController = require("../controllers/notificationController");
 
-const { requireAuth } = require('../middleware/authMiddleware'); 
+const { requireAuth } = require("../middleware/requireAuth");
 
-router.patch('/update-token', protect, notificationController.updateFcmToken);
+router.patch(
+  "/update-token",
+  requireAuth,
+  notificationController.updateFcmToken,
+);
 
 module.exports = router;

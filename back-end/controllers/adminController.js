@@ -1,4 +1,5 @@
 const AllowedUser = require("../models/AllowedStudentModel");
+const Department = require("../models/Department");
 
 // إضافة طالب واحد مسموح له بالتسجيل
 
@@ -98,5 +99,14 @@ exports.bulkAddAllowedStudents = async (req, res) => {
       message: "Some IDs might be duplicates or invalid.",
       error: error.message,
     });
+  }
+};
+
+exports.getDepartments = async (req, res) => {
+  try {
+    const departments = await Department.find().select("name code");
+    res.status(200).json(departments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
