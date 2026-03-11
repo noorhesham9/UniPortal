@@ -36,6 +36,8 @@ export const authAPI = {
 // Course endpoints
 export const courseAPI = {
   getAvailableCourses: () => apiClient.get('/courses/available'),
+  getCourseById: (id) => apiClient.get(`/courses/${id}`),
+  updateCourse: (id, courseData) => apiClient.put(`/courses/${id}`, courseData),
 };
 
 // Enrollment endpoints
