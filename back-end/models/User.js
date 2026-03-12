@@ -37,13 +37,26 @@ const userSchema = new mongoose.Schema(
     },
     level: {
       type: String,
-      enum: ["First Year", "Second Year", "Third Year", "Fourth Year"],
-      sparse: true, // اختياري للأدوار غير الطلاب
+      enum: ["1", "2", "3", "4"],
+      default : "1",
+      sparse: true, 
     },
     is_active: {
       type: Boolean,
       default: true,
     },
+
+    // indicates that the student has paid their tuition/fees for the semester
+    feesPaid: {
+      type: Boolean,
+      default: false,
+    },
+
+    fcmToken: {
+      type: String,
+      default: null,
+    },
+
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

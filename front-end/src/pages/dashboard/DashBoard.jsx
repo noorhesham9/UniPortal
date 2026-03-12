@@ -1,11 +1,15 @@
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import SemesterSlices from "../RegistrationSlices/RegistrationSlices";
 import Sidebar from "./components/Sidebar";
+import AllowedIDS from "./dashSections/allowedIDS/AllowedIDS";
 import AllUsers from "./dashSections/AllUsers";
+import CreateCourse from "./dashSections/createCourse/CreateCourse";
+import CreateSections from "./dashSections/CreateSections/CreateSections";
 import Profile from "./dashSections/Profile/Profile";
-import UpdateCourse from "./dashSections/UpdateCourse";
-import ViewCourses from "./dashSections/ViewCourses/ViewCourses";
+import ViewCourses from "./dashSections/registerCourse/regiseterCourse";
 import ScheduleBuilder from "./dashSections/ScheduleBuilder/ScheduleBuilder";
+import UpdateCourse from "./dashSections/UpdateCourse";
 import ViewEnrollment from "./dashSections/ViewEnrollment";
 import AllowedIDS from "./dashSections/allowedIDS/AllowedIDS";
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
@@ -23,7 +27,6 @@ function DashBoard() {
   const renderProtectedSection = () => {
     switch (section) {
       case "profile":
-        // البروفايل غالباً متاح للكل
         return <Profile user={user} />;
       case "view_courses":
         return userPermissions.includes("view_courses") ? (
@@ -36,6 +39,14 @@ function DashBoard() {
           <UpdateCourse />
         ) : (
           <div className="error">عذراً، ليس لديك صلاحية لتعديل الكورسات</div>
+        );
+      case "create_course":
+        return userPermissions.includes("create_course") ? (
+          <CreateCourse />
+        ) : (
+          <div className="error">
+            عذراً، ليس لديك صلاحية لإضافة كورسات جديدة
+          </div>
         );
       case "view_enrollments":
         return userPermissions.includes("view_enrollments") ? (
@@ -57,9 +68,8 @@ function DashBoard() {
             عذراً، ليس لديك صلاحية لرؤية المستخدمين المسموح لهم
           </div>
         );
-      case "schedule_builder":
-        // لو حابين تغيروا اسم الصلاحية "build_schedule" لاسم تاني متفقين عليه في التيم غيره هنا
-        return userPermissions.includes("build_schedule") ? (
+      case "schedule_bulider":
+        return userPermissions.includes("admin_allowed_ids") ? (
           <ScheduleBuilder />
         ) : (
           <div className="error">عذراً، ليس لديك صلاحية لإنشاء الجدول</div>

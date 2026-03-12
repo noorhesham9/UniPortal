@@ -1,8 +1,46 @@
+import axios from "axios";
+import { signOut } from "firebase/auth";
 import { FaGraduationCap } from "react-icons/fa";
-import { FiBell, FiEdit2, FiSearch } from "react-icons/fi";
+import { FiBell, FiEdit2, FiLogOut, FiSearch } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../../../services/store/reducers/authSlice";
+import { auth } from "../../../../utils/firebaseConfig";
 import "./Profile.css";
 
-function Profile({ user }) {
+function Profile() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    try {
+      // Logout from backend
+      await axios.get("http://localhost:3100/api/v1/auth/logout", {
+        withCredentials: true,
+      });
+
+      // Logout from Firebase
+      await signOut(auth);
+
+      // Clear local state
+      dispatch(logoutUser());
+
+      // Navigate to login
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still logout locally even if backend fails
+      dispatch(logoutUser());
+      navigate("/login");
+    }
+  };
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="profile-container">
       <header className="profile-header">
@@ -39,10 +77,23 @@ function Profile({ user }) {
               </div>
               <p className="major-info">{user?.department?.name}</p>
             </div>
-
-            <button className="edit-profile-btn">
-              <FiEdit2 /> Edit Profile
-            </button>
+            <div
+              style={{
+                display: "flex",
+                gap: "5px",
+                flexWrap: "wrap",
+              }}
+            >
+              <button className="edit-profile-btn">
+                <FiEdit2 /> Edit Profile
+              </button>
+              <button
+                onClick={() => handleLogout()}
+                className="edit-profile-btn"
+              >
+                <FiLogOut /> Log Out
+              </button>
+            </div>
           </div>
 
           <div className="stats-container">

@@ -21,15 +21,15 @@ function Sidebar({ userPermissions }) {
     },
     {
       id: "view_courses",
-      label: "عرض الكورسات",
+      label: " تسجيل مقررات",
       icon: <FiBook />,
       permission: "view_courses",
     },
     {
       id: "schedule_builder",
       label: "بناء الجدول",
-      icon: <FiCalendar />, 
-      permission: "build_schedule", 
+      icon: <FiCalendar />,
+      permission: "build_schedule",
     },
     {
       id: "view_enrollments",
@@ -50,8 +50,32 @@ function Sidebar({ userPermissions }) {
       permission: "update_course",
     },
     {
+      id: "create_course",
+      label: "طرح مقرر جديد",
+      icon: <FiEdit />,
+      permission: "create_course",
+    },
+    {
       id: "Allowed_users",
       label: "المستخدمين المسموح لهم",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "regestration_Slice",
+      label: "شريحه التسجيل",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "schedule_bulider",
+      label: "schedule_bulider",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "Create_setions",
+      label: "انشاء مجموعات لمقرر",
       icon: <FiEdit />,
       permission: "admin_allowed_ids",
     },
@@ -62,25 +86,21 @@ function Sidebar({ userPermissions }) {
   };
 
   return (
-    <aside style={styles.sidebar}>
-      <h2 style={styles.logo}>لوحة التحكم</h2>
+    <aside className="dashboard-sidebar">
+      <h2 className="dashboard-sidebar-logo">لوحة التحكم</h2>
       <ul style={styles.menuList}>
         {menuItems.map((item) => {
-          // التحقق: هل القسم متاح للكل OR المستخدم يملك الصلاحية المطلوبة؟
           const hasAccess =
             !item.permission || userPermissions.includes(item.permission);
 
-          if (!hasAccess) return null; // إخفاء اللينك تماماً
+          if (!hasAccess) return null;
 
           return (
             <li
               key={item.id}
               onClick={() => handleNavigation(item.id)}
-              style={{
-                ...styles.menuItem,
-                backgroundColor:
-                  currentSection === item.id ? "#34495e" : "transparent",
-              }}
+              className={`dashboard-sidebar-item ${currentSection === item.id ? "active" : ""}`}
+              style={styles.menuItem}
             >
               <span style={styles.icon}>{item.icon}</span>
               <span>{item.label}</span>
@@ -93,22 +113,6 @@ function Sidebar({ userPermissions }) {
 }
 
 const styles = {
-  sidebar: {
-    width: "250px",
-    backgroundColor: "#2c3e50",
-    color: "white",
-    height: "100vh",
-    padding: "20px 0",
-    display: "flex",
-    flexDirection: "column",
-  },
-  logo: {
-    textAlign: "center",
-    marginBottom: "30px",
-    fontSize: "1.5rem",
-    borderBottom: "1px solid #34495e",
-    paddingBottom: "10px",
-  },
   menuList: {
     listStyle: "none",
     padding: 0,

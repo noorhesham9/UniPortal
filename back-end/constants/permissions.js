@@ -13,6 +13,11 @@ const CREATE_SECTION = "create_section";
 const UPDATE_SECTION = "update_section";
 const DELETE_SECTION = "delete_section";
 
+const VIEW_REGISTRATION_SLICES = "view_registration_slices";
+const CREATE_REGISTRATION_SLICE = "create_registration_slice";
+const UPDATE_REGISTRATION_SLICE = "update_registration_slice";
+const DELETE_REGISTRATION_SLICE = "delete_registration_slice";
+
 const VIEW_ENROLLMENTS = "view_enrollments";
 const CREATE_ENROLLMENT = "create_enrollment";
 const UPDATE_ENROLLMENT = "update_enrollment";
@@ -40,6 +45,10 @@ module.exports = {
   CREATE_SECTION,
   UPDATE_SECTION,
   DELETE_SECTION,
+  VIEW_REGISTRATION_SLICES,
+  CREATE_REGISTRATION_SLICE,
+  UPDATE_REGISTRATION_SLICE,
+  DELETE_REGISTRATION_SLICE,
   VIEW_ENROLLMENTS,
   CREATE_ENROLLMENT,
   UPDATE_ENROLLMENT,
