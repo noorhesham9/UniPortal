@@ -1,4 +1,4 @@
-import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar } from "react-icons/fi";
+import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar, FiLayers } from "react-icons/fi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Sidebar({ userPermissions }) {
@@ -36,6 +36,12 @@ function Sidebar({ userPermissions }) {
       label: "التسجيلات",
       icon: <FiClipboard />,
       permission: "view_enrollments",
+    },
+    {
+      id: "add_room", // ده اللي هيسمع في الـ Switch Case في الـ Dashboard
+      label: "إدارة الغرف والأماكن",
+      icon: <FiLayers />, 
+      permission: "manage_rooms", // تأكد إن الاسم ده هو اللي في الـ Database عندك
     },
     {
       id: "update_course",

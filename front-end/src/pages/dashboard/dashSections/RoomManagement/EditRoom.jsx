@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { FiAlertTriangle } from 'react-icons/fi'; // أيقونة التحذير للDanger Zone
 import RoomForm from './RoomForm';
+import './RoomManagement.css';
 
-const EditRoom = () => {
-    const [roomData, setRoomData] = useState(null);
+const EditRoom = ({ roomId }) => {
+    const [roomData] = useState(null);
 
     useEffect(() => {
-        // هنا هتجيب بيانات الغرفة من الـ Back-end بناءً على الـ ID
-        // setRoomData(fetchedData);
-    }, []);
+        if (roomId) {
+            console.log("Fetching data for room ID:", roomId);
+            // setRoomData({ ... });
+        }
+    }, [roomId]);
 
     const handleUpdate = (data) => {
         console.log("Updating Room:", data);
@@ -15,17 +19,17 @@ const EditRoom = () => {
 
     return (
         <div className="room-container">
-            <h2 style={{marginBottom: '5px'}}>Edit Room/Lab Details</h2>
-            <p style={{color: '#a0aec0', fontSize: '0.9rem', marginBottom: '25px'}}>Update facility specifications and capacity settings.</p>
+            <h1 className="room-title">Edit Room/Lab Details</h1>
+            <p className="room-subtitle">Update facility specifications, safety parameters, and capacity settings.</p>
             
             <RoomForm initialData={roomData} onSubmit={handleUpdate} buttonText="Save Changes" />
 
-            <div className="danger-zone">
-                <div>
-                    <div style={{color: '#f56565', fontWeight: 'bold'}}>Danger Zone</div>
-                    <div style={{color: '#718096', fontSize: '0.8rem'}}>Once a room is deleted, all data will be archived.</div>
+            <div className="danger-container">
+                <div className="danger-text">
+                    <h4><FiAlertTriangle /> Danger Zone</h4>
+                    <p>Once a room is deleted, all historical schedule data will be archived.</p>
                 </div>
-                <button style={{background: 'none', border: '1px solid #f56565', color: '#f56565', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer'}}>
+                <button className="btn-danger">
                     Decommission Room
                 </button>
             </div>
@@ -33,4 +37,4 @@ const EditRoom = () => {
     );
 };
 
-export default EditRoom;
+export default EditRoom;    

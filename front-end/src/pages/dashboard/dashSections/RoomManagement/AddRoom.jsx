@@ -1,16 +1,16 @@
 import React from 'react';
 import RoomForm from './RoomForm';
+import './RoomManagement.css'; // تأكد إنك عامل Import للـ CSS هنا برضه
 
 const AddRoom = () => {
     const handleCreate = async (data) => {
-        // نداء الـ API الخاص بالإطافة
         console.log("Creating Room:", data);
-        // fetch('/api/rooms', { method: 'POST', body: JSON.stringify(data) ... })
     };
 
     return (
         <div className="room-container">
-            <h2 style={{marginBottom: '20px'}}>Add New Room/Lab</h2>
+            <h1 className="room-title">Edit Room/Lab Details</h1>
+            <p className="room-subtitle">Create a new facility and set its parameters.</p>
             <RoomForm onSubmit={handleCreate} buttonText="Save Changes" />
         </div>
     );

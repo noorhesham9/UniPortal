@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiInfo, FiShield, FiLock, FiSave } from 'react-icons/fi';
 import './RoomManagement.css';
 
 const RoomForm = ({ initialData, onSubmit, buttonText }) => {
@@ -26,13 +27,17 @@ const RoomForm = ({ initialData, onSubmit, buttonText }) => {
 
     return (
         <form className="room-form-card" onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }}>
-            <div className="section-title"><span>ⓘ</span> General Information</div>
+            <div className="section-header">
+                <FiInfo style={{ fontSize: '1.2rem' }} /> 
+                <span>General Information</span>
+            </div>
             
             <div className="form-grid">
                 <div className="input-group">
                     <label>Room Name/Label</label>
                     <input name="room_name" value={formData.room_name} onChange={handleChange} required />
                 </div>
+                
                 <div className="input-group">
                     <label>Building Section</label>
                     <select name="building_section" value={formData.building_section} onChange={handleChange}>
@@ -40,6 +45,7 @@ const RoomForm = ({ initialData, onSubmit, buttonText }) => {
                         <option value="Science Block B">Science Block B</option>
                     </select>
                 </div>
+                
                 <div className="input-group">
                     <label>Room Type</label>
                     <select name="type" value={formData.type} onChange={handleChange}>
@@ -48,20 +54,25 @@ const RoomForm = ({ initialData, onSubmit, buttonText }) => {
                         <option value="Tutorial">Tutorial</option>
                     </select>
                 </div>
+                
                 <div className="input-group">
                     <label>Max Capacity</label>
                     <input type="number" name="capacity" value={formData.capacity} onChange={handleChange} />
                 </div>
+                
                 <div className="input-group full-width">
                     <label>Equipment Notes</label>
                     <textarea name="equipment_notes" rows="4" value={formData.equipment_notes} onChange={handleChange}></textarea>
                 </div>
 
                 {/* Toggles */}
-                <div className="toggle-container">
-                    <div>
-                        <div style={{fontSize: '0.8rem', fontWeight: 'bold'}}>ACTIVE STATUS</div>
-                        <div style={{fontSize: '0.7rem', color: '#718096'}}>Enable for scheduling</div>
+                <div className="toggle-card">
+                    <div className="toggle-info">
+                        <FiShield style={{ color: '#e3b341', fontSize: '1.5rem' }} />
+                        <div>
+                            <div className="toggle-label">Active Status</div>
+                            <div className="toggle-desc">Enable for scheduling</div>
+                        </div>
                     </div>
                     <label className="switch">
                         <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} />
@@ -69,10 +80,13 @@ const RoomForm = ({ initialData, onSubmit, buttonText }) => {
                     </label>
                 </div>
 
-                <div className="toggle-container">
-                    <div>
-                        <div style={{fontSize: '0.8rem', fontWeight: 'bold'}}>KEYCARD ACCESS</div>
-                        <div style={{fontSize: '0.7rem', color: '#718096'}}>Require digital entry</div>
+                <div className="toggle-card">
+                    <div className="toggle-info">
+                        <FiLock style={{ color: '#e3b341', fontSize: '1.5rem' }} />
+                        <div>
+                            <div className="toggle-label">Keycard Access</div>
+                            <div className="toggle-desc">Require digital entry</div>
+                        </div>
                     </div>
                     <label className="switch">
                         <input type="checkbox" name="keycard_access" checked={formData.keycard_access} onChange={handleChange} />
@@ -81,9 +95,11 @@ const RoomForm = ({ initialData, onSubmit, buttonText }) => {
                 </div>
             </div>
 
-            <div style={{display: 'flex', justifyContent: 'end', gap: '15px', marginTop: '30px'}}>
-                <button type="button" style={{background: 'none', border: 'none', color: '#a0aec0', cursor: 'pointer'}}>Cancel</button>
-                <button type="submit" className="btn-save">{buttonText}</button>
+            <div className="form-actions">
+                <button type="button" className="btn-cancel">Cancel</button>
+                <button type="submit" className="btn-save">
+                    <FiSave style={{ fontSize: '1.1rem' }} /> {buttonText}
+                </button>
             </div>
         </form>
     );
