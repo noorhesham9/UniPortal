@@ -9,6 +9,7 @@ import RegistrationSlices from "../pages/RegistrationSlices/RegistrationSlices";
 import ResetPassword from "../pages/ResetPassword/ResetPassword";
 import Unauthorized from "../pages/unAuthorized/Unauthorized";
 import ProtectedRoute from "../utils/ProtectedRoute";
+import EditCourse from '../pages/EditCourse/EditCourse';
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/Course-Schedule" element={<CourseSchedule />} />
         <Route path="/registration-slices" element={<RegistrationSlices />} />
+        <Route path="/edit-course" element={<EditCourse />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

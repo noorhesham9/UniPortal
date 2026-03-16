@@ -1,0 +1,205 @@
+/* src/pages/EditCourse/EditCourse.css */
+
+.edit-course-wrapper {
+    background-color: #0B1120; /* اللون الغامق للخلفية الأساسية */
+    min-height: 100vh;
+    color: #FFFFFF;
+    padding: 2rem 4rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.breadcrumb {
+    font-size: 0.85rem;
+    color: #94A3B8;
+    margin-bottom: 0.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.page-header p {
+    color: #94A3B8;
+    margin: 0.2rem 0 0 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-cancel {
+    background-color: #1E293B;
+    color: #FFFFFF;
+    border: 1px solid #334155;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save {
+    background-color: #FACC15; /* الأصفر بتاع الديزاين */
+    color: #000000;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+.content-card {
+    background-color: #111827; /* لون الكروت الرمادي المزرق */
+    border: 1px solid #1F2937;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.icon-yellow { color: #FACC15; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #E2E8F0;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    background-color: #0B1120;
+    border: 1px solid #1F2937;
+    border-radius: 6px;
+    padding: 0.75rem;
+    color: #FFFFFF;
+    outline: none;
+}
+
+.prerequisites-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.chip {
+    background-color: #1E293B;
+    border: 1px solid #FACC15;
+    color: #FACC15;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-add-course {
+    background: transparent;
+    border: 1px dashed #334155;
+    color: #94A3B8;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Right Side - Settings & Audit */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.setting-info h4 { margin: 0; font-size: 0.9rem; }
+.setting-info p { margin: 0; font-size: 0.75rem; color: #64748B; }
+
+.audit-timeline {
+    margin-top: 1rem;
+}
+
+.audit-entry {
+    border-left: 2px solid #1F2937;
+    padding-left: 1rem;
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.audit-entry::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #FACC15;
+}
+
+.audit-entry.past::before { background-color: #475569; }
+
+.view-log {
+    color: #FACC15;
+    text-align: center;
+    display: block;
+    font-size: 0.9rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.danger-card {
+    border: 1px solid #7F1D1D;
+    background-color: rgba(127, 29, 29, 0.1);
+}
+
+.danger-card h4 { color: #F87171; margin-top: 0; }
+.danger-card p { font-size: 0.8rem; color: #94A3B8; }
+
+.btn-delete {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #7F1D1D;
+    color: #F87171;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-delete:hover { background-color: #7F1D1D; color: #FFF; }
