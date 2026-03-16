@@ -1,3 +1,5 @@
+import { Feather } from "@expo/vector-icons";
+import { ActivityIndicator, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // أيقونات جاهزة
 import { Tabs } from "expo-router";
 
@@ -31,6 +33,21 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/*  */}
+ <Tabs.Screen
+  name="accepted-ids" 
+  options={{
+    title: "الوصول",
+    headerShown: false,
+  
+    href: isAuthenticated && user?.user?.role?.name === "admin" 
+          ? "/accepted-ids" 
+          : null, 
+    tabBarIcon: ({ color }) => (
+      <Feather name="shield" size={24} color={color} />
+    ),
+  }}
+/>
     </Tabs>
   );
 }
