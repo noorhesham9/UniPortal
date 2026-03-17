@@ -11,6 +11,9 @@ import ViewCourses from "./dashSections/registerCourse/regiseterCourse";
 import ScheduleBuilder from "./dashSections/ScheduleBuilder/ScheduleBuilder";
 import UpdateCourse from "./dashSections/UpdateCourse";
 import ViewEnrollment from "./dashSections/ViewEnrollment";
+import AllowedIDS from "./dashSections/allowedIDS/AllowedIDS";
+import AddRoom from "./dashSections/RoomManagement/AddRoom";
+import EditRoom from "./dashSections/RoomManagement/EditRoom";
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
@@ -20,6 +23,7 @@ function DashBoard() {
   const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
 
   console.log("User Permissions in Dashboard:", user);
+  const roomId = searchParams.get("id");
   const renderProtectedSection = () => {
     switch (section) {
       case "profile":
@@ -70,16 +74,19 @@ function DashBoard() {
         ) : (
           <div className="error">عذراً، ليس لديك صلاحية لإنشاء الجدول</div>
         );
-      case "Create_setions":
-        return userPermissions.includes("admin_allowed_ids") ? (
-          <CreateSections />
+        case "add_room":
+           return userPermissions.includes("manage_rooms") ? (
+          <AddRoom />
         ) : (
-          <div className="error">عذراً، ليس لديك صلاحيةل</div>
+          <div className="error">عذراً، ليس لديك صلاحية لإضافة غرف</div>
         );
 
-      case "regestration_Slice":
-        return <SemesterSlices />;
-
+      case "edit_room":
+        return userPermissions.includes("manage_rooms") ? (
+          <EditRoom roomId={roomId} />
+        ) : (
+          <div className="error">عذراً، ليس لديك صلاحية لتعديل الغرف</div>
+        );
       default:
         return (
           <div className="welcome-msg">

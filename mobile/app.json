@@ -15,9 +15,7 @@
       "package": "com.yourname.uniportal",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "permissions": ["NOTIFICATIONS"]
-
+        "backgroundColor": "#ffffff"
       },
       "permissions": ["NOTIFICATIONS"]
     },
