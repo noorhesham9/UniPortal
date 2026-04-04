@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { FaCalendarAlt, FaInfoCircle, FaUsers } from "react-icons/fa";
-import { getAllCourses } from "../../../../services/CourseServices";
 import { getUsers } from "../../../../services/AdminServices";
+import { getAllCourses } from "../../../../services/CourseServices";
 import { getRooms } from "../../../../services/RoomServices";
-import { getAllSemesters } from "../../../../services/SemesterServices";
 import { createSection } from "../../../../services/SectionServices";
+import { getAllSemesters } from "../../../../services/SemesterServices";
 
 const pageStyles = {
   minHeight: "100vh",
@@ -264,16 +264,24 @@ const CreateSections = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [coursesRes, instructorsRes, roomsRes, semestersRes] = await Promise.all([
-          getAllCourses(1, 100),
-          getUsers("professor"),
-          getRooms(),
-          getAllSemesters(),
-        ]);
+        const [coursesRes, instructorsRes, roomsRes, semestersRes] =
+          await Promise.all([
+            getAllCourses(1, 100),
+            getUsers("professor"),
+            getRooms(),
+            getAllSemesters(),
+          ]);
         setCourses(coursesRes.courses || []);
-        setInstructors(Array.isArray(instructorsRes) ? instructorsRes : (instructorsRes.users || []));
-        setRooms(Array.isArray(roomsRes) ? roomsRes : (roomsRes.rooms || []));
-        setSemesters(semestersRes.semesters || (Array.isArray(semestersRes) ? semestersRes : []));
+        setInstructors(
+          Array.isArray(instructorsRes)
+            ? instructorsRes
+            : instructorsRes.users || [],
+        );
+        setRooms(Array.isArray(roomsRes) ? roomsRes : roomsRes.rooms || []);
+        setSemesters(
+          semestersRes.semesters ||
+            (Array.isArray(semestersRes) ? semestersRes : []),
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         setCourses([]);
@@ -443,7 +451,7 @@ const CreateSections = () => {
 
               <div style={cardStyles}>
                 <div style={cardHeaderStyles}>
-                  <div style={cardIconCircleStyles("#22c55e")}> 
+                  <div style={cardIconCircleStyles("#22c55e")}>
                     <FaCalendarAlt size={16} />
                   </div>
                   <div>
@@ -525,7 +533,7 @@ const CreateSections = () => {
                     <option value="">Select room or lab</option>
                     {rooms.map((room) => (
                       <option key={room._id} value={room._id}>
-                        {room.room_number} ({room.type})
+                        {room.room_name} ({room.type})
                       </option>
                     ))}
                   </select>
@@ -607,7 +615,7 @@ const CreateSections = () => {
                     width: "26px",
                     height: "26px",
                     borderRadius: "999px",
-                      background:"var(--accent-alt)",
+                    background: "var(--accent-alt)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

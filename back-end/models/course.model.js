@@ -38,6 +38,16 @@ const courseSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+      default: null, // null = course available for all departments
+    },
+    min_level: {
+      type: Number,
+      enum: [1, 2, 3, 4],
+      default: 1, // minimum student level that can enroll
+    },
   },
   { timestamps: true },
 );

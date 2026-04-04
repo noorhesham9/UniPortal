@@ -1,8 +1,8 @@
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { auth } from "./firebaseConfig";
 
-const API_URL = "http://10.0.2.2:3100/api/v1";
+const API_URL = "http://192.168.1.104:3100/api/v1";
 const TOKEN_KEY = "@firebase_token";
 
 // Call this after login to persist the token
@@ -61,7 +61,10 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(`[API] ✗ ${error.response?.status} ${error.config?.url} —`, error.response?.data?.message || error.message);
+    console.error(
+      `[API] ✗ ${error.response?.status} ${error.config?.url} —`,
+      error.response?.data?.message || error.message,
+    );
     return Promise.reject(error);
   },
 );

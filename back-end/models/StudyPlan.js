@@ -10,7 +10,7 @@ const studyPlanSchema = new mongoose.Schema(
     department: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
-      required: true,
+      required: false, // Make optional for general courses
     },
     course: {
       type: mongoose.Schema.Types.ObjectId,

@@ -37,7 +37,7 @@ exports.getSections = async (req, res) => {
     const sections = await Section.find(filter)
       .populate("course_id", "code title credits")
       .populate("instructor_id", "name")
-      .populate("room_id", "room_number type capacity")
+      .populate("room_id", "room_name building_section type capacity")
       .sort({ course_id: 1, sectionNumber: 1 })
       .lean();
 

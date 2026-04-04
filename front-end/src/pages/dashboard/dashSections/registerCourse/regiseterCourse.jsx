@@ -3,8 +3,8 @@ import {
   dropEnrollment,
   enrollInSection,
   getAvailableCourses,
-  getMyEnrollments,
   getMyEligibility,
+  getMyEnrollments,
 } from "../../../../services/CourseServices";
 import "./ViewCourses.css";
 
@@ -55,14 +55,18 @@ const RegisterCourses = () => {
       if (data?.locked) {
         setSiteLocked(true);
       } else {
-        setError(typeof err === "string" ? err : err?.message || "Failed to load data");
+        setError(
+          typeof err === "string" ? err : err?.message || "Failed to load data",
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const availableCourseIds = useMemo(
     () => new Set((courses || []).map((c) => c._id?.toString())),
@@ -188,8 +192,13 @@ const RegisterCourses = () => {
         <div className="vc-main">
           <div className="vc-locked-box">
             <div className="vc-locked-icon">🔒</div>
-            <h3 className="vc-locked-title">Registration is Currently Closed</h3>
-            <p className="vc-locked-msg">The system is temporarily locked by the administration. Please check back later.</p>
+            <h3 className="vc-locked-title">
+              Registration is Currently Closed
+            </h3>
+            <p className="vc-locked-msg">
+              The system is temporarily locked by the administration. Please
+              check back later.
+            </p>
           </div>
         </div>
       </div>
@@ -204,34 +213,77 @@ const RegisterCourses = () => {
         <div className="vc-main">
           <div className="vc-locked-box">
             <div className="vc-locked-icon">🚫</div>
-            <h3 className="vc-locked-title">You Are Not Eligible for This Registration Window</h3>
-            <p className="vc-locked-msg">The active slice <strong>{slice.name}</strong> does not include you based on your current academic data.</p>
+            <h3 className="vc-locked-title">
+              You Are Not Eligible for This Registration Window
+            </h3>
+            <p className="vc-locked-msg">
+              The active slice <strong>{slice.name}</strong> does not include
+              you based on your current academic data.
+            </p>
 
-            <div className="vc-slice-info" style={{ textAlign: "left", width: "100%" }}>
+            <div
+              className="vc-slice-info"
+              style={{ textAlign: "left", width: "100%" }}
+            >
               <p className="vc-slice-label">Why you're not eligible:</p>
-              <ul style={{ margin: "0.5rem 0 0 1rem", padding: 0, listStyle: "disc" }}>
-                {reasons.map((r, i) => <li key={i} style={{ marginBottom: "0.3rem", color: "#e53e3e" }}>{r}</li>)}
+              <ul
+                style={{
+                  margin: "0.5rem 0 0 1rem",
+                  padding: 0,
+                  listStyle: "disc",
+                }}
+              >
+                {reasons.map((r, i) => (
+                  <li
+                    key={i}
+                    style={{ marginBottom: "0.3rem", color: "#e53e3e" }}
+                  >
+                    {r}
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div className="vc-slice-info" style={{ marginTop: "1rem" }}>
               <p className="vc-slice-label">Your Academic Data</p>
-              <p className="vc-slice-detail">GPA: <strong>{student.gpa?.toFixed(2) ?? "—"}</strong></p>
-              <p className="vc-slice-detail">Department: <strong>{student.department ?? "—"}</strong></p>
-              <p className="vc-slice-detail">Level: <strong>{student.level ?? "—"}</strong></p>
+              <p className="vc-slice-detail">
+                GPA: <strong>{student.gpa?.toFixed(2) ?? "—"}</strong>
+              </p>
+              <p className="vc-slice-detail">
+                Department: <strong>{student.department ?? "—"}</strong>
+              </p>
+              <p className="vc-slice-detail">
+                Level: <strong>{student.level ?? "—"}</strong>
+              </p>
             </div>
 
             <div className="vc-slice-info" style={{ marginTop: "1rem" }}>
               <p className="vc-slice-label">Slice Requirements</p>
-              <p className="vc-slice-detail">GPA Range: <strong>{slice.min_gpa} – {slice.max_gpa}</strong></p>
+              <p className="vc-slice-detail">
+                GPA Range:{" "}
+                <strong>
+                  {slice.min_gpa} – {slice.max_gpa}
+                </strong>
+              </p>
               {slice.departments?.length > 0 && (
-                <p className="vc-slice-detail">Departments: <strong>{slice.departments.map(d => d.name).join(", ")}</strong></p>
+                <p className="vc-slice-detail">
+                  Departments:{" "}
+                  <strong>
+                    {slice.departments.map((d) => d.name).join(", ")}
+                  </strong>
+                </p>
               )}
               {slice.levels?.length > 0 && (
-                <p className="vc-slice-detail">Levels: <strong>{slice.levels.join(", ")}</strong></p>
+                <p className="vc-slice-detail">
+                  Levels: <strong>{slice.levels.join(", ")}</strong>
+                </p>
               )}
               <p className="vc-slice-detail">
-                Window: <strong>{new Date(slice.start_date).toLocaleDateString()} — {new Date(slice.end_date).toLocaleDateString()}</strong>
+                Window:{" "}
+                <strong>
+                  {new Date(slice.start_date).toLocaleDateString()} —{" "}
+                  {new Date(slice.end_date).toLocaleDateString()}
+                </strong>
               </p>
             </div>
           </div>
@@ -247,7 +299,12 @@ const RegisterCourses = () => {
           <div className="vc-locked-box">
             <div className="vc-locked-icon">⚠️</div>
             <p className="vc-locked-msg">{error}</p>
-            <button type="button" className="vc-confirm-btn" style={{ maxWidth: 200, marginTop: "1rem" }} onClick={fetchData}>
+            <button
+              type="button"
+              className="vc-confirm-btn"
+              style={{ maxWidth: 200, marginTop: "1rem" }}
+              onClick={fetchData}
+            >
               Retry
             </button>
           </div>
@@ -329,9 +386,7 @@ const RegisterCourses = () => {
                         const enrollment = enrollmentBySectionId.get(secId);
                         const instructorName = sec.instructor_id?.name ?? "–";
                         const roomLabel =
-                          sec.room_id?.room_number ??
-                          sec.room_id?.number ??
-                          "–";
+                          sec.room_id?.room_name ?? sec.room_id?.number ?? "–";
                         const timeStr = [sec.day, sec.start_time, sec.end_time]
                           .filter(Boolean)
                           .join(" ");

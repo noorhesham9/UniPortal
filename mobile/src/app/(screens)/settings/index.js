@@ -1,7 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Switch,
@@ -19,28 +18,27 @@ export default function SettingsScreen() {
   const router = useRouter();
 
   // Dynamic colors based on theme
-  const bg       = isDark ? "#0d1b2e" : "#ffffff";
-  const cardBg   = isDark ? "#0f172a" : "#ffffff";
-  const border   = isDark ? "#1e293b" : "#E5E5EA";
-  const text     = isDark ? "#f8fafc" : "#000000";
-  const subText  = isDark ? "#94a3b8" : "#8E8E93";
+  const bg = isDark ? "#0d1b2e" : "#ffffff";
+  const cardBg = isDark ? "#0f172a" : "#ffffff";
+  const border = isDark ? "#1e293b" : "#E5E5EA";
+  const text = isDark ? "#f8fafc" : "#000000";
+  const subText = isDark ? "#94a3b8" : "#8E8E93";
   const iconColor = isDark ? "#94a3b8" : "#555";
 
-  const handleLogout = () => {
-    Alert.alert("تسجيل الخروج", "هل أنت متأكد أنك تريد الخروج؟", [
-      { text: "إلغاء", style: "cancel" },
-      {
-        text: "خروج",
-        style: "destructive",
-        onPress: async () => {
-          await dispatch(logoutUser());
-          router.replace("/(auth)/login");
-        },
-      },
-    ]);
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    router.replace("/(auth)/login");
   };
 
-  const SettingItem = ({ icon, title, value, onValueChange, isSwitch, onPress, subTitle }) => (
+  const SettingItem = ({
+    icon,
+    title,
+    value,
+    onValueChange,
+    isSwitch,
+    onPress,
+    subTitle,
+  }) => (
     <TouchableOpacity
       style={[styles.row, { borderColor: border }]}
       onPress={onPress}
@@ -50,7 +48,9 @@ export default function SettingsScreen() {
         <Ionicons name={icon} size={22} color={iconColor} style={styles.icon} />
         <View>
           <Text style={[styles.rowText, { color: text }]}>{title}</Text>
-          {subTitle && <Text style={[styles.subText, { color: subText }]}>{subTitle}</Text>}
+          {subTitle && (
+            <Text style={[styles.subText, { color: subText }]}>{subTitle}</Text>
+          )}
         </View>
       </View>
       {isSwitch ? (
@@ -69,7 +69,9 @@ export default function SettingsScreen() {
   return (
     <ScrollView style={[styles.container, { backgroundColor: bg }]}>
       <Text style={[styles.sectionTitle, { color: subText }]}>العامة</Text>
-      <View style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}>
+      <View
+        style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
+      >
         <SettingItem
           icon="moon-outline"
           title="الوضع الليلي"
@@ -86,7 +88,9 @@ export default function SettingsScreen() {
       </View>
 
       <Text style={[styles.sectionTitle, { color: subText }]}>الحساب</Text>
-      <View style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}>
+      <View
+        style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
+      >
         <SettingItem
           icon="lock-closed-outline"
           title="تغيير كلمة المرور"
