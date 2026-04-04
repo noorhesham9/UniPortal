@@ -8,6 +8,7 @@ import {
   updatePassword,
 } from "firebase/auth";
 import { authAPI } from "../../utils/api";
+import apiClient, { saveToken, clearToken } from "../../utils/api";
 import { auth } from "../../utils/firebaseConfig";
 
 // Register user
@@ -58,25 +59,36 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
-      // Get user data from backend
-      const response = await authAPI.getMe();
+      // Force token refresh so the interceptor has a valid token immediately
+      const idToken = await userCredential.user.getIdToken(true);
+
+      // Persist token to AsyncStorage for Expo Go compatibility
+      await saveToken(idToken);
+
+      // Get user data from backend — pass token directly, don't rely on interceptor
+      const response = await apiClient.get("/auth/me", {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const u = response.data.user;
+
+      if (!u) throw new Error("Could not fetch user data from server");
 
       return {
         uid: userCredential.user.uid,
         email: userCredential.user.email,
-        name: response.data.name,
-        role: response.data.role,
-        studentId: response.data.studentId,
-        _id: response.data._id,
-        level: response.data.level,
-        department: response.data.department,
+        name: u.name,
+        role: u.role,
+        studentId: u.studentId,
+        _id: u._id,
+        level: u.level,
+        department: u.department,
+        is_active: u.is_active,
+        profilePhoto: u.profilePhoto,
+        gpa: u.gpa,
+        feesPaid: u.feesPaid,
+        firebaseToken: idToken,
       };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -90,6 +102,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await signOut(auth);
+      await clearToken();
       await authAPI.logout();
       return null;
     } catch (error) {
@@ -109,7 +122,7 @@ export const getCurrentUser = createAsyncThunk(
         return {
           uid: auth.currentUser.uid,
           email: auth.currentUser.email,
-          ...response.data,
+          ...response.data.user,
         };
       }
       return null;
@@ -148,9 +161,10 @@ export const updatePasswordThunk = createAsyncThunk(
 
 const initialState = {
   user: null,
-  loading: true,
+  loading: false,
   error: null,
   isAuthenticated: false,
+  firebaseToken: null,
 };
 
 const authSlice = createSlice({
@@ -196,6 +210,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.firebaseToken = action.payload.firebaseToken;
         state.isAuthenticated = true;
         state.error = null;
       })
@@ -210,6 +225,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
+      state.firebaseToken = null;
     });
 
     // Get current user
