@@ -1,12 +1,13 @@
 import { useSelector } from 'react-redux';
 
 export const useAuth = () => {
-    
-  const { user, token } = useSelector((state: any) => state.auth);
+  const { user, isAuthenticated } = useSelector((state: any) => state.auth);
+
+  const roleName = user?.role?.name || user?.role || "";
 
   return {
     user,
-    isAdmin: user?.role === 'admin', 
-    isAuthenticated: !!token,
+    isAdmin: ["admin", "super_admin"].includes(roleName),
+    isAuthenticated,
   };
 };
