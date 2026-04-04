@@ -31,6 +31,7 @@ const DELETE_DEPARTMENT = "delete_department";
 
 const VIEW_ROLES = "view_roles";
 const MANAGE_ROLES = "manage_roles";
+const MANAGE_COURSES = "manage_courses";
 
 module.exports = {
   VIEW_USERS,
@@ -60,4 +61,5 @@ module.exports = {
   DELETE_DEPARTMENT,
   VIEW_ROLES,
   MANAGE_ROLES,
+  MANAGE_COURSES,
 };
