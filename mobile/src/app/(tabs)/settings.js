@@ -1,9 +1,11 @@
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAppTheme } from "../../context/ThemeContext";
 import Settings from "../(screens)/settings/index";
 
-export default function RegistrationRoute() {
+export default function SettingsRoute() {
+  const { theme } = useAppTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
       <Settings />
     </SafeAreaView>
   );
