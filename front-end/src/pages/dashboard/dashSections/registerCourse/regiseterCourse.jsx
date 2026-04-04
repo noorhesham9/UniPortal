@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  dropEnrollment,
+  enrollInSection,
   getAvailableCourses,
   getMyEnrollments,
-  enrollInSection,
-  dropEnrollment,
+  getMyEligibility,
 } from "../../../../services/CourseServices";
 import "./ViewCourses.css";
 
-const ViewCourses = () => {
+const RegisterCourses = () => {
   const [availableCoursesRes, setAvailableCoursesRes] = useState(null);
   const [enrollmentsRes, setEnrollmentsRes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [siteLocked, setSiteLocked] = useState(false);
+  const [eligibility, setEligibility] = useState(null); // { eligible, slice, student, reasons }
   const [searchQuery, setSearchQuery] = useState("");
   const [collapsed, setCollapsed] = useState({});
   const [enrollingSectionId, setEnrollingSectionId] = useState(null);
@@ -25,6 +28,16 @@ const ViewCourses = () => {
     setLoading(true);
     setError(null);
     try {
+      // Check eligibility first — tells us if the student qualifies for the active slice
+      const eligData = await getMyEligibility();
+      setEligibility(eligData);
+
+      // If there's an active slice and student is not eligible, stop here
+      if (eligData.slice && !eligData.eligible) {
+        setLoading(false);
+        return;
+      }
+
       const coursesData = await getAvailableCourses();
       setAvailableCoursesRes(coursesData);
 
@@ -38,18 +51,22 @@ const ViewCourses = () => {
       const enrollmentsData = await getMyEnrollments(activeSemesterId);
       setEnrollmentsRes(enrollmentsData);
     } catch (err) {
-      setError(typeof err === "string" ? err : err?.message || "Failed to load data");
+      const data = err?.response?.data;
+      if (data?.locked) {
+        setSiteLocked(true);
+      } else {
+        setError(typeof err === "string" ? err : err?.message || "Failed to load data");
+      }
     } finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchData();
-  }, []);
+
+  useEffect(() => { fetchData(); }, []);
 
   const availableCourseIds = useMemo(
     () => new Set((courses || []).map((c) => c._id?.toString())),
-    [courses]
+    [courses],
   );
 
   const sectionsForAvailable = useMemo(() => {
@@ -62,7 +79,7 @@ const ViewCourses = () => {
   const courseGroups = useMemo(() => {
     const byCourse = new Map();
     for (const sec of sectionsForAvailable) {
-      console.log(sectionsForAvailable)
+      console.log(sectionsForAvailable);
       const cid = sec.course_id?._id?.toString();
       if (!cid) continue;
       if (!byCourse.has(cid)) {
@@ -70,19 +87,18 @@ const ViewCourses = () => {
       }
       byCourse.get(cid).sections.push(sec);
     }
-    return Array.from(byCourse.entries()).map(([courseId, { course, sections: secs }]) => ({
-      courseId,
-      course,
-      sections: secs,
-    }));
+    return Array.from(byCourse.entries()).map(
+      ([courseId, { course, sections: secs }]) => ({
+        courseId,
+        course,
+        sections: secs,
+      }),
+    );
   }, [sectionsForAvailable]);
-
-  
-  
 
   const filteredGroups = useMemo(() => {
     if (!searchQuery.trim()) return courseGroups;
-    console.log(courseGroups)
+    console.log(courseGroups);
     const q = searchQuery.trim().toLowerCase();
     return courseGroups.filter((g) => {
       const code = (g.course?.code || "").toLowerCase();
@@ -92,8 +108,11 @@ const ViewCourses = () => {
   }, [courseGroups, searchQuery]);
 
   const enrolledSectionIds = useMemo(
-    () => new Set(enrollments.map((e) => e.section?._id?.toString()).filter(Boolean)),
-    [enrollments]
+    () =>
+      new Set(
+        enrollments.map((e) => e.section?._id?.toString()).filter(Boolean),
+      ),
+    [enrollments],
   );
 
   const enrollmentBySectionId = useMemo(() => {
@@ -119,7 +138,8 @@ const ViewCourses = () => {
       const enrollData = await getMyEnrollments(activeSemesterId);
       setEnrollmentsRes(enrollData);
     } catch (err) {
-      const msg = err?.message || err?.response?.data?.message || "Enrollment failed";
+      const msg =
+        err?.message || err?.response?.data?.message || "Enrollment failed";
       alert(msg);
     } finally {
       setEnrollingSectionId(null);
@@ -162,14 +182,75 @@ const ViewCourses = () => {
     );
   }
 
+  if (siteLocked) {
+    return (
+      <div className="vc-container">
+        <div className="vc-main">
+          <div className="vc-locked-box">
+            <div className="vc-locked-icon">🔒</div>
+            <h3 className="vc-locked-title">Registration is Currently Closed</h3>
+            <p className="vc-locked-msg">The system is temporarily locked by the administration. Please check back later.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Active slice exists but student doesn't qualify
+  if (eligibility && eligibility.slice && !eligibility.eligible) {
+    const { slice, student, reasons } = eligibility;
+    return (
+      <div className="vc-container">
+        <div className="vc-main">
+          <div className="vc-locked-box">
+            <div className="vc-locked-icon">🚫</div>
+            <h3 className="vc-locked-title">You Are Not Eligible for This Registration Window</h3>
+            <p className="vc-locked-msg">The active slice <strong>{slice.name}</strong> does not include you based on your current academic data.</p>
+
+            <div className="vc-slice-info" style={{ textAlign: "left", width: "100%" }}>
+              <p className="vc-slice-label">Why you're not eligible:</p>
+              <ul style={{ margin: "0.5rem 0 0 1rem", padding: 0, listStyle: "disc" }}>
+                {reasons.map((r, i) => <li key={i} style={{ marginBottom: "0.3rem", color: "#e53e3e" }}>{r}</li>)}
+              </ul>
+            </div>
+
+            <div className="vc-slice-info" style={{ marginTop: "1rem" }}>
+              <p className="vc-slice-label">Your Academic Data</p>
+              <p className="vc-slice-detail">GPA: <strong>{student.gpa?.toFixed(2) ?? "—"}</strong></p>
+              <p className="vc-slice-detail">Department: <strong>{student.department ?? "—"}</strong></p>
+              <p className="vc-slice-detail">Level: <strong>{student.level ?? "—"}</strong></p>
+            </div>
+
+            <div className="vc-slice-info" style={{ marginTop: "1rem" }}>
+              <p className="vc-slice-label">Slice Requirements</p>
+              <p className="vc-slice-detail">GPA Range: <strong>{slice.min_gpa} – {slice.max_gpa}</strong></p>
+              {slice.departments?.length > 0 && (
+                <p className="vc-slice-detail">Departments: <strong>{slice.departments.map(d => d.name).join(", ")}</strong></p>
+              )}
+              {slice.levels?.length > 0 && (
+                <p className="vc-slice-detail">Levels: <strong>{slice.levels.join(", ")}</strong></p>
+              )}
+              <p className="vc-slice-detail">
+                Window: <strong>{new Date(slice.start_date).toLocaleDateString()} — {new Date(slice.end_date).toLocaleDateString()}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="vc-container">
         <div className="vc-main">
-          <p className="vc-error">{error}</p>
-          <button type="button" className="vc-confirm-btn" style={{ maxWidth: 200 }} onClick={fetchData}>
-            Retry
-          </button>
+          <div className="vc-locked-box">
+            <div className="vc-locked-icon">⚠️</div>
+            <p className="vc-locked-msg">{error}</p>
+            <button type="button" className="vc-confirm-btn" style={{ maxWidth: 200, marginTop: "1rem" }} onClick={fetchData}>
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -185,7 +266,8 @@ const ViewCourses = () => {
                 {semester ? `${semester.term || ""} ${semester.year || ""} – Register` : "Course registration"}
               </h2> */}
               <p className="vc-courses-subtitle">
-                Select a section per course to enroll. Minimum 12 credits recommended. Max {MAX_CREDITS} credits.
+                Select a section per course to enroll. Minimum 12 credits
+                recommended. Max {MAX_CREDITS} credits.
               </p>
             </div>
             <div className="vc-courses-Search">
@@ -230,8 +312,12 @@ const ViewCourses = () => {
                         {/* <span>{course?.credits ?? "–"}</span> */}
                       </div>
                       <div className="vc-course-group-title-wrap">
-                        <h3 className="vc-course-group-code">{course?.code ?? "–"}</h3>
-                        <p className="vc-course-group-title">{course?.title ?? ""}</p>
+                        <h3 className="vc-course-group-code">
+                          {course?.code ?? "–"}
+                        </h3>
+                        <p className="vc-course-group-title">
+                          {course?.title ?? ""}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -242,13 +328,22 @@ const ViewCourses = () => {
                         const isEnrolled = enrolledSectionIds.has(secId);
                         const enrollment = enrollmentBySectionId.get(secId);
                         const instructorName = sec.instructor_id?.name ?? "–";
-                        const roomLabel = sec.room_id?.room_number ?? sec.room_id?.number ?? "–";
-                        const timeStr = [sec.day, sec.start_time, sec.end_time].filter(Boolean).join(" ");
+                        const roomLabel =
+                          sec.room_id?.room_number ??
+                          sec.room_id?.number ??
+                          "–";
+                        const timeStr = [sec.day, sec.start_time, sec.end_time]
+                          .filter(Boolean)
+                          .join(" ");
                         return (
                           <div key={sec._id} className="vc-section-row">
                             <div className="vc-section-info">
-                              <span className="vc-section-num">Sec {sec.sectionNumber}</span>
-                              <span className="vc-section-time">{timeStr || "–"}</span>
+                              <span className="vc-section-num">
+                                Sec {sec.sectionNumber}
+                              </span>
+                              <span className="vc-section-time">
+                                {timeStr || "–"}
+                              </span>
                               <span>{instructorName}</span>
                               <span>Room {roomLabel}</span>
                               <span>Cap. {sec.capacity}</span>
@@ -257,15 +352,20 @@ const ViewCourses = () => {
                               {isEnrolled ? (
                                 <>
                                   <span className="vc-section-enrolled-badge">
-                                    {enrollment?.status === "Waitlist" ? "Waitlist" : "Enrolled"}
+                                    {enrollment?.status === "Waitlist"
+                                      ? "Waitlist"
+                                      : "Enrolled"}
                                   </span>
                                   <button
                                     type="button"
                                     className="vc-section-drop-btn"
-                                    disabled={droppingEnrollmentId === enrollment?._id}
+                                    disabled={
+                                      droppingEnrollmentId === enrollment?._id
+                                    }
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      if (enrollment?._id) handleDrop(enrollment._id);
+                                      if (enrollment?._id)
+                                        handleDrop(enrollment._id);
                                     }}
                                   >
                                     Drop
@@ -281,7 +381,9 @@ const ViewCourses = () => {
                                     handleEnroll(sec._id);
                                   }}
                                 >
-                                  {enrollingSectionId === secId ? "Enrolling…" : "Enroll"}
+                                  {enrollingSectionId === secId
+                                    ? "Enrolling…"
+                                    : "Enroll"}
                                 </button>
                               )}
                             </div>
@@ -308,16 +410,23 @@ const ViewCourses = () => {
                 <div key={e._id} className="vc-sel-item">
                   <div>
                     <h4 className="vc-sel-title">
-                      {e.section?.course_id?.code} – Sec {e.section?.sectionNumber}
+                      {e.section?.course_id?.code} – Sec{" "}
+                      {e.section?.sectionNumber}
                     </h4>
                     <p className="vc-sel-meta">
-                      {[e.section?.day, e.section?.start_time, e.section?.end_time]
+                      {[
+                        e.section?.day,
+                        e.section?.start_time,
+                        e.section?.end_time,
+                      ]
                         .filter(Boolean)
                         .join(" ")}
                     </p>
                   </div>
                   <div className="vc-sel-right">
-                    <span className="vc-sel-cr">{e.section?.course_id?.credits ?? 0} CR</span>
+                    <span className="vc-sel-cr">
+                      {e.section?.course_id?.credits ?? 0} CR
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleDrop(e._id)}
@@ -342,14 +451,17 @@ const ViewCourses = () => {
             <div className="vc-progress-bg">
               <div
                 className="vc-progress-fill"
-                style={{ width: `${Math.min((totalCredits / MAX_CREDITS) * 100, 100)}%` }}
+                style={{
+                  width: `${Math.min((totalCredits / MAX_CREDITS) * 100, 100)}%`,
+                }}
               />
             </div>
             {totalCredits < 12 && totalCredits > 0 && (
               <div className="vc-alert-box">
                 <span>ℹ️</span>
                 <p className="vc-alert-txt">
-                  You have {totalCredits} credits. Full-time minimum is often 12.
+                  You have {totalCredits} credits. Full-time minimum is often
+                  12.
                 </p>
               </div>
             )}
@@ -360,4 +472,4 @@ const ViewCourses = () => {
   );
 };
 
-export default ViewCourses;
+export default RegisterCourses;

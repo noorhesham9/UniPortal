@@ -1,0 +1,516 @@
+.study-plan-admin-container {
+  padding: 2rem;
+  color: var(--textprimary);
+  background-color: var(--background);
+  min-height: 100%;
+  font-family: inherit;
+  direction: rtl;
+
+  
+.spa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.spa-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--primary);
+}
+
+.spa-subtitle {
+  color: var(--textsecondary);
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.spa-select {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  color: var(--textprimary);
+  outline: none;
+  min-width: 200px;
+}
+
+.spa-controls-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.spa-filters {
+  display: flex;
+  gap: 2rem;
+}
+
+.spa-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spa-filter-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.spa-filter-buttons {
+  display: flex;
+  background: var(--background);
+  border-radius: calc(var(--radius) + 0.2rem);
+  padding: 0.25rem;
+  border: 1px solid var(--divider);
+}
+
+.spa-filter-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--textsecondary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.spa-filter-btn.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 500;
+}
+
+.spa-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.spa-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--textprimary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+.spa-modal-field select {
+  background: hsl(var(--background));
+  border: 1px solid var(--divider);
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  color: var(--textprimary);
+  font-size: 0.9rem;
+  outline: none;
+  direction: rtl;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.spa-modal-field select option {
+  background-color: hsl(var(--surface));
+  color: var(--textprimary);
+}
+.spa-modal-field select option:checked {
+  background-color: var(--accent-alt);
+  color: #fff;
+}
+.spa-modal-field select option:hover {
+  background-color: var(--primary-subtle-bg);
+}
+.spa-action-btn:hover {
+  background: var(--primary-subtle-bg);
+  border-color: var(--primary);
+}
+
+.spa-action-btn.primary {
+  background: var(--accent-alt);
+  color: #fff; /* contrast text */
+  border: none;
+}
+.spa-action-btn.primary:hover {
+  opacity: 0.9;
+}
+
+.spa-table-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.spa-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.spa-table th {
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: var(--textsecondary);
+  border-bottom: 1px solid var(--divider);
+}
+
+.spa-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--divider);
+  vertical-align: middle;
+}
+
+.spa-code-cell {
+  font-weight: 600;
+}
+
+.spa-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--textsecondary);
+  font-size: 0.95rem;
+}
+
+.spa-tag {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  background: var(--background);
+  border: 1px solid var(--divider);
+}
+
+.spa-type-tag {
+  background: var(--primary-subtle-bg);
+  color: var(--primary);
+  border-color: var(--primary-subtle-border);
+}
+
+.spa-add-req-btn {
+  background: none;
+  border: none;
+  color: var(--accent-alt);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.spa-del-btn {
+  background: none;
+  border: none;
+  color: var(--destructive);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  transition: 0.2s;
+}
+.spa-del-btn:hover {
+  background: hsl(var(--destructive) / 0.1);
+}
+
+.spa-add-new-btn {
+  width: 100%;
+  padding: 1.5rem;
+  background: transparent;
+  border: 1px dashed var(--divider);
+  color: var(--textsecondary);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: 0.3s;
+}
+
+.spa-add-new-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.spa-table-footer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--divider);
+}
+
+.spa-tf-item {
+  text-align: center;
+}
+
+.spa-tf-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--textsecondary);
+  margin-bottom: 0.5rem;
+}
+
+.spa-tf-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.spa-tf-value-accent {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--accent-alt);
+}
+
+.spa-bottom-cards {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+.spa-state-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.spa-state-title {
+  color: var(--textsecondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.spa-state-status {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spa-dot {
+  width: 10px;
+  height: 10px;
+  background-color: hsl(var(--success));
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.spa-state-link {
+  background: none;
+  border: none;
+  color: var(--textsecondary);
+  text-decoration: underline;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+.spa-info-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.spa-info-icon {
+  font-size: 2rem;
+  color: var(--accent-alt);
+  background: rgba(var(--accent-alt-rgb), 0.1);
+  padding: 1rem;
+  border-radius: 50%;
+}
+
+.spa-info-content h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.spa-info-content p {
+  margin: 0;
+  color: var(--textsecondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+}
+
+/* ── Add Course Modal ── */
+.spa-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.spa-modal {
+  border: 1px solid var(--divider);
+  border-radius: 1rem;
+  padding: 0;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 1);
+  background-color: hsl(var(--background));
+  z-index: 100;
+  position: relative;
+}
+
+.spa-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--divider);
+  background: var(--background);
+}
+
+.spa-modal h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--textprimary);
+  text-align: right;
+}
+
+.spa-modal-close {
+  background: none;
+  border: none;
+  color: var(--textsecondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.spa-modal-close:hover {
+  color: var(--textprimary);
+}
+
+.spa-modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.spa-modal-select-wrapper {
+  position: relative;
+}
+
+.spa-modal-select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--textsecondary);
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+.spa-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.spa-modal-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--textsecondary);
+  text-align: right;
+}
+
+.spa-modal-field select {
+  background: var(--background);
+  border: 1px solid var(--divider);
+  border-radius: 0.5rem;
+  padding: 0.7rem 1rem;
+  color: var(--textprimary);
+  font-size: 0.9rem;
+  outline: none;
+  direction: rtl;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.spa-modal-field select:focus {
+  border-color: var(--accent-alt);
+  box-shadow: 0 0 0 2px rgba(var(--accent-alt-rgb), 0.2);
+}
+
+.spa-modal-field select option {
+  background: var(--surface);
+  color: var(--textprimary);
+}
+
+.spa-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--divider);
+  background: var(--background);
+}
+
+.spa-modal-cancel {
+  background: transparent;
+  border: 1px solid var(--divider);
+  color: var(--textsecondary);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: color 0.15s;
+}
+
+.spa-modal-cancel:hover {
+  color: var(--textprimary);
+}
+
+.spa-modal-submit {
+  background: var(--accent-alt);
+  border: none;
+  color: #0d1b2a;
+  padding: 0.6rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: opacity 0.15s;
+}
+
+.spa-modal-submit:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.spa-modal-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

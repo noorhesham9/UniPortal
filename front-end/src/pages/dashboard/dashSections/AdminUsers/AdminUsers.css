@@ -1,0 +1,331 @@
+.admin-usr-container {
+  padding: 2rem;
+  color: var(--textprimary);
+  background-color: var(--background);
+  min-height: 100%;
+  font-family: inherit;
+}
+
+.admin-usr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.admin-usr-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-usr-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.admin-usr-subtitle {
+  color: var(--textsecondary);
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.admin-usr-stat-label {
+  color: var(--textsecondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.admin-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.25rem;
+}
+
+.admin-dot.green { background: #10b981; }
+
+.admin-usr-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-usr-search-box {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 0.5rem 1rem;
+  flex: 1;
+  max-width: 400px;
+}
+
+.admin-usr-search-icon {
+  color: var(--textsecondary);
+  margin-right: 0.5rem;
+}
+
+.admin-usr-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  color: var(--foreground);
+  width: 100%;
+}
+
+.admin-usr-filters {
+  display: flex;
+  background: var(--background);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+  border: 1px solid var(--divider);
+}
+
+.admin-usr-filter-btn {
+  background: transparent;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: var(--textsecondary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.admin-usr-filter-btn.active {
+  background: #3b82f6;
+  color: #fff;
+  font-weight: 500;
+}
+
+.admin-usr-table th {
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--textsecondary);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--divider);
+  text-align: left;
+}
+
+.admin-usr-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--divider);
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: var(--textsecondary);
+  text-align: left;
+}
+
+.admin-usr-role-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--divider);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.admin-usr-role-badge.outline-yellow {
+  color: #eab308;
+  border-color: rgba(234, 179, 8, 0.3);
+  background: rgba(234, 179, 8, 0.1);
+}
+
+.admin-usr-role-badge.outline-blue {
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.admin-usr-role-badge.outline-purple {
+  color: #a855f7;
+  border-color: rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.admin-rm-status-text.gray { color: #9ca3af; }
+
+.admin-usr-action-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.admin-usr-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.admin-usr-btn.blue {
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.admin-usr-btn.blue:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.admin-usr-btn.red {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.admin-usr-btn.red:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.admin-usr-btn.gray {
+  border-color: rgba(156, 163, 175, 0.3);
+  color: #9ca3af;
+}
+
+.admin-usr-btn.gray:hover {
+  background: rgba(156, 163, 175, 0.1);
+}
+
+/* Advisor Assignment Modal */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.admin-modal {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.admin-modal-close:hover { color: hsl(var(--foreground)); }
+
+.admin-modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-modal-select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--input));
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-modal-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.admin-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.admin-usr-btn.yellow {
+  border-color: rgba(234, 179, 8, 0.3);
+  color: #eab308;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.admin-usr-btn.yellow:hover {
+  background: rgba(234, 179, 8, 0.1);
+}
+
+.admin-usr-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.impersonate-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  color: #eab308;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.impersonate-stop-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  color: #eab308;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.impersonate-stop-btn:hover {
+  background: rgba(234, 179, 8, 0.15);
+}

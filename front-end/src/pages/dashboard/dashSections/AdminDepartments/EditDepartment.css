@@ -1,0 +1,230 @@
+.edit-dept-container {
+  padding: 2rem;
+  color: var(--textprimary);
+  background-color: var(--background);
+  min-height: 100%;
+  font-family: inherit;
+}
+
+.edit-dept-header {
+  margin-bottom: 2rem;
+}
+
+.edit-dept-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 0 0.5rem;
+  color: var(--foreground);
+}
+
+.edit-dept-subtitle {
+  color: var(--textsecondary);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.edit-dept-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.edit-dept-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.edit-dept-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.edit-dept-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.edit-dept-label {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--foreground);
+}
+
+.edit-dept-input, .edit-dept-select, .edit-dept-textarea {
+  background: var(--background);
+  border: 1px solid var(--divider);
+  color: var(--foreground);
+  padding: 1rem;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.edit-dept-input:focus, .edit-dept-select:focus, .edit-dept-textarea:focus {
+  border-color: #facc15;
+}
+
+.edit-dept-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.edit-dept-status-options {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.edit-dept-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--textsecondary);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.edit-dept-radio {
+  display: none;
+}
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--divider);
+  display: inline-block;
+  position: relative;
+}
+
+.edit-dept-radio:checked + .radio-custom.active {
+  border-color: #facc15;
+}
+.edit-dept-radio:checked + .radio-custom.active::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: #facc15;
+  border-radius: 50%;
+}
+
+.edit-dept-radio:checked + .radio-custom.disabled {
+  border-color: var(--divider); /* Optional: different color for inactive/hold */
+}
+.edit-dept-radio:checked + .radio-custom.disabled::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--divider);
+  border-radius: 50%;
+}
+
+.edit-dept-radio:checked ~ span, .edit-dept-radio:checked ~ div {
+  color: var(--foreground);
+}
+
+.edit-dept-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid var(--divider);
+  padding-top: 2rem;
+}
+
+.edit-dept-cancel {
+  background: transparent;
+  color: var(--textsecondary);
+  border: 1px solid var(--divider);
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-dept-cancel:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--foreground);
+}
+
+.edit-dept-save {
+  background: #facc15;
+  color: #000;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 2.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-dept-save:hover {
+  opacity: 0.9;
+}
+
+.edit-dept-meta-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.edit-dept-meta-card {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.edit-dept-meta-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--textsecondary);
+}
+
+.edit-dept-meta-icon.yellow {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.edit-dept-meta-icon.green {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.edit-dept-meta-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--textsecondary);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.edit-dept-meta-value {
+  font-weight: bold;
+  color: var(--foreground);
+}

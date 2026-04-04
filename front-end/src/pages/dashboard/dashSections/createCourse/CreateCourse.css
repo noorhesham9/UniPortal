@@ -3,7 +3,7 @@
   max-width: 1200px;
   margin: 0 auto;
   background: hsl(var(--background));
-  min-height: 100vh;
+  min-height: 100%;
 }
 
 .create-course-header {
@@ -73,18 +73,46 @@
 .prerequisites-select {
   background: hsl(var(--input));
   border: 1px solid hsl(var(--border));
-  border-radius: 6px;
-  padding: 10px 12px;
-  min-height: 48px;
+  border-radius: 8px;
+  padding: 12px;
 }
+
+.prereq-search-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.prereq-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-alt);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
 .prereq-search {
   width: 100%;
-  background: hsl(var(--input));
+  padding: 9px 12px 9px 2.25rem;
+  background: hsl(var(--background));
   border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.prereq-search::placeholder {
   color: hsl(var(--muted-foreground));
-  border: none;
-  margin-bottom: 8px;
-  font-size: 15px;
+}
+
+.prereq-search:focus {
+  border-color: var(--accent-alt);
+  box-shadow: 0 0 0 2px rgba(var(--accent-alt-rgb), 0.2);
 }
 .prereq-tags {
   display: flex;

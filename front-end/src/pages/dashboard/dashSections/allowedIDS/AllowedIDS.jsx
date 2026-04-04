@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import {
   FiChevronLeft,
@@ -8,8 +7,8 @@ import {
   FiTrash2,
   FiUserPlus,
 } from "react-icons/fi";
+import { getAllowedStudents, addAllowedStudent, deleteAllowedStudent } from "../../../../services/AdminServices";
 import "./AllowedIDS.css";
-const API_BASE_URL = "http://localhost:3100/api/v1";
 
 const AllowedIDS = () => {
   const [items, setItems] = useState([]);
@@ -44,26 +43,13 @@ const AllowedIDS = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const response = await axios.get(
-        `${API_BASE_URL}/admin/allowed_students`,
-        {
-          withCredentials: "include",
-        },
-      );
-      console.log(response);
-
-      if (!response.statusText || response.statusText.toLowerCase() !== "ok") {
-        throw new Error("Failed to load allowed IDs");
-      }
-
-      const data = response.data?.items || {};
-      setItems(data || []);
-      setTotal(response.data?.total || 0);
-      setActiveCount(response.data?.activeRegistrations || 0);
-      setPendingSeats(response.data?.pendingSeats || 0);
+      const data = await getAllowedStudents();
+      setItems(data?.items || []);
+      setTotal(data?.total || 0);
+      setActiveCount(data?.activeRegistrations || 0);
+      setPendingSeats(data?.pendingSeats || 0);
     } catch (err) {
-      setError(err.message || "Something went wrong while loading IDs");
+      setError(err?.message || "Something went wrong while loading IDs");
     } finally {
       setLoading(false);
     }
@@ -71,35 +57,15 @@ const AllowedIDS = () => {
 
   const handleAdd = async () => {
     if (!studentId.trim()) return;
-
     try {
       setSubmitting(true);
       setError(null);
-
-      const response = await axios.post(
-        `${API_BASE_URL}/admin/allow_Student`,
-        {
-          studentId: studentId.trim(),
-          note: referenceNote.trim() || undefined,
-        },
-        {
-          withCredentials: "include",
-        },
-      );
-
-      if (
-        !response.statusText ||
-        response.statusText.toLowerCase() !== "created"
-      ) {
-        throw new Error("Failed to whitelist ID");
-      }
-
+      await addAllowedStudent(studentId.trim(), referenceNote.trim() || undefined);
       setStudentId("");
       setReferenceNote("");
-
       await fetchAllowedIds();
     } catch (err) {
-      setError(err.message || "Something went wrong while adding ID");
+      setError(err?.message || "Something went wrong while adding ID");
     } finally {
       setSubmitting(false);
     }
@@ -108,21 +74,10 @@ const AllowedIDS = () => {
   const handleDelete = async (id) => {
     try {
       setError(null);
-
-      const response = await axios.delete(
-        `${API_BASE_URL}/admin/allowed_students/${id}`,
-        {
-          withCredentials: "include",
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to remove ID from whitelist");
-      }
-
+      await deleteAllowedStudent(id);
       await fetchAllowedIds();
     } catch (err) {
-      setError(err.message || "Something went wrong while deleting ID");
+      setError(err?.message || "Something went wrong while deleting ID");
     }
   };
 
