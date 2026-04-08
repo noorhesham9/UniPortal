@@ -41,6 +41,7 @@ import AllEnrollments from "./dashSections/AllEnrollments/AllEnrollments";
 import Settings from "./dashSections/Settings/Settings";
 import TuitionApproval from "./dashSections/TuitionApproval/TuitionApproval";
 import CourseManagement from "./dashSections/CourseManagement/CourseManagement";
+import AdvisorNotifications from "./dashSections/AdvisorNotifications/AdvisorNotifications";
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
@@ -60,7 +61,6 @@ function DashBoard() {
   };
   const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
   const roleName = user?.role?.name || "";
-  // derive isStudent from role name — don't rely on the stored boolean
   const isStudent = roleName === "student";
   const isSuperAdmin = roleName === "super_admin";
 
@@ -68,7 +68,6 @@ function DashBoard() {
 
   const [siteLocked, setSiteLocked] = useState(false);
 
-  // One-time fetch on mount to get initial lock state
   useEffect(() => {
     if (!isStudent) return;
     getSiteLock()
@@ -76,29 +75,23 @@ function DashBoard() {
       .catch(() => {});
   }, [isStudent]); // eslint-disable-line
 
-  // Real-time: kick student instantly when admin locks the site
   useEffect(() => {
     if (!isStudent || !socket) return;
     const handleLockChange = ({ locked }) => {
-
       setSiteLocked(locked);
     };
     socket.on("site_lock_changed", handleLockChange);
     return () => socket.off("site_lock_changed", handleLockChange);
   }, [isStudent, socket]); // eslint-disable-line
 
-  // can() — super_admin bypasses all checks; others need the specific permission
   const can = (permission) => !isStudent && (isSuperAdmin || userPermissions.includes(permission));
-  // studentCan() — only for students
   const studentCan = (permission) => isStudent && userPermissions.includes(permission);
 
   const roomId = searchParams.get("id");
 
-  /** Sections that render their own full-page layout (no shared header/footer) */
   const standaloneSection = section === "edit_profile";
 
   const renderSection = () => {
-    // When site is locked, students can only view their profile
     if (siteLocked && isStudent && section !== "profile") {
       return <SiteLocked />;
     }
@@ -107,7 +100,6 @@ function DashBoard() {
       case "profile":
         return <Profile user={user} siteLocked={siteLocked && isStudent} />;
 
-      // --- Student-only sections ---
       case "Register_Courses":
         return (isStudent || isSuperAdmin) && (studentCan("view_courses") || isSuperAdmin) ? (
           <RegisterCourses />
@@ -123,7 +115,6 @@ function DashBoard() {
       case "student_chat":
         return (isStudent || isSuperAdmin) ? <StudentChat /> : <Denied />;
 
-      // --- Staff / Admin sections (non-students only) ---
       case "update_course":
         return can("update_course") ? <EditCourse /> : <Denied />;
       case "course_manage":
@@ -170,6 +161,8 @@ function DashBoard() {
         return can("manage_courses") ? <CourseManagement /> : <Denied />;
       case "advisor_chat":
         return (roleName === "professor" || roleName === "admin" || roleName === "super_admin") ? <AdvisorChat /> : <Denied />;
+      case "advisor_notifications":
+        return (roleName === "professor" || roleName === "admin" || roleName === "super_admin") ? <AdvisorNotifications /> : <Denied />;
       case "edit_profile":
         return <EditProfile />;
       default:
@@ -177,7 +170,6 @@ function DashBoard() {
     }
   };
 
-  /** Build dynamic header actions based on current section */
   const getHeaderActions = () => {
     if (section === "edit_profile") {
       return (
@@ -197,7 +189,6 @@ function DashBoard() {
         </div>
       );
     }
-    // Default: bell + avatar
     return null;
   };
 
