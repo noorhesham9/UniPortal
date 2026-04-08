@@ -13,8 +13,21 @@ import {
 import { useRouter } from "expo-router";
 import { useAuth } from "../../hooks/useAuth";
 import { getAcceptedIDs } from "../../services/idService";
+import { authAPI } from "../../utils/api";
 
 export default function AcceptedIDs() {
+
+
+    useEffect(() => {
+    authAPI.getMe()
+      .then((res) => {
+        const user = res.data.user;
+        console.log("[Admin Check] name:", user?.name);
+        console.log("[Admin Check] role:", JSON.stringify(user?.role));
+        console.log("[Admin Check] is_active:", user?.is_active);
+      })
+      .catch((err) => console.error("[Admin Check] FAILED:", err.response?.status, err.response?.data?.message));
+  }, []);
   const router = useRouter();
   const { isAdmin } = useAuth();
 
@@ -35,7 +48,6 @@ export default function AcceptedIDs() {
       Alert.alert("Access denied", "Admin only");
       router.back();
     } else if (isAdmin === true) {
-      // لو أدمن فعلاً
       fetchIDs();
     }
   }, [isAdmin]);
@@ -60,36 +72,28 @@ export default function AcceptedIDs() {
     }
   };
 
-  const filteredIDs = ids.filter((id) => id.idNumber.includes(searchQuery));
+  const filteredIDs = ids.filter((id) => (id.studentId || "").includes(searchQuery));
 
   // render card
   const renderItem = ({ item }) => {
     return (
       <View
         style={{
-          backgroundColor: "#111",
+          backgroundColor: "#ffffff",
           padding: 20,
           marginBottom: 15,
           borderRadius: 12,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
         }}
       >
-        <Text
-          style={{
-            color: "white",
-            fontSize: 20,
-            fontWeight: "bold",
-          }}
-        >
-          {item.idNumber}
+        <Text style={{ color: "#0f172a", fontSize: 20, fontWeight: "bold" }}>
+          {item.studentId}
         </Text>
-
-        <Text
-          style={{
-            color: item.firstStatus === "REGISTERED" ? "#22c55e" : "#aaa",
-          }}
-        >
-          {item.firstStatus}
+        <Text style={{ color: item.isRegistered ? "#22c55e" : "#94a3b8" }}>
+          {item.isRegistered ? "REGISTERED" : "NOT REGISTERED"}
         </Text>
+        {item.email && <Text style={{ color: "#64748b", fontSize: 12 }}>{item.email}</Text>}
       </View>
     );
   };
@@ -104,10 +108,10 @@ export default function AcceptedIDs() {
   // return(<>Bahgat</>)
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#000", padding: 20 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff", padding: 20 }}>
       <Text
         style={{
-          color: "white",
+          color: "#0f172a",
           fontSize: 24,
           fontWeight: "bold",
           marginBottom: 20,
@@ -125,26 +129,30 @@ export default function AcceptedIDs() {
       >
         <View
           style={{
-            backgroundColor: "#111",
+            backgroundColor: "#f1f5f9",
             padding: 20,
             borderRadius: 10,
             width: "48%",
+            borderWidth: 1,
+            borderColor: "#e2e8f0",
           }}
         >
-          <Text style={{ color: "#aaa" }}>Total IDs</Text>
-          <Text style={{ color: "#fff", fontSize: 22 }}>{stats.totalIds}</Text>
+          <Text style={{ color: "#64748b" }}>Total IDs</Text>
+          <Text style={{ color: "#0f172a", fontSize: 22 }}>{stats.totalIds}</Text>
         </View>
 
         <View
           style={{
-            backgroundColor: "#111",
+            backgroundColor: "#f1f5f9",
             padding: 20,
             borderRadius: 10,
             width: "48%",
+            borderWidth: 1,
+            borderColor: "#e2e8f0",
           }}
         >
-          <Text style={{ color: "#aaa" }}>Active Slots</Text>
-          <Text style={{ color: "#fff", fontSize: 22 }}>
+          <Text style={{ color: "#64748b" }}>Active Slots</Text>
+          <Text style={{ color: "#0f172a", fontSize: 22 }}>
             {stats.activeSlots}
           </Text>
         </View>
@@ -152,21 +160,23 @@ export default function AcceptedIDs() {
 
       <TextInput
         placeholder="Search ID number"
-        placeholderTextColor="#888"
+        placeholderTextColor="#94a3b8"
         value={searchQuery}
         onChangeText={setSearchQuery}
         style={{
-          backgroundColor: "#111",
-          color: "white",
+          backgroundColor: "#ffffff",
+          color: "#0f172a",
           padding: 15,
           borderRadius: 10,
           marginBottom: 20,
+          borderWidth: 1,
+          borderColor: "#e2e8f0",
         }}
       />
 
       <TouchableOpacity
         style={{
-          backgroundColor: "#FFD700",
+          backgroundColor: "#facc15",
           padding: 15,
           borderRadius: 10,
           marginBottom: 20,
@@ -176,6 +186,7 @@ export default function AcceptedIDs() {
           style={{
             textAlign: "center",
             fontWeight: "bold",
+            color: "#0f172a",
           }}
         >
           ADD NEW ID
@@ -184,7 +195,7 @@ export default function AcceptedIDs() {
 
       <Text
         style={{
-          color: "#888",
+          color: "#64748b",
           marginBottom: 10,
         }}
       >
@@ -194,7 +205,7 @@ export default function AcceptedIDs() {
       <FlatList
         data={filteredIDs}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id?.toString() || item.studentId}
       />
     </SafeAreaView>
   );

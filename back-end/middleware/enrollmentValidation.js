@@ -54,24 +54,35 @@ exports.checkEnrollmentEligibility = async (req, res, next) => {
     if (activeSlices.length > 0) {
       let allowed = false;
       for (const slice of activeSlices) {
-        if (
-          (slice.students &&
-            slice.students.some((id) => id.equals(user._id))) ||
-          (slice.departments &&
-            user.department &&
-            slice.departments.some((id) => id.equals(user.department))) ||
-          (slice.levels && slice.levels.includes(user.level))
-        ) {
+        const studentGpa = user.gpa ?? 0;
+
+        // GPA must be within slice range
+        const gpaOk = studentGpa >= slice.min_gpa && studentGpa <= slice.max_gpa;
+
+        // Department match (empty array = no restriction)
+        const deptOk =
+          !slice.departments?.length ||
+          (user.department && slice.departments.some((id) => id.equals(user.department)));
+
+        // Level match (empty array = no restriction)
+        const levelOk =
+          !slice.levels?.length ||
+          slice.levels.includes(user.level);
+
+        // Explicit student list (empty = not used)
+        const studentOk =
+          slice.students?.length > 0 &&
+          slice.students.some((id) => id.equals(user._id));
+
+        if (gpaOk && (studentOk || (deptOk && levelOk))) {
           allowed = true;
           break;
         }
       }
       if (!allowed) {
-        return res
-          .status(403)
-          .json({
-            message: "You are not eligible to register in current slice",
-          });
+        return res.status(403).json({
+          message: "You are not eligible to register in the current slice. Check your GPA, department, or academic level.",
+        });
       }
     }
 

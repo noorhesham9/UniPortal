@@ -10,6 +10,7 @@ import { FiEye, FiEyeOff, FiLock, FiUser } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../services/store/reducers/authSlice";
+import { loginWithToken } from "../../services/AuthServices";
 import { auth, googleProvider } from "../../utils/firebaseConfig";
 import "./Login.css";
 import loginLogoSvg from "./login_logo.svg";
@@ -53,13 +54,9 @@ function Login() {
 
       console.log("Result:", result);
       console.log("Firebase ID Token:", idToken);
-      const response = await axios.post(
-        "http://localhost:3100/api/v1/auth/login",
-        { idToken },
-        { withCredentials: true },
-      );
+      const response = await loginWithToken(idToken);
 
-      dispatch(loginSuccess(response.data.user));
+      dispatch(loginSuccess(response.user));
       navigate("/dashboard");
     } catch (error) {
       if (error.response) {
@@ -112,15 +109,11 @@ function Login() {
       // }
       console.log("Firebase ID Token:", idToken);
 
-      const response = await axios.post(
-        "http://localhost:3100/api/v1/auth/login",
-        { idToken }, // الجسم بتاع الـ Request
-        { withCredentials: true }, // مهم جداً عشان الكوكيز تتبعت وتتحفظ
-      );
+      const response = await loginWithToken(idToken);
 
-      if (response.data.success) {
-        // dispatch(loginSuccess(response.data.user));
-        // navigate("/dashboard");
+      if (response.success) {
+        dispatch(loginSuccess(response.user));
+        navigate("/dashboard");
       }
     } catch (error) {
       const user = auth.currentUser;

@@ -1,9 +1,9 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { enrollmentAPI, courseAPI } from '../../utils/api';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { courseAPI, enrollmentAPI } from "../../utils/api";
 
 // Fetch available courses
 export const fetchAvailableCourses = createAsyncThunk(
-  'enrollment/fetchAvailableCourses',
+  "enrollment/fetchAvailableCourses",
   async (_, { rejectWithValue }) => {
     try {
       const response = await courseAPI.getAvailableCourses();
@@ -11,12 +11,12 @@ export const fetchAvailableCourses = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 // Fetch completed hours
 export const fetchCompletedHours = createAsyncThunk(
-  'enrollment/fetchCompletedHours',
+  "enrollment/fetchCompletedHours",
   async (studentId, { rejectWithValue }) => {
     try {
       const response = await enrollmentAPI.getCompletedHours(studentId);
@@ -24,12 +24,12 @@ export const fetchCompletedHours = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 // Register for course/section
 export const registerForCourse = createAsyncThunk(
-  'enrollment/registerForCourse',
+  "enrollment/registerForCourse",
   async ({ studentId, sectionId }, { rejectWithValue }) => {
     try {
       const response = await enrollmentAPI.createEnrollment({
@@ -40,12 +40,12 @@ export const registerForCourse = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 // Join waitlist
 export const joinWaitlist = createAsyncThunk(
-  'enrollment/joinWaitlist',
+  "enrollment/joinWaitlist",
   async ({ studentId, sectionId }, { rejectWithValue }) => {
     try {
       const response = await enrollmentAPI.joinWaitlist({
@@ -56,12 +56,12 @@ export const joinWaitlist = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );
-
 
 const initialState = {
   courses: [],
+  sections: [],
   enrollments: [],
   completedHours: 0,
   loading: false,
@@ -70,7 +70,7 @@ const initialState = {
 };
 
 const enrollmentSlice = createSlice({
-  name: 'enrollment',
+  name: "enrollment",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -86,7 +86,8 @@ const enrollmentSlice = createSlice({
       })
       .addCase(fetchAvailableCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.courses = action.payload;
+        state.courses = action.payload.courses || [];
+        state.sections = action.payload.sections || [];
       })
       .addCase(fetchAvailableCourses.rejected, (state, action) => {
         state.loading = false;

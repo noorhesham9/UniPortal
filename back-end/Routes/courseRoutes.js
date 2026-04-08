@@ -6,17 +6,20 @@ const {
   getAvailableCourses,
   createCourse,
   getAllCourses,
+  toggleCourseActive,
+  offerCourse,
+  getOfferedCourses,
+  getCourseById,
+  updateCourse,
 } = require("../controllers/courseController");
 
-// جلب المواد المتاحة للطالب
-// الطالب يجب أن يكون مصرح (لديه account فعال)
 router.get("/available", requireAuth, getAvailableCourses);
-
-// جلب جميع الكورسات
+router.get("/offered", requireAuth, getOfferedCourses);
 router.get("/", requireAuth, getAllCourses);
-
-// إنشاء كورس جديد
-// يتطلب صلاحية create_course
-router.post("/", requireAuth, requirePermission("CREATE_COURSE"), createCourse);
+router.get("/:id", requireAuth, getCourseById);
+router.post("/", requireAuth, requirePermission("create_course"), createCourse);
+router.patch("/:id", requireAuth, requirePermission("manage_courses"), updateCourse);
+router.patch("/:id/toggle-active", requireAuth, requirePermission("manage_courses"), toggleCourseActive);
+router.post("/:id/offer", requireAuth, requirePermission("manage_courses"), offerCourse);
 
 module.exports = router;

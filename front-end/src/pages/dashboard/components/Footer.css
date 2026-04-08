@@ -1,0 +1,59 @@
+.dash-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 2rem;
+  background: #0d1b2a;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.dash-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.dash-secure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.secure-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dash-footer-right {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.dash-footer-right a {
+  color: #475569;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: 0.75rem;
+  transition: color 0.15s;
+}
+
+.dash-footer-right a:hover {
+  color: #94a3b8;
+}

@@ -4,8 +4,10 @@
   gap: 32px;
   padding: 32px;
   background-color: hsl(var(--background));
-  min-height: 100vh;
+  /* fill the dashboard-main area, no overflow of its own */
+  min-height: 100%;
   font-family: 'Lexend', sans-serif;
+  align-items: flex-start;
 }
 
 .vc-main {
@@ -14,13 +16,26 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 .vc-sidebar {
   width: 380px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  /* stick to top while main content scrolls */
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.vc-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 /* === Courses container & header (title + search) === */
@@ -735,3 +750,30 @@
 .vc-error {
   color: hsl(var(--destructive));
 }
+
+/* Site lock / slice info */
+.vc-locked-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+  gap: 0.75rem;
+}
+.vc-locked-icon  { font-size: 3rem; }
+.vc-locked-title { font-size: 1.2rem; font-weight: 700; color: var(--foreground); margin: 0; }
+.vc-locked-msg   { color: var(--textsecondary); font-size: 0.9rem; margin: 0; }
+
+.vc-slice-info {
+  margin-top: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  text-align: left;
+  min-width: 280px;
+}
+.vc-slice-label  { font-size: 0.72rem; font-weight: 700; color: var(--textsecondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.35rem; }
+.vc-slice-name   { font-size: 1rem; font-weight: 700; color: var(--foreground); margin: 0 0 0.25rem; }
+.vc-slice-dates  { font-size: 0.82rem; color: #facc15; margin: 0 0 0.25rem; }
+.vc-slice-detail { font-size: 0.82rem; color: var(--textsecondary); margin: 0.15rem 0 0; }

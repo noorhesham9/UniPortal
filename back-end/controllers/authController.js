@@ -37,6 +37,7 @@ exports.register = async (req, res) => {
       role: studentRole._id,
       studentId: studentId,
       is_active: true,
+      isStudent: true,
     });
 
     res.status(201).json({
@@ -51,7 +52,7 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    console.log("Login request received with body:", req.body);
+    // console.log("Login request received with body:", req.body);
     const { idToken } = req.body;
     const decodedToken = await admin.auth().verifyIdToken(idToken);
 
