@@ -25,6 +25,11 @@ yarn-error.log*
 backend/node_modules/
 backend/yarn.lock
 backend/.env
+backend/*.env
+config.env
+backend/config.env
+front-end/config.env
+
 front-end/node_modules/
 mobile/node_modules/
 front-end/yarn.lock
@@ -83,3 +88,4 @@ mobile/GoogleService-Info.plist
 .expo/
 *.log
 mobile/package-lock.json
+commit_mobile.sh

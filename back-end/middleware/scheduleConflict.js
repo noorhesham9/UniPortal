@@ -24,6 +24,13 @@ exports.checkSectionSchedule = async (req, res, next) => {
 
     const newStart = timeToMinutes(start_time);
     const newEnd = timeToMinutes(end_time);
+
+    if (newEnd <= newStart) {
+      return res.status(400).json({
+        message: "End time must be after start time",
+      });
+    }
+
     const excludeId = req.params.id;
 
     const candidates = await Section.find({

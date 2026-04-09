@@ -1,6 +1,26 @@
 const Section = require("../models/Section");
 const { promoteNextFromWaitlist } = require("./enrollmentcontroller");
 
+// جلب كل السكشنز الخاصة بالأستاذ المسجل دخوله
+exports.getMySections = async (req, res) => {
+  try {
+    const { semesterId } = req.query;
+    const filter = { instructor_id: req.user._id };
+    if (semesterId) filter.semester_id = semesterId;
+
+    const sections = await Section.find(filter)
+      .populate("course_id", "code title credits required_room_type")
+      .populate("semester_id", "term year is_active")
+      .populate("room_id", "room_name building_section type capacity")
+      .sort({ day: 1, start_time: 1 })
+      .lean();
+
+    return res.status(200).json({ success: true, sections });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // جلب السكشنز حسب الترم واختياريًا حسب الكورس (للعرض للطالب)
 exports.getSections = async (req, res) => {
   try {
@@ -17,7 +37,7 @@ exports.getSections = async (req, res) => {
     const sections = await Section.find(filter)
       .populate("course_id", "code title credits")
       .populate("instructor_id", "name")
-      .populate("room_id", "room_number type capacity")
+      .populate("room_id", "room_name building_section type capacity")
       .sort({ course_id: 1, sectionNumber: 1 })
       .lean();
 

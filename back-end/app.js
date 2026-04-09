@@ -52,7 +52,12 @@ app.use(
   require("./Routes/registrationSliceRoutes"),
 );
 app.use("/api/v1/courses", courseRoutes);
+app.use("/api/v1/departments", require("./Routes/departmentRoutes"));
+app.use("/api/v1/study-plan", require("./Routes/studyPlanRoutes"));
 app.use("/api/v1/admin", adminRoute);
+app.use("/api/v1/upload", require("./Routes/uploadRoutes"));
+app.use("/api/v1/chat", require("./Routes/chatRoutes"));
+app.use("/api/v1/receipts", require("./Routes/receiptRoutes"));
 app.use("/api/notifications", notificationRouter);
 app.all(/(.*)/, (req, res) => {
   return res.status(404).json({

@@ -1,33 +1,13 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDispatch } from "react-redux";
-import { Profile } from "../(screens)/profile";
+import { useAppTheme } from "../../context/ThemeContext";
+import DashboardScreen from "../../screens/main/DashboardScreen";
 
 export default function HomeScreen() {
-  const dispatch = useDispatch();
-
+  const { theme } = useAppTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f5f5f5" }}>
-      <Profile />
-      {/* <DashBoardScreen /> */}
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+      <DashboardScreen />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  logoutBtn: {
-    backgroundColor: "#FF3B30",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

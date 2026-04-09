@@ -1,38 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   ActivityIndicator,
   Alert,
-  RefreshControl,
   FlatList,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { Ionicons } from '@expo/vector-icons';
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { useAppTheme } from "../../context/ThemeContext";
 import {
   fetchAvailableCourses,
-  registerForCourse,
   joinWaitlist,
-} from '../../store/slices/enrollmentSlice';
+  registerForCourse,
+} from "../../store/slices/enrollmentSlice";
+
+const MAX_CREDITS = 18;
 
 export default function CourseRegistrationScreen() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { courses, loading, registrationLoading, error } = useSelector(
-    (state) => state.enrollment
-  );
+  const { theme } = useAppTheme();
+  const {
+    courses: availableCourses,
+    sections: availableSections,
+    loading,
+    error,
+  } = useSelector((state) => state.enrollment);
+
   const [refreshing, setRefreshing] = useState(false);
+  const [collapsed, setCollapsed] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [enrollingSectionId, setEnrollingSectionId] = useState(null);
 
   useEffect(() => {
     loadCourses();
   }, []);
 
-  const loadCourses = async () => {
-    await dispatch(fetchAvailableCourses());
-  };
+  const loadCourses = () => dispatch(fetchAvailableCourses());
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -40,143 +49,232 @@ export default function CourseRegistrationScreen() {
     setRefreshing(false);
   };
 
-  const handleRegisterCourse = async (course) => {
+  const courseGroups = useMemo(() => {
+    if (!availableCourses || !availableSections) return [];
+    const availableIds = new Set(availableCourses.map((c) => c._id));
+    const map = new Map();
+    for (const sec of availableSections) {
+      const cid = sec.course_id?._id;
+      if (!cid || !availableIds.has(cid)) continue;
+      if (!map.has(cid)) {
+        const course = availableCourses.find((c) => c._id === cid);
+        map.set(cid, { course, sections: [] });
+      }
+      map.get(cid).sections.push(sec);
+    }
+    return Array.from(map.entries()).map(
+      ([courseId, { course, sections }]) => ({ courseId, course, sections }),
+    );
+  }, [availableCourses, availableSections]);
+
+  const filteredGroups = useMemo(() => {
+    if (!searchQuery.trim()) return courseGroups;
+    const q = searchQuery.trim().toLowerCase();
+    return courseGroups.filter((g) => {
+      const code = (g.course?.code || "").toLowerCase();
+      const title = (g.course?.title || "").toLowerCase();
+      return code.includes(q) || title.includes(q);
+    });
+  }, [courseGroups, searchQuery]);
+
+  const toggleCollapsed = (courseId) =>
+    setCollapsed((prev) => ({ ...prev, [courseId]: !prev[courseId] }));
+
+  const handleEnroll = async (sectionId) => {
     if (!user?._id) {
-      Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
+      Alert.alert("Error", "Please log in first");
       return;
     }
-
+    setEnrollingSectionId(sectionId);
     const result = await dispatch(
-      registerForCourse({
-        studentId: user._id,
-        sectionId: course._id,
-      })
+      registerForCourse({ studentId: user._id, sectionId }),
     );
-
     if (registerForCourse.fulfilled.match(result)) {
-      Alert.alert(
-        'نجح التسجيل',
-        'تم تسجيلك في المادة بنجاح'
-      );
+      Alert.alert("Enrolled", "You have been enrolled successfully.");
+      loadCourses();
     } else {
-      Alert.alert('خطأ', error || 'حدث خطأ أثناء التسجيل');
+      Alert.alert("Error", error || "Enrollment failed");
     }
+    setEnrollingSectionId(null);
   };
 
-  const handleJoinWaitlist = async (course) => {
+  const handleWaitlist = async (sectionId) => {
     if (!user?._id) {
-      Alert.alert('خطأ', 'يجب تسجيل الدخول أولاً');
+      Alert.alert("Error", "Please log in first");
       return;
     }
-
+    setEnrollingSectionId(sectionId);
     const result = await dispatch(
-      joinWaitlist({
-        studentId: user._id,
-        sectionId: course._id,
-      })
+      joinWaitlist({ studentId: user._id, sectionId }),
     );
-
     if (joinWaitlist.fulfilled.match(result)) {
-      Alert.alert(
-        'تمت الإضافة',
-        'تمت إضافتك إلى قائمة الانتظار'
-      );
+      Alert.alert("Added", "You have been added to the waitlist.");
+      loadCourses();
     } else {
-      Alert.alert('خطأ', error || 'حدث خطأ أثناء الإضافة لقائمة الانتظار');
+      Alert.alert("Error", error || "Failed to join waitlist");
     }
+    setEnrollingSectionId(null);
   };
 
-  const CourseCard = ({ item }) => {
-    const isFull = item.enrolledStudents >= item.capacity;
-    const isRegistered = item.isStudentEnrolled;
+  // ── Styles (built from theme, before any early return) ───────────────────
+  const s = StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.bg },
+    listContent: { paddingHorizontal: 16, paddingBottom: 32 },
+    listHeader: { paddingTop: 0, paddingBottom: 12, gap: 12 },
+    subtitle: { fontSize: 13, color: theme.textSub, lineHeight: 18 },
+    searchBox: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+    },
+    searchInput: { flex: 1, fontSize: 14, color: theme.text },
+    emptyBox: { alignItems: "center", paddingVertical: 48, gap: 12 },
+    emptyText: { fontSize: 14, color: theme.textSub, textAlign: "center" },
+    courseGroup: {
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 12,
+      marginBottom: 12,
+      overflow: "hidden",
+    },
+    courseGroupHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+    },
+    courseGroupLeft: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
+      flex: 1,
+    },
+    chevron: {
+      fontSize: 12,
+      color: theme.textSub,
+      transform: [{ rotate: "-90deg" }],
+    },
+    chevronOpen: { transform: [{ rotate: "0deg" }] },
+    courseBadge: {
+      width: 48,
+      height: 48,
+      borderRadius: 8,
+      backgroundColor: theme.cardAlt,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    courseBadgeLabel: {
+      fontSize: 10,
+      fontWeight: "700",
+      color: theme.textSub,
+      textTransform: "uppercase",
+    },
+    courseBadgeVal: { fontSize: 14, fontWeight: "700", color: theme.text },
+    courseTitleWrap: { flex: 1 },
+    courseCode: {
+      fontSize: 14,
+      fontWeight: "700",
+      color: theme.text,
+      marginBottom: 2,
+    },
+    courseTitle: { fontSize: 13, color: theme.textSub },
+    sectionsContainer: {
+      borderTopWidth: 1,
+      borderTopColor: theme.border,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 8,
+    },
+    sectionRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.bg,
+      borderWidth: 1,
+      borderColor: theme.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      marginBottom: 6,
+      gap: 12,
+    },
+    sectionInfo: {
+      flex: 1,
+      flexWrap: "wrap",
+      flexDirection: "row",
+      gap: 6,
+      alignItems: "center",
+    },
+    sectionNum: { fontSize: 13, fontWeight: "700", color: theme.text },
+    sectionMeta: { fontSize: 12, color: theme.textSub },
+    sectionActions: { flexShrink: 0 },
+    btn: {
+      paddingVertical: 8,
+      paddingHorizontal: 14,
+      borderRadius: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: 72,
+    },
+    btnEnroll: { backgroundColor: theme.accent },
+    btnEnrollText: { fontSize: 13, fontWeight: "600", color: theme.accentFg },
+    btnWaitlist: {
+      backgroundColor: "rgba(249,115,22,0.1)",
+      borderWidth: 1,
+      borderColor: "#f97316",
+    },
+    btnWaitlistText: { fontSize: 13, fontWeight: "600", color: "#f97316" },
+  });
+
+  // ── Sub-components (defined after s so they can reference it) ────────────
+
+  const SectionRow = ({ sec }) => {
+    const isFull = (sec.enrolled_students?.length ?? 0) >= sec.capacity;
+    const instructor = sec.instructor_id?.name ?? "–";
+    const room = sec.room_id?.room_name ?? sec.room_id?.number ?? "–";
+    const time = [sec.day, sec.start_time, sec.end_time]
+      .filter(Boolean)
+      .join(" ");
+    const isLoading = enrollingSectionId === sec._id;
 
     return (
-      <View style={styles.courseCard}>
-        <View style={styles.courseHeader}>
-          <View style={styles.courseInfo}>
-            <Text style={styles.courseName}>{item.courseCode}</Text>
-            <Text style={styles.courseTitle}>{item.courseName}</Text>
-          </View>
-          {isFull && (
-            <View style={styles.fullBadge}>
-              <Text style={styles.fullBadgeText}>ممتلئة</Text>
-            </View>
-          )}
+      <View style={s.sectionRow}>
+        <View style={s.sectionInfo}>
+          <Text style={s.sectionNum}>Sec {sec.sectionNumber}</Text>
+          <Text style={s.sectionMeta}>{time || "–"}</Text>
+          <Text style={s.sectionMeta}>{instructor}</Text>
+          <Text style={s.sectionMeta}>Room {room}</Text>
+          <Text style={s.sectionMeta}>Cap. {sec.capacity}</Text>
         </View>
-
-        <View style={styles.courseDetails}>
-          <View style={styles.detail}>
-            <Ionicons name="person" size={16} color="#666" />
-            <Text style={styles.detailText}>
-              {item.instructor || 'معلم'}: {item.enrolledStudents}/{item.capacity}
-            </Text>
-          </View>
-
-          <View style={styles.detail}>
-            <Ionicons name="time" size={16} color="#666" />
-            <Text style={styles.detailText}>
-              {item.schedule || 'الجدول سيرسل لاحقاً'}
-            </Text>
-          </View>
-
-          <View style={styles.detail}>
-            <Ionicons name="location" size={16} color="#666" />
-            <Text style={styles.detailText}>
-              {item.room || 'الموقع قريب'}
-            </Text>
-          </View>
-
-          {item.prerequisites && (
-            <View style={styles.detail}>
-              <Ionicons name="checkmark-circle" size={16} color="#666" />
-              <Text style={styles.detailText}>
-                المتطلبات: {item.prerequisites}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.courseFooter}>
-          <Text style={styles.creditHours}>
-            {item.creditHours} ساعات معتمدة
-          </Text>
-        </View>
-
-        {/* Action Button */}
-        <View style={styles.actionContainer}>
-          {isRegistered ? (
-            <View style={styles.registeredBadge}>
-              <Ionicons name="checkmark" size={18} color="#34C759" />
-              <Text style={styles.registeredText}>مسجل</Text>
-            </View>
-          ) : isFull ? (
+        <View style={s.sectionActions}>
+          {isFull ? (
             <TouchableOpacity
-              style={[styles.button, styles.waitlistButton]}
-              onPress={() => handleJoinWaitlist(item)}
-              disabled={registrationLoading}
+              style={[s.btn, s.btnWaitlist]}
+              onPress={() => handleWaitlist(sec._id)}
+              disabled={isLoading}
             >
-              {registrationLoading ? (
-                <ActivityIndicator color="#FF9500" size="small" />
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#f97316" />
               ) : (
-                <>
-                  <Ionicons name="hourglass" size={18} color="#FF9500" />
-                  <Text style={styles.waitlistButtonText}>الانضمام للانتظار</Text>
-                </>
+                <Text style={s.btnWaitlistText}>Waitlist</Text>
               )}
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              style={[styles.button, styles.registerButton]}
-              onPress={() => handleRegisterCourse(item)}
-              disabled={registrationLoading}
+              style={[s.btn, s.btnEnroll]}
+              onPress={() => handleEnroll(sec._id)}
+              disabled={isLoading}
             >
-              {registrationLoading ? (
-                <ActivityIndicator color="#fff" size="small" />
+              {isLoading ? (
+                <ActivityIndicator size="small" color={theme.accentFg} />
               ) : (
-                <>
-                  <Ionicons name="add-circle" size={18} color="#fff" />
-                  <Text style={styles.registerButtonText}>تسجيل</Text>
-                </>
+                <Text style={s.btnEnrollText}>Enroll</Text>
               )}
             </TouchableOpacity>
           )}
@@ -185,201 +283,113 @@ export default function CourseRegistrationScreen() {
     );
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>تسجيل المواد</Text>
-        <Text style={styles.subtitle}>
-          عدد المواد المتاحة: {courses.length}
+  const CourseGroup = ({ item }) => {
+    const { courseId, course, sections } = item;
+    const isOpen = !collapsed[courseId];
+    return (
+      <View style={s.courseGroup}>
+        <TouchableOpacity
+          style={s.courseGroupHeader}
+          onPress={() => toggleCollapsed(courseId)}
+          activeOpacity={0.7}
+        >
+          <View style={s.courseGroupLeft}>
+            <Text style={[s.chevron, isOpen && s.chevronOpen]}>▼</Text>
+            <View style={s.courseBadge}>
+              <Text style={s.courseBadgeLabel}>CR</Text>
+              <Text style={s.courseBadgeVal}>{course?.credits ?? "–"}</Text>
+            </View>
+            <View style={s.courseTitleWrap}>
+              <Text style={s.courseCode}>{course?.code ?? "–"}</Text>
+              <Text style={s.courseTitle} numberOfLines={2}>
+                {course?.title ?? ""}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        {isOpen && (
+          <View style={s.sectionsContainer}>
+            {sections.map((sec) => (
+              <SectionRow key={sec._id} sec={sec} />
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const ListHeader = () => (
+    <View style={s.listHeader}>
+      <Text style={s.subtitle}>
+        Select a section per course to enroll. Max {MAX_CREDITS} credits.
+      </Text>
+      <View style={s.searchBox}>
+        <Ionicons
+          name="search"
+          size={16}
+          color={theme.textSub}
+          style={{ marginRight: 8 }}
+        />
+        <TextInput
+          style={s.searchInput}
+          placeholder="Search by code or title"
+          placeholderTextColor={theme.textSub}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+    </View>
+  );
+
+  const ListEmpty = () => (
+    <View style={s.emptyBox}>
+      <Ionicons name="alert-circle-outline" size={48} color={theme.border} />
+      <Text style={s.emptyText}>
+        {courseGroups.length === 0
+          ? "No courses available for this semester."
+          : "No courses match your search."}
+      </Text>
+    </View>
+  );
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  if (loading && courseGroups.length === 0) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.bg,
+          gap: 12,
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.accent} />
+        <Text style={{ fontSize: 14, color: theme.textSub }}>
+          Loading courses…
         </Text>
       </View>
+    );
+  }
 
-      {loading && courses.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>جاري تحميل المواد...</Text>
-        </View>
-      ) : courses.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <Ionicons name="alert-circle" size={64} color="#ccc" />
-          <Text style={styles.emptyText}>لا توجد مواد متاحة حالياً</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={courses}
-          renderItem={({ item }) => <CourseCard item={item} />}
-          keyExtractor={(item) => item._id}
-          scrollEnabled={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          contentContainerStyle={styles.listContent}
-        />
-      )}
+  return (
+    <View style={s.container}>
+      <FlatList
+        data={filteredGroups}
+        keyExtractor={(item) => item.courseId}
+        renderItem={({ item }) => <CourseGroup item={item} />}
+        ListHeaderComponent={<ListHeader />}
+        ListEmptyComponent={<ListEmpty />}
+        contentContainerStyle={s.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.accent}
+          />
+        }
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    alignItems: 'flex-end',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 12,
-    color: '#999',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#666',
-  },
-  emptyText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#999',
-  },
-  listContent: {
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-  },
-  courseCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  courseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    marginBottom: 12,
-  },
-  courseInfo: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  courseName: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 4,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  fullBadge: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginLeft: 12,
-  },
-  fullBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  courseDetails: {
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  detail: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  detailText: {
-    marginLeft: 8,
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'right',
-  },
-  courseFooter: {
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  creditHours: {
-    fontSize: 12,
-    color: '#007AFF',
-    fontWeight: '600',
-    textAlign: 'right',
-  },
-  actionContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 8,
-    minHeight: 40,
-  },
-  registerButton: {
-    backgroundColor: '#007AFF',
-  },
-  registerButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  waitlistButton: {
-    backgroundColor: 'rgba(255, 149, 0, 0.1)',
-    borderWidth: 1,
-    borderColor: '#FF9500',
-  },
-  waitlistButtonText: {
-    color: '#FF9500',
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  registeredBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: 'rgba(52, 199, 89, 0.1)',
-    borderWidth: 1,
-    borderColor: '#34C759',
-  },
-  registeredText: {
-    color: '#34C759',
-    fontSize: 12,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-});

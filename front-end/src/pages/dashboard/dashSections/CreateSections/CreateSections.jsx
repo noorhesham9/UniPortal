@@ -1,6 +1,10 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { FaCalendarAlt, FaInfoCircle, FaUsers } from "react-icons/fa";
+import { getUsers } from "../../../../services/AdminServices";
+import { getAllCourses } from "../../../../services/CourseServices";
+import { getRooms } from "../../../../services/RoomServices";
+import { createSection } from "../../../../services/SectionServices";
+import { getAllSemesters } from "../../../../services/SemesterServices";
 
 const pageStyles = {
   minHeight: "100vh",
@@ -260,38 +264,26 @@ const CreateSections = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // بنفذ كل الـ requests مع بعض
         const [coursesRes, instructorsRes, roomsRes, semestersRes] =
           await Promise.all([
-            axios.get("http://localhost:3100/api/v1/courses", {
-              withCredentials: true,
-            }),
-            axios.get(
-              "http://localhost:3100/api/v1/admin/users?role=instructor",
-              { withCredentials: true },
-            ),
-            axios.get("http://localhost:3100/api/v1/rooms", {
-              withCredentials: true,
-            }),
-            axios.get("http://localhost:3100/api/v1/semesters", {
-              withCredentials: true,
-            }),
+            getAllCourses(1, 100),
+            getUsers("professor"),
+            getRooms(),
+            getAllSemesters(),
           ]);
-
-        // استخراج البيانات (axios بيحط البيانات جوه property اسمها data)
-        const coursesData = coursesRes.data.courses || [];
-        const instructorsData = instructorsRes.data || [];
-        const roomsData = roomsRes.data || [];
-        const semestersData = semestersRes.data.semesters || [];
-
-        // تحديث الـ States
-        setCourses(coursesData);
-        setInstructors(instructorsData);
-        setRooms(roomsData);
-        setSemesters(semestersData);
+        setCourses(coursesRes.courses || []);
+        setInstructors(
+          Array.isArray(instructorsRes)
+            ? instructorsRes
+            : instructorsRes.users || [],
+        );
+        setRooms(Array.isArray(roomsRes) ? roomsRes : roomsRes.rooms || []);
+        setSemesters(
+          semestersRes.semesters ||
+            (Array.isArray(semestersRes) ? semestersRes : []),
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
-        // في حالة حدوث أي خطأ، بنخلي الـ states مصفوفات فاضية عشان الـ UI ميتكسرش
         setCourses([]);
         setInstructors([]);
         setRooms([]);
@@ -311,28 +303,18 @@ const CreateSections = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(
-        "http://localhost:3100/api/v1/sections",
-        formData,
-        {
-          withCredentials: true, // الإعدادات تكون في الملحق الثالث
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const data = await res.json();
-      if (res.ok) {
-        setFormData({
-          sectionNumber: "",
-          course_id: "",
-          semester_id: "",
-          instructor_id: "",
-          room_id: "",
-          day: "",
-          start_time: "",
-          end_time: "",
-          capacity: "",
-        });
-      }
+      await createSection(formData);
+      setFormData({
+        sectionNumber: "",
+        course_id: "",
+        semester_id: "",
+        instructor_id: "",
+        room_id: "",
+        day: "",
+        start_time: "",
+        end_time: "",
+        capacity: "",
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -469,7 +451,7 @@ const CreateSections = () => {
 
               <div style={cardStyles}>
                 <div style={cardHeaderStyles}>
-                  <div style={cardIconCircleStyles("#22c55e")}> 
+                  <div style={cardIconCircleStyles("#22c55e")}>
                     <FaCalendarAlt size={16} />
                   </div>
                   <div>
@@ -551,7 +533,7 @@ const CreateSections = () => {
                     <option value="">Select room or lab</option>
                     {rooms.map((room) => (
                       <option key={room._id} value={room._id}>
-                        {room.room_number} ({room.type})
+                        {room.room_name} ({room.type})
                       </option>
                     ))}
                   </select>
@@ -633,7 +615,7 @@ const CreateSections = () => {
                     width: "26px",
                     height: "26px",
                     borderRadius: "999px",
-                      background:"var(--accent-alt)",
+                    background: "var(--accent-alt)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
