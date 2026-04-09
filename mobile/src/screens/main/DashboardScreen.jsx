@@ -40,8 +40,6 @@ export default function DashboardScreen() {
   const avatarUri = user?.profilePhoto?.url
     || `${AVATAR_PLACEHOLDER}${encodeURIComponent(user?.name || 'S')}`;
 
-  console.log('[Avatar] profilePhoto:', user?.profilePhoto, '→ uri:', avatarUri);
-
   const s = makeStyles(theme);
 
   return (
@@ -98,13 +96,16 @@ export default function DashboardScreen() {
           value={user?.email || '—'}
           small
         />
+        
         <InfoCard
           theme={theme}
           icon="trending-up-outline"
           iconColor="#34C759"
           label="المعدل التراكمي"
           value={`${gpa} / 5.0`}
+          onPress={() => router.push('/(screens)/transcript')}
         />
+
         <InfoCard
           theme={theme}
           icon="book-outline"
@@ -169,10 +170,16 @@ export default function DashboardScreen() {
 
 /* ── Sub-components ─────────────────────────────────────────── */
 
-function InfoCard({ theme, icon, iconColor, label, value, valueColor, loading, small }) {
+function InfoCard({ theme, icon, iconColor, label, value, valueColor, loading, small, onPress }) {
   const s = makeStyles(theme);
+  const Container = onPress ? TouchableOpacity : View;
+
   return (
-    <View style={s.infoCard}>
+    <Container 
+      style={s.infoCard} 
+      onPress={onPress} 
+      activeOpacity={onPress ? 0.7 : 1}
+    >
       <View style={[s.iconCircle, { backgroundColor: iconColor + '18' }]}>
         <Ionicons name={icon} size={20} color={iconColor} />
       </View>
@@ -187,7 +194,7 @@ function InfoCard({ theme, icon, iconColor, label, value, valueColor, loading, s
           {value}
         </Text>
       )}
-    </View>
+    </Container>
   );
 }
 
