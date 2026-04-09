@@ -41,6 +41,8 @@ import AllEnrollments from "./dashSections/AllEnrollments/AllEnrollments";
 import Settings from "./dashSections/Settings/Settings";
 import TuitionApproval from "./dashSections/TuitionApproval/TuitionApproval";
 import CourseManagement from "./dashSections/CourseManagement/CourseManagement";
+import AdManagement from "../AdManagement/AdManagement";
+
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
