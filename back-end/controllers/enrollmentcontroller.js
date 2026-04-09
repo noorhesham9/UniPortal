@@ -293,3 +293,224 @@ exports.deleteEnrollment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get academic records (GPA, semesters, grades)
+exports.getAcademicRecords = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Fetch all approved enrollments with populated section and course data
+    const enrollments = await Enrollment.find({
+      student: studentId,
+      status: "Approved",
+    })
+      .populate({
+        path: "section",
+        populate: [
+          { path: "course_id", select: "code title credits" },
+          { path: "semester_id", select: "year term is_active" },
+        ],
+      })
+      .sort({ createdAt: -1 });
+
+    if (!enrollments || enrollments.length === 0) {
+      return res.status(200).json({
+        success: true,
+        cumulativeGPA: 0,
+        totalCredits: 0,
+        averageGrade: "N/A",
+        semesters: [],
+      });
+    }
+
+    // Group enrollments by semester
+    const semesterMap = {};
+    let totalGradePoints = 0;
+    let totalCredits = 0;
+    const gradeToPoint = {
+      "A+": 4.0,
+      A: 4.0,
+      "A-": 3.7,
+      "B+": 3.3,
+      B: 3.0,
+      "B-": 2.7,
+      "C+": 2.3,
+      C: 2.0,
+      "C-": 1.7,
+      D: 1.0,
+      F: 0.0,
+    };
+
+    enrollments.forEach((enrollment) => {
+      if (enrollment.section?.semester_id) {
+        const semester = enrollment.section.semester_id;
+        const semesterId = semester._id.toString();
+        const credit = enrollment.section.course_id?.credits || 0;
+        const grade = enrollment.grades_object?.grade || "N/A";
+        const gradePoint = gradeToPoint[grade] ?? 0;
+
+        if (!semesterMap[semesterId]) {
+          semesterMap[semesterId] = {
+            _id: semesterId,
+            year: semester.year,
+            term: semester.term,
+            displayName: `${semester.term} ${semester.year}`,
+            isActive: semester.is_active,
+            courses: [],
+            totalCredits: 0,
+            totalGradePoints: 0,
+          };
+        }
+
+        semesterMap[semesterId].courses.push({
+          code: enrollment.section.course_id?.code,
+          title: enrollment.section.course_id?.title,
+          credits: credit,
+          grade: grade,
+          gradePoint: gradePoint,
+        });
+
+        semesterMap[semesterId].totalCredits += credit;
+        semesterMap[semesterId].totalGradePoints += gradePoint * credit;
+
+        totalCredits += credit;
+        totalGradePoints += gradePoint * credit;
+      }
+    });
+
+    // Calculate GPA for each semester
+    const semesters = Object.values(semesterMap).map((sem) => ({
+      ...sem,
+      gpa:
+        sem.totalCredits > 0
+          ? (sem.totalGradePoints / sem.totalCredits).toFixed(2)
+          : 0,
+    }));
+
+    // Sort semesters by year and term (most recent first)
+    semesters.sort((a, b) => {
+      if (b.year !== a.year) return b.year - a.year;
+      const termOrder = { Fall: 3, Spring: 2, Summer: 1 };
+      return (termOrder[b.term] || 0) - (termOrder[a.term] || 0);
+    });
+
+    // Calculate cumulative GPA and average grade
+    const cumulativeGPA =
+      totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : 0;
+
+    // Calculate average grade letter
+    const averageGradePoint = totalCredits > 0 ? totalGradePoints / totalCredits : 0;
+    let averageGrade = "N/A";
+    if (averageGradePoint >= 3.7) averageGrade = "A";
+    else if (averageGradePoint >= 3.3) averageGrade = "B+";
+    else if (averageGradePoint >= 3.0) averageGrade = "B";
+    else if (averageGradePoint >= 2.7) averageGrade = "B-";
+    else if (averageGradePoint >= 2.3) averageGrade = "C+";
+    else if (averageGradePoint >= 2.0) averageGrade = "C";
+    else if (averageGradePoint >= 1.7) averageGrade = "C-";
+    else if (averageGradePoint >= 1.0) averageGrade = "D";
+    else if (averageGradePoint > 0) averageGrade = "F";
+
+    res.status(200).json({
+      success: true,
+      cumulativeGPA: parseFloat(cumulativeGPA),
+      totalCredits,
+      averageGrade,
+      semesters,
+    });
+  } catch (error) {
+    console.error("Error fetching academic records:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching academic records",
+      error: error.message,
+    });
+  }
+};
+
+// Get current semester grades (coursework and final exam)
+exports.getCurrentSemesterGrades = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Fetch active semester
+    const activeSemester = await require("../models/Semester").findOne({
+      is_active: true,
+    });
+
+    if (!activeSemester) {
+      return res.status(200).json({
+        success: true,
+        semester: {},
+        courses: [],
+        averageCoursework: 0,
+        averageFinal: 0,
+        overallAverage: 0,
+      });
+    }
+
+    // Fetch enrollments for current semester
+    const enrollments = await Enrollment.find({
+      student: studentId,
+      status: "Approved",
+    })
+      .populate({
+        path: "section",
+        match: { semester_id: activeSemester._id },
+        populate: [
+          { path: "course_id", select: "code title credits" },
+          { path: "semester_id", select: "year term is_active" },
+        ],
+      })
+      .lean();
+
+    // Filter only current semester enrollments with valid sections
+    const currentSemesterEnrollments = enrollments.filter((e) => e.section != null);
+
+    const courses = currentSemesterEnrollments.map((enrollment) => ({
+      _id: enrollment._id,
+      code: enrollment.section.course_id?.code || "N/A",
+      title: enrollment.section.course_id?.title || "Course",
+      coursework: enrollment.grades_object?.coursework || 0,
+      final: enrollment.grades_object?.final || 0,
+      total: (enrollment.grades_object?.coursework || 0) + (enrollment.grades_object?.final || 0),
+    }));
+
+    // Calculate averages
+    let averageCoursework = 0;
+    let averageFinal = 0;
+    let totalOverall = 0;
+
+    if (courses.length > 0) {
+      averageCoursework =
+        courses.reduce((sum, course) => sum + (course.coursework || 0), 0) /
+        courses.length;
+      averageFinal =
+        courses.reduce((sum, course) => sum + (course.final || 0), 0) /
+        courses.length;
+      totalOverall =
+        courses.reduce((sum, course) => sum + course.total, 0) / courses.length;
+    }
+
+    res.status(200).json({
+      success: true,
+      semester: {
+        year: activeSemester.year,
+        term: activeSemester.term,
+        displayName: `${activeSemester.term} ${activeSemester.year}`,
+        isActive: activeSemester.is_active,
+      },
+      courses,
+      averageCoursework: parseFloat(averageCoursework.toFixed(2)),
+      averageFinal: parseFloat(averageFinal.toFixed(2)),
+      overallAverage: parseFloat(totalOverall.toFixed(2)),
+    });
+  } catch (error) {
+    console.error("Error fetching current semester grades:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching current semester grades",
+      error: error.message,
+    });
+  }
+};

@@ -14,6 +14,7 @@ import ViewEnrollment from "./dashSections/ViewEnrollment";
 import AllowedIDS from "./dashSections/allowedIDS/AllowedIDS";
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
 import EditRoom from "./dashSections/RoomManagement/EditRoom";
+import AcademicRecords from "./dashSections/AcademicRecords";
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
@@ -87,6 +88,8 @@ function DashBoard() {
         ) : (
           <div className="error">عذراً، ليس لديك صلاحية لتعديل الغرف</div>
         );
+      case "academic_records":
+        return <AcademicRecords />;
       default:
         return (
           <div className="welcome-msg">

@@ -1,4 +1,4 @@
-import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar, FiLayers } from "react-icons/fi";
+import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar, FiLayers, FiFileText } from "react-icons/fi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 function Sidebar({ userPermissions }) {
@@ -11,6 +11,12 @@ function Sidebar({ userPermissions }) {
       id: "profile",
       label: "الملف الشخصي",
       icon: <FiUser />,
+      permission: null,
+    },
+    {
+      id: "academic_records",
+      label: "السجل الأكاديمي",
+      icon: <FiFileText />,
       permission: null,
     },
     {

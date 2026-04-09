@@ -11,6 +11,8 @@ const {
   leaveWaitlist,
   getWaitlistRank,
   deleteEnrollment,
+  getAcademicRecords,
+  getCurrentSemesterGrades,
 } = require("../controllers/enrollmentcontroller");
 
 const { requireAuth } = require("../middleware/requireAuth");
@@ -38,4 +40,11 @@ router.get("/waitlist/rank/:id", getWaitlistRank);
 
 // حذف تسجيل (drop) student من سكشن
 router.delete("/:id", deleteEnrollment);
+
+// Get academic records (GPA, semesters, grades)
+router.get("/:studentId/academic-records", requireAuth, getAcademicRecords);
+
+// Get current semester grades (coursework and final)
+router.get("/:studentId/current-semester-grades", requireAuth, getCurrentSemesterGrades);
+
 module.exports = router;
