@@ -1,0 +1,178 @@
+.cm-root { color: var(--textprimary); }
+
+/* Header */
+.cm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.cm-title { font-size: 1.6rem; font-weight: 700; color: var(--foreground); margin: 0 0 0.3rem; }
+.cm-sub   { color: var(--textsecondary); font-size: 0.9rem; margin: 0; }
+
+.cm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cm-filter-icon { color: var(--textsecondary); font-size: 1rem; }
+.cm-select {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--divider);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+}
+.cm-select:focus { border-color: rgba(250,204,21,0.5); }
+
+/* Summary */
+.cm-summary {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+.cm-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  padding: 0.4rem 1rem;
+}
+.cm-stat svg { color: #facc15; }
+
+/* States */
+.cm-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--textsecondary);
+  font-size: 0.9rem;
+}
+.cm-error { color: #ef4444; }
+.cm-empty { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+
+/* Semester block */
+.cm-semester-block { margin-bottom: 2rem; }
+.cm-semester-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--textsecondary);
+  margin-bottom: 0.85rem;
+}
+.cm-semester-active { color: #facc15; }
+.cm-active-pill {
+  background: rgba(250,204,21,0.15);
+  color: #facc15;
+  border: 1px solid rgba(250,204,21,0.3);
+  border-radius: 20px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* Course block */
+.cm-course-block {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.cm-course-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--divider);
+  background: rgba(255,255,255,0.02);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cm-course-info { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.cm-course-code {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #facc15;
+  background: rgba(250,204,21,0.1);
+  border: 1px solid rgba(250,204,21,0.25);
+  border-radius: 6px;
+  padding: 0.15rem 0.55rem;
+}
+.cm-course-title  { font-size: 0.95rem; font-weight: 600; color: var(--foreground); }
+.cm-course-credits {
+  font-size: 0.75rem;
+  color: var(--textsecondary);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  padding: 0.1rem 0.5rem;
+}
+.cm-course-count { font-size: 0.78rem; color: var(--textsecondary); white-space: nowrap; }
+
+/* Table */
+.cm-table-wrap { overflow-x: auto; }
+.cm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.cm-table th {
+  padding: 0.65rem 1rem;
+  text-align: right;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--textsecondary);
+  border-bottom: 1px solid var(--divider);
+  white-space: nowrap;
+  background: rgba(255,255,255,0.01);
+}
+.cm-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--divider);
+  color: var(--foreground);
+  vertical-align: middle;
+}
+.cm-table tr:last-child td { border-bottom: none; }
+.cm-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+
+.cm-sec-num { font-weight: 600; color: var(--textsecondary); white-space: nowrap; }
+.cm-nowrap  { white-space: nowrap; }
+.cm-row-icon { margin-left: 0.3rem; vertical-align: middle; color: var(--textsecondary); font-size: 0.8rem; }
+
+/* Enrollment bar */
+.cm-enroll-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.cm-enroll-bar  { flex: 1; min-width: 48px; height: 5px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+.cm-enroll-fill { height: 100%; border-radius: 99px; transition: width 0.3s; }
+
+/* Badges */
+.cm-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.cm-badge-open      { background: rgba(16,185,129,0.15);  color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.cm-badge-full      { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.cm-badge-cancelled { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+.cm-badge-tentative { background: rgba(250,204,21,0.15);  color: #facc15; border: 1px solid rgba(250,204,21,0.3); }

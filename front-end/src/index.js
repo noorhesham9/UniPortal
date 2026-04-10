@@ -1,16 +1,18 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Provider } from "react-redux"; // 1. استيراد الـ Provider
+import { Provider } from "react-redux";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { store } from "./services/store/store"; // 2. استيراد الـ Store بتاعك
+import { store } from "./services/store/store";
+import { SocketProvider } from "./context/SocketContext";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <Provider store={store}>
+  <Provider store={store}>
+    <SocketProvider>
       <App />
-    </Provider>
-  </React.StrictMode>,
+    </SocketProvider>
+  </Provider>,
 );
 
 // If you want to start measuring performance in your app, pass a function

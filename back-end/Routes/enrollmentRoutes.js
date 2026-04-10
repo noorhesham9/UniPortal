@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  getAllEnrollments,
   getMyEnrollments,
   createEnrollment,
+  adminEnrollStudent,
   approveEnrollment,
   updateGrades,
   getCompletedHours,
@@ -16,9 +18,8 @@ const {
 } = require("../controllers/enrollmentcontroller");
 
 const { requireAuth } = require("../middleware/requireAuth");
-const {
-  checkEnrollmentEligibility,
-} = require("../middleware/enrollmentValidation");
+const { requirePermission } = require("../middleware/authorize");
+const { checkEnrollmentEligibility } = require("../middleware/enrollmentValidation");
 
 router.get("/my", requireAuth, getMyEnrollments);
 router.post("/", requireAuth, checkEnrollmentEligibility, createEnrollment);

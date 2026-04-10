@@ -1,7 +1,63 @@
 const Enrollment = require("../models/Enrollment");
 const Section = require("../models/Section");
 const User = require("../models/User");
-const { sendPushNotification } = require("../services/notificationService"); // جلب تسجيلات الطالب الحالي (للعرض في واجهة التسجيل)
+const { sendPushNotification } = require("../services/notificationService");
+
+// Admin: get all enrollments with filters
+exports.getAllEnrollments = async (req, res) => {
+  try {
+    const { semesterId, status, search, page = 1, limit = 50 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // Build section filter first if semesterId provided
+    let sectionIds;
+    if (semesterId) {
+      const sections = await Section.find({ semester_id: semesterId }).select("_id").lean();
+      sectionIds = sections.map((s) => s._id);
+    }
+
+    const query = {};
+    if (sectionIds) query.section = { $in: sectionIds };
+    if (status) query.status = status;
+
+    // If search, find matching students first
+    if (search) {
+      const students = await User.find({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { studentId: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id").lean();
+      query.student = { $in: students.map((s) => s._id) };
+    }
+
+    const [enrollments, total] = await Promise.all([
+      Enrollment.find(query)
+        .populate({ path: "student", select: "name studentId email" })
+        .populate({
+          path: "section",
+          populate: [
+            { path: "course_id", select: "code title credits" },
+            { path: "instructor_id", select: "name" },
+            { path: "room_id", select: "room_name building_section type" },
+            { path: "semester_id", select: "term year" },
+          ],
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit))
+        .lean(),
+      Enrollment.countDocuments(query),
+    ]);
+
+    return res.status(200).json({ success: true, enrollments, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// جلب تسجيلات الطالب الحالي (للعرض في واجهة التسجيل)
 exports.getMyEnrollments = async (req, res) => {
   try {
     const studentId = req.user?._id;
@@ -18,7 +74,7 @@ exports.getMyEnrollments = async (req, res) => {
           populate: [
             { path: "course_id", select: "code title credits" },
             { path: "instructor_id", select: "name" },
-            { path: "room_id", select: "room_number type capacity" },
+            { path: "room_id", select: "room_name building_section type capacity" },
           ],
         })
         .sort({ createdAt: -1 })
@@ -32,7 +88,7 @@ exports.getMyEnrollments = async (req, res) => {
         populate: [
           { path: "course_id", select: "code title credits" },
           { path: "instructor_id", select: "name" },
-          { path: "room_id", select: "room_number type capacity" },
+          { path: "room_id", select: "room_name building_section type capacity" },
         ],
       })
       .sort({ createdAt: -1 })

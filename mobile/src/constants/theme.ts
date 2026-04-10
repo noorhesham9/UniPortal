@@ -1,65 +1,44 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+// Theme constants for the mobile app
 
-import '@/global.css';
-
-import { Platform } from 'react-native';
+export const MaxContentWidth = 1120;
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    isDark: false,
+    bg: '#ffffff',
+    bgSecondary: '#f1f5f9',
+    card: '#ffffff',
+    cardAlt: '#f1f5f9',
+    border: '#e2e8f0',
+    text: '#0f172a',
+    textSub: '#64748b',
+    textMuted: '#94a3b8',
+    input: '#ffffff',
+    inputBorder: '#e2e8f0',
+    accent: '#facc15',
+    accentFg: '#0f172a',
+    tabBar: '#ffffff',
+    tabBorder: '#e2e8f0',
+    modalBg: '#ffffff',
+    shadow: 'rgba(0,0,0,0.08)',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    isDark: true,
+    bg: '#0b1625ff',
+    bgSecondary: '#0d1b2e',
+    card: '#0d1b2e',
+    cardAlt: '#1e293b',
+    border: '#1e293b',
+    text: '#f1f5f9',
+    textSub: '#94a3b8',
+    textMuted: '#475569',
+    input: '#1e293b',
+    inputBorder: '#334155',
+    accent: '#facc15',
+    accentFg: '#0d1b2e',
+    tabBar: '#0f172a',
+    tabBorder: '#1e293b',
+    modalBg: '#0f172a',
+    shadow: 'rgba(0,0,0,0.4)',
   },
-} as const;
-
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
-
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
-
-export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
-} as const;
-
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+};

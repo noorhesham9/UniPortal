@@ -4,19 +4,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap');
 
 .room-container {
-    background: #151F2E; /* لون الخلفية الرئيسي */
+    flex: 1;
     padding: 40px;
-    min-height: 100vh;
     font-family: 'Lexend', sans-serif;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
 }
 
 .room-title { 
     font-size: 30px; 
     font-weight: 700; 
-    margin-bottom: 8px; 
+    margin: 0 auto 8px; 
     color: #FFFFFF;
     width: 100%;
     max-width: 900px;
@@ -24,22 +23,23 @@
 }
 
 .room-subtitle { 
-    color: #94A3B8; /* لون النصوص الفرعية */
+    color: #94A3B8;
     font-size: 16px; 
     font-weight: 400;
-    margin-bottom: 32px; 
+    margin: 0 auto 32px; 
     width: 100%;
     max-width: 900px;
 }
 
 .room-form-card {
-    background: #1F2A3C; /* لون خلفية الكارت */
-    border: 1px solid #2D3748; /* لون البوردر الموحد */
+    background: #1F2A3C;
+    border: 1px solid #2D3748;
     border-radius: 12px;
     padding: 32px;
     width: 100%;
     max-width: 900px;
     box-sizing: border-box;
+    margin: 0 auto;
 }
 
 .section-header {
@@ -212,8 +212,8 @@ input:checked + .slider:before {
 
 /* الـ Danger Zone (تمت محاذاة ألوانها مع النظام الداكن) */
 .danger-container {
-    margin-top: 32px;
-    background: rgba(239, 68, 68, 0.05); /* أحمر شفاف جداً */
+    margin: 32px auto 0;
+    background: rgba(239, 68, 68, 0.05);
     border: 1px solid rgba(239, 68, 68, 0.2);
     padding: 24px;
     border-radius: 12px;

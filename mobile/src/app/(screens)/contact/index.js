@@ -1,47 +1,45 @@
 import React from "react";
-import { View, Text, StyleSheet, TextInput, Button } from "react-native";
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useAppTheme } from "../../../context/ThemeContext";
 
 export default function ContactScreen() {
+  const { theme: t } = useAppTheme();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Contact Us</Text>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
+      <Text style={[styles.title, { color: t.text }]}>Contact Us</Text>
 
       <TextInput
         placeholder="Your Name"
-        style={styles.input}
+        placeholderTextColor={t.textMuted}
+        style={[styles.input, { backgroundColor: t.input, borderColor: t.inputBorder, color: t.text }]}
       />
-
       <TextInput
         placeholder="Your Email"
-        style={styles.input}
+        placeholderTextColor={t.textMuted}
+        style={[styles.input, { backgroundColor: t.input, borderColor: t.inputBorder, color: t.text }]}
       />
-
       <TextInput
         placeholder="Your Message"
-        style={[styles.input, { height: 100 }]}
+        placeholderTextColor={t.textMuted}
+        style={[styles.input, { backgroundColor: t.input, borderColor: t.inputBorder, color: t.text, height: 100 }]}
         multiline
       />
 
-      <Button title="Send Message" onPress={() => alert("Your message has been sent!")} />
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: t.accent }]}
+        onPress={() => Alert.alert("Sent", "Your message has been sent!")}
+      >
+        <Text style={[styles.buttonText, { color: t.accentFg }]}>Send Message</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#888",
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 8,
-  },
+  container:  { flex: 1, padding: 20 },
+  title:      { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  input:      { borderWidth: 1, padding: 10, marginBottom: 15, borderRadius: 8, fontSize: 15 },
+  button:     { borderRadius: 10, padding: 14, alignItems: "center" },
+  buttonText: { fontSize: 16, fontWeight: "600" },
 });

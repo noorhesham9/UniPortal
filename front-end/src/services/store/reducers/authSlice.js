@@ -5,6 +5,8 @@ const initialState = {
   user: null,
   isAdmin: null,
   opendash: false,
+  impersonating: false,
+  originalUser: null,
 };
 
 export const authSlice = createSlice({
@@ -29,7 +31,19 @@ export const authSlice = createSlice({
       state.loading = false;
       state.token = null;
       state.isAdmin = null;
+      state.impersonating = false;
+      state.originalUser = null;
       localStorage.removeItem("user");
+    },
+    startImpersonation: (state, action) => {
+      state.originalUser = state.user;
+      state.user = action.payload;
+      state.impersonating = true;
+    },
+    stopImpersonation: (state) => {
+      state.user = state.originalUser;
+      state.originalUser = null;
+      state.impersonating = false;
     },
     Opendash: (state, action) => {
       state.opendash = true;
@@ -40,7 +54,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, logoutUser, Opendash, closedash } =
+export const { loginStart, loginSuccess, logoutUser, Opendash, closedash, startImpersonation, stopImpersonation } =
   authSlice.actions;
 
 export default authSlice.reducer;

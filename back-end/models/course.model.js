@@ -1,72 +1,55 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const courseSchema = new mongoose.Schema({
-  department_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
-    required: false,
-    index: true 
-  },
-
-  code: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true, 
-    uppercase: true 
-  },
-
-  title: {
-    type: String,
-    required: true,
-    trim: true
-  },
-
-  credits: {
-    type: Number,
-    required: true,
-    min: [1, 'عدد الساعات المعتمدة لا يمكن أن يقل عن 1'],
-    max: [6, 'عدد الساعات المعتمدة لا يتخطى غالباً 6']
-  },
-
-  level: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 4, 
-    index: true
-  },
-
-  required_room_type: {
-    type: String,
-    enum: {
-      values: ['Lab', 'Lecture Hall', 'Tutorial'],
-      message: '{VALUE} نوع القاعة غير مدعوم'
+const courseSchema = new mongoose.Schema(
+  {
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      uppercase: true,
     },
-    required: true
-  },
-
-  prerequisites_array: [
-    {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    credits: {
+      type: Number,
+      required: true,
+      min: [0, "Credits cannot be negative"],
+      max: [6, "Credits cannot exceed 6"],
+    },
+    required_room_type: {
+      type: String,
+      enum: {
+        values: ["Lab", "Lecture Hall", "Tutorial"],
+        message: "{VALUE} is not a supported room type",
+      },
+      required: true,
+    },
+    prerequisites_array: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+    is_activated: {
+      type: Boolean,
+      default: true,
+    },
+    department: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course'
-    }
-  ],
+      ref: "Department",
+      default: null, // null = course available for all departments
+    },
+    min_level: {
+      type: Number,
+      enum: [1, 2, 3, 4],
+      default: 1, // minimum student level that can enroll
+    },
+  },
+  { timestamps: true },
+);
 
-  is_activated: {
-    type: Boolean,
-    default: true
-  }
-
-}, { 
-  timestamps: true 
-});
-
-courseSchema.virtual('department_info', {
-  ref: 'Department',
-  localField: 'department_id',
-  foreignField: '_id',
-  justOne: true
-});
-
-module.exports = mongoose.model('Course', courseSchema);
+module.exports = mongoose.model("Course", courseSchema);

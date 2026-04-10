@@ -102,11 +102,11 @@
 /* ========== Global layout — background & accent used app-wide ========== */
 .App,
 .App main {
-  min-height: 100vh;
   background-color: hsl(var(--background));
 }
 .App {
   color: hsl(var(--foreground));
+  height: 100%;
 }
 
 /* Utility: use --accent-alt for highlights, badges, secondary buttons, etc. */
@@ -154,8 +154,10 @@
 
   html,
   body,
+  #root,
   #__next {
     height: 100%;
+    overflow: hidden;
   }
 
   body {

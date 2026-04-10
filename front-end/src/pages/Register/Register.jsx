@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   createUserWithEmailAndPassword,
   deleteUser,
@@ -10,6 +9,7 @@ import { FaGraduationCap } from "react-icons/fa";
 import { FiHash, FiLock, FiMail, FiUser } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../utils/firebaseConfig";
+import { registerWithToken } from "../../services/AuthServices";
 import "./Register.css";
 
 function Register() {
@@ -52,18 +52,9 @@ function Register() {
       const idToken = await userCredential.user.getIdToken();
 
       // 2. ابعت الـ idToken مع الـ StudentID للباك إند بتاعك
-      const response = await axios.post(
-        "http://localhost:3100/api/v1/auth/register",
-        {
-          idToken,
-          studentId,
-          name: fullName,
-          email: email,
-        },
-        { withCredentials: true },
-      );
+      const response = await registerWithToken({ idToken, studentId, name: fullName, email });
 
-      if (response.data.success) {
+      if (response.success) {
         alert("Registration Complete Go To Login Page!");
         navigate("/login");
       }

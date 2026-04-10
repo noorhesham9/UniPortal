@@ -1,97 +1,100 @@
-import axios from "axios";
+import api from "./api";
 
-const API_BASE_URL = "http://localhost:3100/api/v1";
-
-const withCreds = { withCredentials: true };
-
-// إنشاء كورس جديد
 export const createCourse = async (courseData) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/courses`, courseData, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const res = await api.post("/courses", courseData);
+  return res.data;
 };
 
-// جلب جميع الأقسام
-export const getDepartments = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/admin/departments`, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+export const getAllCourses = async (page = 1, limit = 10, search = "", filters = {}) => {
+  const params = new URLSearchParams({ page, limit });
+  if (search) params.append("search", search);
+  if (filters.department_id) params.append("department_id", filters.department_id);
+  if (filters.academic_year) params.append("academic_year", filters.academic_year);
+  if (filters.semester_num) params.append("semester_num", filters.semester_num);
+  const res = await api.get(`/courses?${params}`);
+  return res.data;
 };
 
-// جلب جميع الكورسات (للمتطلبات السابقة)
-export const getAllCourses = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/courses`, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+export const getOfferedCourses = async (semesterId, search = "", department_id = "") => {
+  const params = new URLSearchParams({ semesterId });
+  if (search) params.append("search", search);
+  if (department_id) params.append("department_id", department_id);
+  const res = await api.get(`/courses/offered?${params}`);
+  return res.data;
 };
 
-// جلب الكورسات المتاحة للتسجيل (للطالب حسب القسم والمستوى والترم النشط)
+export const getCourseById = async (id) => {
+  const res = await api.get(`/courses/${id}`);
+  return res.data;
+};
+
+export const updateCourse = async (id, data) => {
+  const res = await api.patch(`/courses/${id}`, data);
+  return res.data;
+};
+
+export const toggleCourseActive = async (id) => {
+  const res = await api.patch(`/courses/${id}/toggle-active`);
+  return res.data;
+};
+
+export const offerCourse = async (id, data) => {
+  const res = await api.post(`/courses/${id}/offer`, data);
+  return res.data;
+};
+
 export const getAvailableCourses = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/courses/available`, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const res = await api.get("/courses/available");
+  return res.data;
 };
 
-// جلب سكشنز الترم (اختياري: حسب الكورس)
-export const getSections = async (semesterId, courseId = null) => {
-  try {
-    const params = new URLSearchParams({ semesterId });
-    if (courseId) params.append("courseId", courseId);
-    const response = await axios.get(`${API_BASE_URL}/sections?${params}`, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
+// kept for backward compat — delegates to AdminServices
+export { getDepartments } from "./AdminServices";
 
-// جلب تسجيلاتي الحالية
 export const getMyEnrollments = async (semesterId = null) => {
-  try {
-    const url = semesterId
-      ? `${API_BASE_URL}/enrollment/my?semesterId=${semesterId}`
-      : `${API_BASE_URL}/enrollment/my`;
-    const response = await axios.get(url, withCreds);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const url = semesterId ? `/enrollment/my?semesterId=${semesterId}` : "/enrollment/my";
+  const res = await api.get(url);
+  return res.data;
 };
 
-// التسجيل في سكشن
 export const enrollInSection = async (sectionId) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/enrollment/enroll`,
-      { section: sectionId },
-      withCreds
-    );
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const res = await api.post("/enrollment/enroll", { section: sectionId });
+  return res.data;
 };
 
-// حذف التسجيل (drop)
 export const dropEnrollment = async (enrollmentId) => {
-  try {
-    const response = await axios.delete(
-      `${API_BASE_URL}/enrollment/${enrollmentId}`,
-      withCreds
-    );
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
+  const res = await api.delete(`/enrollment/${enrollmentId}`);
+  return res.data;
+};
+
+// kept for backward compat
+export { getSections } from "./SectionServices";
+
+// Admin direct enrollment — bypasses all eligibility checks
+export const adminEnrollStudent = async (studentId, sectionId) => {
+  const res = await api.post("/enrollment/admin-enroll", { studentId, sectionId });
+  return res.data;
+};
+
+// Site lock
+export const getSiteLock = async () => {
+  const res = await api.get("/admin/site-lock");
+  return res.data;
+};
+
+export const setSiteLock = async (locked) => {
+  const res = await api.post("/admin/site-lock", { locked });
+  return res.data;
+};
+
+// Active registration slice (public — for student info)
+export const getActiveSlice = async () => {
+  const res = await api.get("/registration-slices/active");
+  return res.data;
+};
+
+// Check if the current student is eligible for the active registration slice
+export const getMyEligibility = async () => {
+  const res = await api.get("/registration-slices/my-eligibility");
+  return res.data;
 };

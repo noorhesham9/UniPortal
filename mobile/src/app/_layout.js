@@ -4,17 +4,32 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "../store/store";
+import { ThemeContextProvider, useAppTheme } from "../context/ThemeContext";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function AppContent() {
+  const { isDark } = useAppTheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)/login" options={{ title: "تسجيل الدخول" }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeContextProvider>
+          <AppContent />
+        </ThemeContextProvider>
+      </PersistGate>
+    </Provider>
   );
 }

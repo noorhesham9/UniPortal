@@ -4,18 +4,15 @@ import { ActivityIndicator, View } from "react-native";
 import { useSelector } from "react-redux";
 
 const IndexPage = () => {
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // إذا انتهى التحميل، قم بالتوجيه فوراً
-    if (!loading) {
-      if (isAuthenticated) {
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/(auth)/login");
-      }
+    if (isAuthenticated) {
+      router.replace("/(tabs)");
+    } else {
+      router.replace("/(auth)/login");
     }
-  }, [isAuthenticated, loading]);
+  }, [isAuthenticated]);
 
   return (
     <View
