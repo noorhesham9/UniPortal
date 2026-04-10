@@ -59,30 +59,31 @@ function DashBoard() {
       console.error(e);
     }
   };
+
   const userPermissions = user?.role?.permissions?.map((p) => p.name) || [];
   const roleName = user?.role?.name || "";
   const isStudent = roleName === "student";
   const isSuperAdmin = roleName === "super_admin";
 
   const socket = useSocket();
-
   const [siteLocked, setSiteLocked] = useState(false);
 
   useEffect(() => {
     if (!isStudent) return;
     getSiteLock()
       .then((d) => setSiteLocked(d.locked))
-      .catch(() => {});
-  }, [isStudent]); // eslint-disable-line
+      .catch((err) => console.error(err));
+  }, [isStudent]);
 
   useEffect(() => {
     if (!isStudent || !socket) return;
     const handleLockChange = ({ locked }) => {
       setSiteLocked(locked);
     };
+
     socket.on("site_lock_changed", handleLockChange);
     return () => socket.off("site_lock_changed", handleLockChange);
-  }, [isStudent, socket]); // eslint-disable-line
+  }, [isStudent, socket]);
 
   const can = (permission) =>
     !isStudent && (isSuperAdmin || userPermissions.includes(permission));
@@ -111,27 +112,37 @@ function DashBoard() {
         );
       case "study_plan_student":
         return <StudyPlanStudent />;
+
       case "my_payments":
         return isStudent ? <MyPayments /> : <Denied />;
+
       case "my_enrollments":
         return isStudent ? <MyEnrollments /> : <Denied />;
+
       case "student_chat":
         return isStudent || isSuperAdmin ? <StudentChat /> : <Denied />;
 
       case "update_course":
         return can("update_course") ? <EditCourse /> : <Denied />;
+
       case "course_manage":
         return can("view_courses") ? <CourseManage /> : <Denied />;
+
       case "create_course":
         return can("create_course") ? <CreateCourse /> : <Denied />;
+
       case "view_enrollments":
         return can("view_enrollments") ? <ViewEnrollment /> : <Denied />;
+
       case "Allowed_users":
         return can("admin_allowed_ids") ? <AllowedIDS /> : <Denied />;
+
       case "schedule_bulider":
         return can("create_section") ? <ScheduleBuilder /> : <Denied />;
+
       case "add_room":
         return can("manage_rooms") ? <AddRoom /> : <Denied />;
+
       case "edit_room":
         return userPermissions.includes("manage_rooms") ? (
           <EditRoom roomId={roomId} />
@@ -141,22 +152,31 @@ function DashBoard() {
       case "academic_records":
         return <AcademicRecords />;
         return can("manage_rooms") ? <EditRoom roomId={roomId} /> : <Denied />;
+
       case "Add_Department":
         return can("create_department") ? <AddDepartment /> : <Denied />;
+
       case "Create_setions":
         return can("create_section") ? <CreateSections /> : <Denied />;
+
       case "study_plan_admin":
         return can("update_course") ? <StudyPlanAdmin /> : <Denied />;
+
       case "admin_departments":
         return can("view_departments") ? <AdminDepartments /> : <Denied />;
+
       case "edit_department":
         return can("update_department") ? <EditDepartment /> : <Denied />;
+
       case "admin_course_offerings":
         return can("view_courses") ? <AdminCourseOfferings /> : <Denied />;
+
       case "admin_rooms":
         return can("manage_rooms") ? <AdminRooms /> : <Denied />;
+
       case "admin_users_manage":
         return can("view_users") ? <AdminUsers /> : <Denied />;
+
       case "regestration_Slice":
         return can("create_registration_slice") ? (
           <RegistrationSlices />
@@ -165,14 +185,19 @@ function DashBoard() {
         );
       case "admin_enrollment":
         return can("view_enrollments") ? <AdminEnrollment /> : <Denied />;
+
       case "all_enrollments":
         return can("view_enrollments") ? <AllEnrollments /> : <Denied />;
+
       case "settings":
         return isSuperAdmin ? <Settings /> : <Denied />;
+
       case "tuition_approval":
         return can("manage_tuition") ? <TuitionApproval /> : <Denied />;
+
       case "course_management":
         return can("manage_courses") ? <CourseManagement /> : <Denied />;
+
       case "advisor_chat":
         return roleName === "professor" ||
           roleName === "admin" ||
@@ -191,6 +216,7 @@ function DashBoard() {
         );
       case "edit_profile":
         return <EditProfile />;
+
       default:
         return <Profile user={user} />;
     }
@@ -206,6 +232,7 @@ function DashBoard() {
           >
             Cancel
           </button>
+
           <button
             className="header-btn-primary"
             onClick={() => document.getElementById("ep-save-trigger")?.click()}
