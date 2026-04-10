@@ -1,6 +1,24 @@
-import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar, FiLayers, FiFileText } from "react-icons/fi";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import {
+  FiBell,
+  FiBook,
+  FiCalendar,
+  FiChevronDown,
+  FiClipboard,
+  FiCreditCard,
+  FiEdit,
+  FiFileText,
+  FiHelpCircle,
+  FiLayers,
+  FiLock,
+  FiMessageSquare,
+  FiSettings,
+  FiUser,
+  FiUserPlus,
+  FiUsers,
+} from "react-icons/fi";
 import { useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Sidebar.css";
 
 const categories = [
@@ -9,12 +27,42 @@ const categories = [
     label: "Student",
     roles: ["student"],
     items: [
-      { id: "profile",            label: "Personal Info",    icon: <FiUser />,          permission: null },
-      { id: "study_plan_student", label: "Study Plan",       icon: <FiBook />,          permission: null },
-      { id: "Register_Courses",   label: "Register Courses", icon: <FiBook />,          permission: "view_courses" },
-      { id: "my_enrollments",     label: "My Schedule",      icon: <FiCalendar />,      permission: null },
-      { id: "my_payments",        label: "My Payments",      icon: <FiCreditCard />,    permission: null },
-      { id: "student_chat",       label: "My Advisor",       icon: <FiMessageSquare />, permission: null },
+      {
+        id: "profile",
+        label: "Personal Info",
+        icon: <FiUser />,
+        permission: null,
+      },
+      {
+        id: "study_plan_student",
+        label: "Study Plan",
+        icon: <FiBook />,
+        permission: null,
+      },
+      {
+        id: "Register_Courses",
+        label: "Register Courses",
+        icon: <FiBook />,
+        permission: "view_courses",
+      },
+      {
+        id: "my_enrollments",
+        label: "My Schedule",
+        icon: <FiCalendar />,
+        permission: null,
+      },
+      {
+        id: "my_payments",
+        label: "My Payments",
+        icon: <FiCreditCard />,
+        permission: null,
+      },
+      {
+        id: "student_chat",
+        label: "My Advisor",
+        icon: <FiMessageSquare />,
+        permission: null,
+      },
     ],
   },
   {
@@ -22,9 +70,30 @@ const categories = [
     label: "Teaching",
     roles: ["professor"],
     items: [
-      { id: "profile",          label: "Personal Info",   icon: <FiUser />,          permission: null },
-      { id: "course_manage",    label: "My Courses",      icon: <FiBook />,          permission: "view_courses" },
-      { id: "advisor_chat",     label: "My Students",     icon: <FiMessageSquare />, permission: "view_sections" },
+      {
+        id: "profile",
+        label: "Personal Info",
+        icon: <FiUser />,
+        permission: null,
+      },
+      {
+        id: "course_manage",
+        label: "My Courses",
+        icon: <FiBook />,
+        permission: "view_courses",
+      },
+      {
+        id: "advisor_chat",
+        label: "My Students",
+        icon: <FiMessageSquare />,
+        permission: "view_sections",
+      },
+      {
+        id: "advisor_notifications",
+        label: "Send Notification",
+        icon: <FiBell />,
+        permission: "view_sections",
+      },
     ],
   },
   {
@@ -32,10 +101,30 @@ const categories = [
     label: "Courses",
     roles: ["admin", "super_admin"],
     items: [
-      { id: "create_course",          label: "Create Course",    icon: <FiEdit />, permission: "create_course" },
-      { id: "admin_course_offerings", label: "Course Offerings", icon: <FiBook />, permission: "view_courses" },
-      { id: "Create_setions",         label: "Create Sections",  icon: <FiEdit />, permission: "create_section" },
-      { id: "study_plan_admin",       label: "Edit Study Plan",  icon: <FiEdit />, permission: "update_course" },
+      {
+        id: "create_course",
+        label: "Create Course",
+        icon: <FiEdit />,
+        permission: "create_course",
+      },
+      {
+        id: "admin_course_offerings",
+        label: "Course Offerings",
+        icon: <FiBook />,
+        permission: "view_courses",
+      },
+      {
+        id: "Create_setions",
+        label: "Create Sections",
+        icon: <FiEdit />,
+        permission: "create_section",
+      },
+      {
+        id: "study_plan_admin",
+        label: "Edit Study Plan",
+        icon: <FiEdit />,
+        permission: "update_course",
+      },
     ],
   },
   {
@@ -43,20 +132,96 @@ const categories = [
     label: "Administration",
     roles: ["admin", "super_admin"],
     items: [
-      { id: "tuition_approval",   label: "Receipt Approval",   icon: <FiClipboard />,    permission: "manage_tuition" },
-      { id: "admin_enrollment",   label: "Enroll Student",     icon: <FiUserPlus />,     permission: "view_enrollments" },
-      { id: "all_enrollments",    label: "All Enrollments",    icon: <FiClipboard />,    permission: "view_enrollments" },
-      { id: "course_management",  label: "Course Management",  icon: <FiBook />,         permission: "manage_courses" },
-      { id: "admin_departments",  label: "Departments",        icon: <FiLayers />,       permission: "view_departments" },
-      { id: "Add_Department",     label: "Add Department",     icon: <FiEdit />,         permission: "create_department" },
-      { id: "admin_rooms",        label: "Manage Rooms",       icon: <FiLayers />,       permission: "manage_rooms" },
-      { id: "add_room",           label: "Add Room",           icon: <FiLayers />,       permission: "manage_rooms" },
-      { id: "admin_users_manage", label: "Manage Users",       icon: <FiUsers />,        permission: "view_users" },
-      { id: "Allowed_users",      label: "Allowed Users",      icon: <FiUsers />,        permission: "admin_allowed_ids" },
-      { id: "regestration_Slice", label: "Registration Slice", icon: <FiEdit />,         permission: "create_registration_slice" },
-      { id: "settings",           label: "Settings",           icon: <FiSettings />,      permission: "create_registration_slice" },
-      { id: "schedule_bulider",   label: "Schedule Builder",   icon: <FiCalendar />,     permission: "create_section" },
-      { id: "advisor_chat",       label: "My Students",        icon: <FiMessageSquare />,permission: "view_users" },
+      {
+        id: "tuition_approval",
+        label: "Receipt Approval",
+        icon: <FiClipboard />,
+        permission: "manage_tuition",
+      },
+      {
+        id: "admin_enrollment",
+        label: "Enroll Student",
+        icon: <FiUserPlus />,
+        permission: "view_enrollments",
+      },
+      {
+        id: "all_enrollments",
+        label: "All Enrollments",
+        icon: <FiClipboard />,
+        permission: "view_enrollments",
+      },
+      {
+        id: "course_management",
+        label: "Course Management",
+        icon: <FiBook />,
+        permission: "manage_courses",
+      },
+      {
+        id: "admin_departments",
+        label: "Departments",
+        icon: <FiLayers />,
+        permission: "view_departments",
+      },
+      {
+        id: "Add_Department",
+        label: "Add Department",
+        icon: <FiEdit />,
+        permission: "create_department",
+      },
+      {
+        id: "admin_rooms",
+        label: "Manage Rooms",
+        icon: <FiLayers />,
+        permission: "manage_rooms",
+      },
+      {
+        id: "add_room",
+        label: "Add Room",
+        icon: <FiLayers />,
+        permission: "manage_rooms",
+      },
+      {
+        id: "admin_users_manage",
+        label: "Manage Users",
+        icon: <FiUsers />,
+        permission: "view_users",
+      },
+      {
+        id: "Allowed_users",
+        label: "Allowed Users",
+        icon: <FiUsers />,
+        permission: "admin_allowed_ids",
+      },
+      {
+        id: "regestration_Slice",
+        label: "Registration Slice",
+        icon: <FiEdit />,
+        permission: "create_registration_slice",
+      },
+      {
+        id: "settings",
+        label: "Settings",
+        icon: <FiSettings />,
+        permission: "create_registration_slice",
+      },
+      {
+        id: "schedule_bulider",
+        label: "Schedule Builder",
+        icon: <FiCalendar />,
+        permission: "create_section",
+      },
+      {
+        id: "advisor_chat",
+        label: "My Students",
+        icon: <FiMessageSquare />,
+        permission: "view_users",
+      },
+      {
+        id: "advisor_notifications",
+        label: "Send Notification",
+        icon: <FiBell />,
+        permission: "view_users",
+      },
     ],
   },
 ];
@@ -69,7 +234,7 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
   const roleName = user?.role?.name || "";
 
   const [openCats, setOpenCats] = useState(() =>
-    Object.fromEntries(categories.map((c) => [c.id, true]))
+    Object.fromEntries(categories.map((c) => [c.id, true])),
   );
 
   const menuItems = [
@@ -112,7 +277,7 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
     {
       id: "add_room", // ده اللي هيسمع في الـ Switch Case في الـ Dashboard
       label: "إدارة الغرف والأماكن",
-      icon: <FiLayers />, 
+      icon: <FiLayers />,
       permission: "manage_rooms", // تأكد إن الاسم ده هو اللي في الـ Database عندك
     },
     {
@@ -154,7 +319,11 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
   ];
 
   const nameInitials = user?.name
-    ? user.name.split(" ").slice(0, 2).map((n) => n[0].toUpperCase()).join("")
+    ? user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((n) => n[0].toUpperCase())
+        .join("")
     : "U";
 
   return (
@@ -171,7 +340,6 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
 
       <nav className="sidebar-nav">
         {categories.map((cat) => {
-          // super_admin sees every category
           if (roleName === "super_admin") {
             // no filtering — show all
           } else if (!cat.roles.includes(roleName)) {
@@ -179,7 +347,8 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
           }
 
           const visibleItems = cat.items.filter(
-            (item) => !item.permission || userPermissions.includes(item.permission)
+            (item) =>
+              !item.permission || userPermissions.includes(item.permission),
           );
           if (visibleItems.length === 0) return null;
 
@@ -200,19 +369,35 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
               <div className={`sidebar-cat-items${isOpen ? " open" : ""}`}>
                 {visibleItems.map((item) => {
                   const isActive = currentSection === item.id;
-                  // When site is locked, students can only access profile
-                  const isItemLocked = siteLocked && isStudent && item.id !== "profile";
+                  const isItemLocked =
+                    siteLocked && isStudent && item.id !== "profile";
                   return (
                     <button
                       key={item.id}
-                      onClick={() => !isItemLocked && navigate(`/dashboard?section=${item.id}`)}
+                      onClick={() =>
+                        !isItemLocked &&
+                        navigate(`/dashboard?section=${item.id}`)
+                      }
                       className={`sidebar-item${isActive ? " active" : ""}${isItemLocked ? " locked" : ""}`}
-                      title={isItemLocked ? "Access restricted — site is locked" : undefined}
-                      style={isItemLocked ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+                      title={
+                        isItemLocked
+                          ? "Access restricted — site is locked"
+                          : undefined
+                      }
+                      style={
+                        isItemLocked
+                          ? { opacity: 0.45, cursor: "not-allowed" }
+                          : undefined
+                      }
                     >
                       <span className="sidebar-item-icon">{item.icon}</span>
                       <span className="sidebar-item-label">{item.label}</span>
-                      {isItemLocked && <FiLock size={12} style={{ marginLeft: "auto", flexShrink: 0 }} />}
+                      {isItemLocked && (
+                        <FiLock
+                          size={12}
+                          style={{ marginLeft: "auto", flexShrink: 0 }}
+                        />
+                      )}
                     </button>
                   );
                 })}
