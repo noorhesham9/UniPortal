@@ -59,11 +59,39 @@ export const joinWaitlist = createAsyncThunk(
   },
 );
 
+// Fetch academic records (GPA, semesters, etc.)
+export const fetchAcademicRecords = createAsyncThunk(
+  'enrollment/fetchAcademicRecords',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const response = await enrollmentAPI.getAcademicRecords(studentId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+// Fetch current semester grades (coursework and final)
+export const  fetchCurrentSemesterGrades = createAsyncThunk(
+  'enrollment/fetchCurrentSemesterGrades',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const response = await enrollmentAPI.getCurrentSemesterGrades(studentId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const initialState = {
   courses: [],
   sections: [],
   enrollments: [],
   completedHours: 0,
+  academicRecords: null,
+  currentSemesterGrades: null,
   loading: false,
   error: null,
   registrationLoading: false,
@@ -101,7 +129,7 @@ const enrollmentSlice = createSlice({
       })
       .addCase(fetchCompletedHours.fulfilled, (state, action) => {
         state.loading = false;
-        state.completedHours = action.payload.completedHours || 0;
+        state.completedHours = action.payload.totalCompletedHours || 0;
       })
       .addCase(fetchCompletedHours.rejected, (state, action) => {
         state.loading = false;
@@ -140,6 +168,36 @@ const enrollmentSlice = createSlice({
       })
       .addCase(joinWaitlist.rejected, (state, action) => {
         state.registrationLoading = false;
+        state.error = action.payload;
+      });
+
+    // Fetch academic records
+    builder
+      .addCase(fetchAcademicRecords.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAcademicRecords.fulfilled, (state, action) => {
+        state.loading = false;
+        state.academicRecords = action.payload;
+      })
+      .addCase(fetchAcademicRecords.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    // Fetch current semester grades
+    builder
+      .addCase(fetchCurrentSemesterGrades.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentSemesterGrades.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentSemesterGrades = action.payload;
+      })
+      .addCase(fetchCurrentSemesterGrades.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       });
   },

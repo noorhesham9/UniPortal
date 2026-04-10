@@ -28,19 +28,7 @@ import RegisterCourses from "./dashSections/registerCourse/RegiseterCourse";
 import RegistrationSlices from "./dashSections/RegistrationSlices/RegistrationSlices";
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
 import EditRoom from "./dashSections/RoomManagement/EditRoom";
-import ScheduleBuilder from "./dashSections/ScheduleBuilder/ScheduleBuilder";
-import StudyPlanAdmin from "./dashSections/StudyPlanAdmin/StudyPlanAdmin";
-import StudyPlanStudent from "./dashSections/StudyPlanStudent/StudyPlanStudent";
-import ViewEnrollment from "./dashSections/ViewEnrollment";
-import AdvisorChat from "./dashSections/AdvisorChat/AdvisorChat";
-import StudentChat from "./dashSections/StudentChat/StudentChat";
-import MyPayments from "./dashSections/MyPayments/MyPayments";
-import MyEnrollments from "./dashSections/MyEnrollments/MyEnrollments";
-import AdminEnrollment from "./dashSections/AdminEnrollment/AdminEnrollment";
-import AllEnrollments from "./dashSections/AllEnrollments/AllEnrollments";
-import Settings from "./dashSections/Settings/Settings";
-import TuitionApproval from "./dashSections/TuitionApproval/TuitionApproval";
-import CourseManagement from "./dashSections/CourseManagement/CourseManagement";
+import AcademicRecords from "./dashSections/AcademicRecords";
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
@@ -139,39 +127,13 @@ function DashBoard() {
       case "add_room":
         return can("manage_rooms") ? <AddRoom /> : <Denied />;
       case "edit_room":
-        return can("manage_rooms") ? <EditRoom roomId={roomId} /> : <Denied />;
-      case "Add_Department":
-        return can("create_department") ? <AddDepartment /> : <Denied />;
-      case "Create_setions":
-        return can("create_section") ? <CreateSections /> : <Denied />;
-      case "study_plan_admin":
-        return can("update_course") ? <StudyPlanAdmin /> : <Denied />;
-      case "admin_departments":
-        return can("view_departments") ? <AdminDepartments /> : <Denied />;
-      case "edit_department":
-        return can("update_department") ? <EditDepartment /> : <Denied />;
-      case "admin_course_offerings":
-        return can("view_courses") ? <AdminCourseOfferings /> : <Denied />;
-      case "admin_rooms":
-        return can("manage_rooms") ? <AdminRooms /> : <Denied />;
-      case "admin_users_manage":
-        return can("view_users") ? <AdminUsers /> : <Denied />;
-      case "regestration_Slice":
-        return can("create_registration_slice") ? <RegistrationSlices /> : <Denied />;
-      case "admin_enrollment":
-        return can("view_enrollments") ? <AdminEnrollment /> : <Denied />;
-      case "all_enrollments":
-        return can("view_enrollments") ? <AllEnrollments /> : <Denied />;
-      case "settings":
-        return isSuperAdmin ? <Settings /> : <Denied />;
-      case "tuition_approval":
-        return can("manage_tuition") ? <TuitionApproval /> : <Denied />;
-      case "course_management":
-        return can("manage_courses") ? <CourseManagement /> : <Denied />;
-      case "advisor_chat":
-        return (roleName === "professor" || roleName === "admin" || roleName === "super_admin") ? <AdvisorChat /> : <Denied />;
-      case "edit_profile":
-        return <EditProfile />;
+        return userPermissions.includes("manage_rooms") ? (
+          <EditRoom roomId={roomId} />
+        ) : (
+          <div className="error">عذراً، ليس لديك صلاحية لتعديل الغرف</div>
+        );
+      case "academic_records":
+        return <AcademicRecords />;
       default:
         return <Profile user={user} />;
     }

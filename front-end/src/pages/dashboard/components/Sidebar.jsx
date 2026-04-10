@@ -1,20 +1,4 @@
-import { useState } from "react";
-import {
-  FiBook,
-  FiCalendar,
-  FiChevronDown,
-  FiClipboard,
-  FiCreditCard,
-  FiEdit,
-  FiHelpCircle,
-  FiLayers,
-  FiLock,
-  FiMessageSquare,
-  FiSettings,
-  FiUser,
-  FiUserPlus,
-  FiUsers,
-} from "react-icons/fi";
+import { FiBook, FiClipboard, FiEdit, FiUser, FiUsers, FiCalendar, FiLayers, FiFileText } from "react-icons/fi";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./Sidebar.css";
@@ -88,8 +72,86 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
     Object.fromEntries(categories.map((c) => [c.id, true]))
   );
 
-  const toggleCat = (id) =>
-    setOpenCats((prev) => ({ ...prev, [id]: !prev[id] }));
+  const menuItems = [
+    {
+      id: "profile",
+      label: "الملف الشخصي",
+      icon: <FiUser />,
+      permission: null,
+    },
+    {
+      id: "academic_records",
+      label: "السجل الأكاديمي",
+      icon: <FiFileText />,
+      permission: null,
+    },
+    {
+      id: "all_users",
+      label: "إدارة المستخدمين",
+      icon: <FiUsers />,
+      permission: "view_users",
+    },
+    {
+      id: "view_courses",
+      label: " تسجيل مقررات",
+      icon: <FiBook />,
+      permission: "view_courses",
+    },
+    {
+      id: "schedule_builder",
+      label: "بناء الجدول",
+      icon: <FiCalendar />,
+      permission: "build_schedule",
+    },
+    {
+      id: "view_enrollments",
+      label: "التسجيلات",
+      icon: <FiClipboard />,
+      permission: "view_enrollments",
+    },
+    {
+      id: "add_room", // ده اللي هيسمع في الـ Switch Case في الـ Dashboard
+      label: "إدارة الغرف والأماكن",
+      icon: <FiLayers />, 
+      permission: "manage_rooms", // تأكد إن الاسم ده هو اللي في الـ Database عندك
+    },
+    {
+      id: "update_course",
+      label: "تعديل الكورسات",
+      icon: <FiEdit />,
+      permission: "update_course",
+    },
+    {
+      id: "create_course",
+      label: "طرح مقرر جديد",
+      icon: <FiEdit />,
+      permission: "create_course",
+    },
+    {
+      id: "Allowed_users",
+      label: "المستخدمين المسموح لهم",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "regestration_Slice",
+      label: "شريحه التسجيل",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "schedule_bulider",
+      label: "schedule_bulider",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+    {
+      id: "Create_setions",
+      label: "انشاء مجموعات لمقرر",
+      icon: <FiEdit />,
+      permission: "admin_allowed_ids",
+    },
+  ];
 
   const nameInitials = user?.name
     ? user.name.split(" ").slice(0, 2).map((n) => n[0].toUpperCase()).join("")

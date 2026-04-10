@@ -55,7 +55,25 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="admin"
+        name="grades"
+        options={{
+          title: "الدرجات",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="bar-chart" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="records"
+        options={{
+          title: "السجلات",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="document-text" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="schedule"
         options={{
           title: "الإدارة",
           href: isAdmin ? undefined : null,

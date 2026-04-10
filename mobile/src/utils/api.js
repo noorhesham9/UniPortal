@@ -99,6 +99,10 @@ export const enrollmentAPI = {
     apiClient.get(`/enrollments/${studentId}/completed-hours`),
   joinWaitlist: (enrollmentData) =>
     apiClient.post("/enrollments/waitlist/join", enrollmentData),
+  getAcademicRecords: (studentId) =>
+    apiClient.get(`/enrollments/${studentId}/academic-records`),
+  getCurrentSemesterGrades: (studentId) =>
+    apiClient.get(`/enrollments/${studentId}/current-semester-grades`),
 };
 
 export default apiClient;
