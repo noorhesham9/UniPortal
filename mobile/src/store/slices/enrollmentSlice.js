@@ -73,7 +73,7 @@ export const fetchAcademicRecords = createAsyncThunk(
 );
 
 // Fetch current semester grades (coursework and final)
-export const fetchCurrentSemesterGrades = createAsyncThunk(
+export const  fetchCurrentSemesterGrades = createAsyncThunk(
   'enrollment/fetchCurrentSemesterGrades',
   async (studentId, { rejectWithValue }) => {
     try {
@@ -127,7 +127,7 @@ const enrollmentSlice = createSlice({
       })
       .addCase(fetchCompletedHours.fulfilled, (state, action) => {
         state.loading = false;
-        state.completedHours = action.payload.completedHours || 0;
+        state.completedHours = action.payload.totalCompletedHours || 0;
       })
       .addCase(fetchCompletedHours.rejected, (state, action) => {
         state.loading = false;

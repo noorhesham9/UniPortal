@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -35,7 +35,7 @@ export default function CurrentSemesterGradesScreen() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const [expandedCourseId, setExpandedCourseId] = useState(null);
-  const scaleAnim = new Animated.Value(0);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (user?._id) {
@@ -163,7 +163,7 @@ export default function CurrentSemesterGradesScreen() {
         <View style={styles.gradeSummary}>
           <View style={styles.gradeQuickView}>
             <Text style={styles.gradeLabel}>الدرجة</Text>
-            <Text
+            <View
               style={[
                 styles.gradeBadge,
                 {
@@ -173,10 +173,12 @@ export default function CurrentSemesterGradesScreen() {
                 },
               ]}
             >
-              {getGradeLabel(
-                (course.coursework || 0) * 0.4 + (course.final || 0) * 0.6,
-              )}
-            </Text>
+              <Text style={styles.gradeBadgeText}>
+                {getGradeLabel(
+                  (course.coursework || 0) * 0.4 + (course.final || 0) * 0.6,
+                )}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -640,10 +642,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    fontWeight: "700",
+  },
+  gradeBadgeText: {
+    fontWeight: "800",
     color: "#000",
     fontSize: 14,
-    fontWeight: "800",
   },
   expandedContent: {
     backgroundColor: theme.containerHigh,
