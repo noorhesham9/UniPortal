@@ -1,68 +1,34 @@
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { useEffect } from 'react';
-import axios from 'axios';
-import { Platform } from 'react-native';
-
-
-const API_URL = 'http://192.168.1.5:3100/api/notifications/update-token';
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useSocket } from "../context/SocketContext";
+import {
+  addLocalNotification,
+  fetchNotifications,
+} from "../store/slices/notificationSlice";
 
 export const useNotifications = () => {
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
+  const { socket } = useSocket() as any;
+
+  // Initial fetch on auth
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token => {
-      if (token) {
-        sendTokenToBackend(token);
-      }
-    });
-  }, []);
-};
+    if (!isAuthenticated) return;
+    dispatch(fetchNotifications() as any);
+  }, [isAuthenticated]);
 
-async function registerForPushNotificationsAsync() {
-  let token;
+  // Real-time: listen for new notifications via socket
+  useEffect(() => {
+    if (!socket) return;
 
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#FF231F7C',
-    });
-  }
+    const handler = (notification: any) => {
+      dispatch(addLocalNotification(notification));
+    };
 
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
+    socket.on("new_notification", handler);
 
-
-    token = (await Notifications.getExpoPushTokenAsync({
-
-        projectId: 'your-project-id' 
-    })).data;
-    console.log("FCM Token:", token);
-  } else {
-    alert('Must use physical device for Push Notifications');
-  }
-
-  return token;
-}
-
-const sendTokenToBackend = async (token: string) => {
-  try {
-    await axios.patch(API_URL, { fcmToken: token }, {
-        headers: {
-            Authorization: `Bearer TOKEN_HERE` 
-        }
-    });
-    console.log('Token sent to backend successfully');
-  } catch (error) {
-    console.error('Error sending token to backend:', error);
-  }
+    return () => {
+      socket.off("new_notification", handler);
+    };
+  }, [socket]);
 };

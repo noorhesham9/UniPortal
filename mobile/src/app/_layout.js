@@ -8,16 +8,19 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "../store/store";
 import { ThemeContextProvider, useAppTheme } from "../context/ThemeContext";
+import { SocketProvider } from "../context/SocketContext";
 
 function AppContent() {
   const { isDark } = useAppTheme();
 
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack>
+      <SocketProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
+      </SocketProvider>
     </ThemeProvider>
   );
 }
