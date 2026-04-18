@@ -6,7 +6,7 @@ import DashboardScreen from "../../screens/main/DashboardScreen";
 export default function HomeScreen() {
   const { theme } = useAppTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: theme.bg }}>
       <DashboardScreen />
     </SafeAreaView>
   );

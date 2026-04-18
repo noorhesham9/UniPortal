@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  SafeAreaView,
+    
   Animated,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,7 +66,7 @@ export default function CurrentSemesterGradesScreen() {
 
   if (loading && !currentSemesterGrades) {
     return (
-      <SafeAreaView
+      <View edges={['bottom']}
         style={[
           styles.container,
           { justifyContent: "center", alignItems: "center" },
@@ -76,13 +76,13 @@ export default function CurrentSemesterGradesScreen() {
         <Text style={[styles.loadingText, { marginTop: 16 }]}>
           جاري تحميل الدرجات...
         </Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error && !currentSemesterGrades) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View edges={['bottom']} style={styles.container}>
         <View
           style={{
             flex: 1,
@@ -108,7 +108,7 @@ export default function CurrentSemesterGradesScreen() {
             <Text style={styles.buttonText}>إعادة محاولة</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -136,8 +136,14 @@ export default function CurrentSemesterGradesScreen() {
 
   const renderCourseCard = (course, index) => {
     const isExpanded = expandedCourseId === course._id;
-    const courseworkColor = getGradeColor(course.coursework || 0);
-    const finalColor = getGradeColor(course.final || 0);
+    const ywMax = course.ywMax ?? 40;
+    const finalMax = course.finalMax ?? 60;
+    const totalMax = course.totalMax ?? 100;
+    const courseworkPct = ywMax > 0 ? ((course.coursework || 0) / ywMax) * 100 : 0;
+    const finalPct = finalMax > 0 ? ((course.final || 0) / finalMax) * 100 : 0;
+    const totalPct = totalMax > 0 ? ((course.total || 0) / totalMax) * 100 : 0;
+    const courseworkColor = getGradeColor(courseworkPct);
+    const finalColor = getGradeColor(finalPct);
 
     return (
       <TouchableOpacity
@@ -166,17 +172,11 @@ export default function CurrentSemesterGradesScreen() {
             <View
               style={[
                 styles.gradeBadge,
-                {
-                  backgroundColor: getGradeColor(
-                    (course.coursework || 0) * 0.4 + (course.final || 0) * 0.6,
-                  ),
-                },
+                { backgroundColor: getGradeColor(totalPct) },
               ]}
             >
               <Text style={styles.gradeBadgeText}>
-                {getGradeLabel(
-                  (course.coursework || 0) * 0.4 + (course.final || 0) * 0.6,
-                )}
+                {getGradeLabel(totalPct)}
               </Text>
             </View>
           </View>
@@ -194,7 +194,7 @@ export default function CurrentSemesterGradesScreen() {
                 <Text
                   style={[styles.gradeDetailScore, { color: courseworkColor }]}
                 >
-                  {course.coursework?.toFixed(1) || "--"} / 40
+                  {course.coursework?.toFixed(1) || "--"} / {ywMax}
                 </Text>
               </View>
               <View style={styles.gradeBar}>
@@ -202,7 +202,7 @@ export default function CurrentSemesterGradesScreen() {
                   style={[
                     styles.gradeProgress,
                     {
-                      width: `${Math.min((course.coursework || 0) * 2.5, 100)}%`,
+                      width: `${Math.min(courseworkPct, 100)}%`,
                       backgroundColor: courseworkColor,
                       transform: [{ scaleX: scaleAnim }],
                     },
@@ -210,7 +210,7 @@ export default function CurrentSemesterGradesScreen() {
                 />
               </View>
               <Text style={styles.gradePercentage}>
-                {(((course.coursework || 0) / 40) * 100).toFixed(0)}%
+                {courseworkPct.toFixed(0)}%
               </Text>
             </View>
 
@@ -219,7 +219,7 @@ export default function CurrentSemesterGradesScreen() {
               <View style={styles.gradeDetailHeader}>
                 <Text style={styles.gradeDetailLabel}>الامتحان النهائي</Text>
                 <Text style={[styles.gradeDetailScore, { color: finalColor }]}>
-                  {course.final?.toFixed(1) || "--"} / 60
+                  {course.final?.toFixed(1) || "--"} / {finalMax}
                 </Text>
               </View>
               <View style={styles.gradeBar}>
@@ -227,7 +227,7 @@ export default function CurrentSemesterGradesScreen() {
                   style={[
                     styles.gradeProgress,
                     {
-                      width: `${Math.min((course.final || 0) * 1.67, 100)}%`,
+                      width: `${Math.min(finalPct, 100)}%`,
                       backgroundColor: finalColor,
                       transform: [{ scaleX: scaleAnim }],
                     },
@@ -235,7 +235,7 @@ export default function CurrentSemesterGradesScreen() {
                 />
               </View>
               <Text style={styles.gradePercentage}>
-                {(((course.final || 0) / 60) * 100).toFixed(0)}%
+                {finalPct.toFixed(0)}%
               </Text>
             </View>
 
@@ -245,15 +245,10 @@ export default function CurrentSemesterGradesScreen() {
               <Text
                 style={[
                   styles.totalScoreValue,
-                  {
-                    color: getGradeColor(
-                      (course.coursework || 0) + (course.final || 0),
-                    ),
-                  },
+                  { color: getGradeColor(totalPct) },
                 ]}
               >
-                {((course.coursework || 0) + (course.final || 0)).toFixed(1)} /
-                100
+                {(course.total || 0).toFixed(1)} / {totalMax}
               </Text>
             </View>
 
@@ -261,26 +256,17 @@ export default function CurrentSemesterGradesScreen() {
             <View
               style={[
                 styles.gradeLetter,
-                {
-                  backgroundColor:
-                    getGradeColor(
-                      (course.coursework || 0) + (course.final || 0),
-                    ) + "20",
-                },
+                { backgroundColor: getGradeColor(totalPct) + "20" },
               ]}
             >
               <Text style={styles.gradeLetterLabel}>التقدير</Text>
               <Text
                 style={[
                   styles.gradeLetterValue,
-                  {
-                    color: getGradeColor(
-                      (course.coursework || 0) + (course.final || 0),
-                    ),
-                  },
+                  { color: getGradeColor(totalPct) },
                 ]}
               >
-                {getGradeLabel((course.coursework || 0) + (course.final || 0))}
+                {getGradeLabel(totalPct)}
               </Text>
             </View>
           </View>
@@ -290,7 +276,7 @@ export default function CurrentSemesterGradesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View edges={['bottom']} style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -434,7 +420,7 @@ export default function CurrentSemesterGradesScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

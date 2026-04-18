@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
-  SafeAreaView,
+    
   FlatList,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,20 +53,20 @@ export default function AcademicRecordsScreen() {
 
   if (loading && !academicRecords) {
     return (
-      <SafeAreaView
+      <View edges={['bottom']}
         style={[
           styles.container,
           { justifyContent: "center", alignItems: "center" },
         ]}
       >
         <ActivityIndicator size="large" color={theme.primary} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error && !academicRecords) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View edges={['bottom']} style={styles.container}>
         <View
           style={{
             flex: 1,
@@ -88,7 +88,7 @@ export default function AcademicRecordsScreen() {
             <Text style={styles.buttonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -118,11 +118,11 @@ export default function AcademicRecordsScreen() {
       <View style={styles.semesterStats}>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>Semester GPA</Text>
-          <Text style={styles.statValue}>{item.gpa.toFixed(2)}</Text>
+          <Text style={styles.statValue}>{(item.gpa ?? 0).toFixed(2)}</Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>Credits</Text>
-          <Text style={styles.statValue}>{item.credits.toFixed(1)}</Text>
+          <Text style={styles.statValue}>{(item.credits ?? 0).toFixed(1)}</Text>
         </View>
       </View>
 
@@ -151,7 +151,7 @@ export default function AcademicRecordsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View edges={['bottom']} style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -192,7 +192,7 @@ export default function AcademicRecordsScreen() {
                 />
               </View>
               <View style={styles.gpaCenterText}>
-                <Text style={styles.gpaValue}>{cumulativeGPA.toFixed(2)}</Text>
+                <Text style={styles.gpaValue}>{(cumulativeGPA ?? 0).toFixed(2)}</Text>
                 <Text style={styles.gpaLabel}>Cumulative GPA</Text>
               </View>
             </View>
@@ -246,13 +246,13 @@ export default function AcademicRecordsScreen() {
                           <Text style={styles.collapsedStat}>
                             GPA:{" "}
                             <Text style={styles.collapsedStatValue}>
-                              {semester.gpa.toFixed(2)}
+                              {(semester.gpa ?? 0).toFixed(2)}
                             </Text>
                           </Text>
                           <Text style={styles.collapsedStat}>
                             Credits:{" "}
                             <Text style={styles.collapsedStatValue}>
-                              {semester.credits.toFixed(1)}
+                              {(semester.credits ?? 0).toFixed(1)}
                             </Text>
                           </Text>
                         </View>
@@ -279,7 +279,7 @@ export default function AcademicRecordsScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

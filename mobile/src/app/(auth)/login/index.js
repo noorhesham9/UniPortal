@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -12,12 +13,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../../../store/slices/authSlice";
 import { useAppTheme } from "../../../context/ThemeContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import HomeScreen from "../../../screens/main/HomeScreen";
+import { loginUser } from "../../../store/slices/authSlice";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -34,14 +35,13 @@ export default function LoginScreen() {
     (state) => state.auth,
   );
 
-  // استرجاع آخر مكان كان فيه المستخدم عند الريفرش
   useEffect(() => {
     const loadLastTab = async () => {
       try {
         const savedTab = await AsyncStorage.getItem("lastLoginTab");
         if (savedTab) setActiveTab(savedTab);
       } catch (e) {
-        console.log("Error loading saved tab", e);
+        // ignore
       }
     };
     loadLastTab();
@@ -52,7 +52,7 @@ export default function LoginScreen() {
     try {
       await AsyncStorage.setItem("lastLoginTab", tabName);
     } catch (e) {
-      console.log("Error saving tab", e);
+      // ignore
     }
   };
 
@@ -72,232 +72,224 @@ export default function LoginScreen() {
       await AsyncStorage.removeItem("lastLoginTab");
       router.replace("/(tabs)");
     } else {
-      Alert.alert("Login Error", error || "An error occurred");
+      let errorMessage = error || "An error occurred";
+      if (result.payload?.includes("Student ID not found")) {
+        errorMessage =
+          "Student ID not found. Please check your ID and try again.";
+      }
+      Alert.alert("Login Error", errorMessage);
     }
   };
 
-  // ─── محتوى صفحة تسجيل الدخول (بدون أي تعديل نهائياً) ──────────────────────
-  const LoginContent = () => (
-    <View
-      style={[styles.card, { backgroundColor: t.card, shadowColor: t.shadow }]}
-    >
-      <View style={styles.cardHeader}>
-        <Ionicons
-          name="school"
-          size={80}
-          color={t.accent}
-          style={styles.logoIcon}
-        />
-        <Text style={[styles.title, { color: t.text }]}>University Portal</Text>
-        <Text style={[styles.subtitle, { color: t.textSub }]}>
-          Secure Access Login
-        </Text>
-        <Text style={[styles.welcomeText, { color: t.text }]}>
-          Welcome Back
-        </Text>
-        <Text style={[styles.instructionText, { color: t.textSub }]}>
-          Please sign in to continue.
-        </Text>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { color: t.text }]}>
-            Student ID or Email
-          </Text>
-          <View
-            style={[
-              styles.inputWrapper,
-              { backgroundColor: t.input, borderColor: t.inputBorder },
-            ]}
-          >
-            <Ionicons
-              name="person"
-              size={20}
-              color={t.textSub}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={[styles.input, { color: t.text }]}
-              placeholder="Enter your ID or email"
-              placeholderTextColor={t.textMuted}
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              editable={!loading}
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputGroup}>
-          <View style={styles.labelRow}>
-            <Text style={[styles.label, { color: t.text }]}>Password</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(auth)/forget-password")}
-            >
-              <Text style={[styles.forgotLink, { color: t.accent }]}>
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={[
-              styles.inputWrapper,
-              { backgroundColor: t.input, borderColor: t.inputBorder },
-            ]}
-          >
-            <Ionicons
-              name="lock-closed"
-              size={20}
-              color={t.textSub}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={[styles.input, { color: t.text }]}
-              placeholder="Enter your password"
-              placeholderTextColor={t.textMuted}
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-              editable={!loading}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={20}
-                color={t.textSub}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.rememberMe}>
-          <TouchableOpacity
-            onPress={() => setRememberMe(!rememberMe)}
-            style={styles.checkbox}
-          >
-            <Ionicons
-              name={rememberMe ? "checkbox" : "square-outline"}
-              size={20}
-              color={t.accent}
-            />
-          </TouchableOpacity>
-          <Text style={[styles.checkboxText, { color: t.textSub }]}>
-            Remember me on this device
-          </Text>
-        </View>
-
-        {error && <Text style={styles.error}>{error}</Text>}
-
-        <TouchableOpacity
-          style={[
-            styles.loginBtn,
-            { backgroundColor: t.accent },
-            loading && styles.buttonDisabled,
-          ]}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={t.accentFg} />
-          ) : (
-            <Text style={[styles.buttonText, { color: t.accentFg }]}>
-              Log In
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.googleBtn, loading && styles.buttonDisabled]}
-          onPress={handleGoogleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.googleBtnText}>Log In with Google</Text>
-        </TouchableOpacity>
-
-        <View style={styles.newStudent}>
-          <Text style={[styles.newStudentText, { color: t.textSub }]}>
-            New student?{" "}
-          </Text>
-          <TouchableOpacity onPress={() => router.push("/register")}>
-            <Text style={[styles.highlight, { color: t.accent }]}>
-              Activate your account
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-
-  // ─── محتوى الأخبار والإعلانات المدمج ──────────────────────────
-  const UpdatesContent = () => {
-    const today = new Date().toLocaleDateString('ar-EG', {
-      year: 'numeric', month: 'long', day: 'numeric'
-    });
-
-    return (
-      <View style={[styles.card, { backgroundColor: t.card, shadowColor: t.shadow }]}>
-        <Text style={[styles.title, { color: t.text, textAlign: "center" }]}>News & Ads </Text>
-        <Text style={[styles.subtitle, { color: t.accent, textAlign: "center", marginBottom: 20 }]}>أخبار وإعلانات</Text>
-
-        <View style={{ marginBottom: 20 }}>
-          {[
-            { en: "Semester results announced.", ar: "تم إعلان نتائج الفصل الدراسي." },
-            { en: "Tuition fees via Fawry.", ar: "دفع المصروفات متاح عبر فوري." },
-          ].map((item, index) => (
-            <View key={index} style={[styles.newsCard, { borderLeftColor: t.accent }]}>
-              <Text style={[styles.newsTextEn, { color: t.text }]}>{item.en}</Text>
-              <Text style={[styles.newsTextAr, { color: t.textSub }]}>{item.ar}</Text>
-              <Text style={styles.dateLabel}>📅 {today} - {item.time}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={{ height: 1, backgroundColor: t.inputBorder, marginBottom: 20 }} />
-
-        <View>
-          <Image source={{ uri: "https://science-cairo.com/HomePageAdverticements/1328.jpg" }} style={styles.flexibleImage} resizeMode="contain" />
-          <Text style={styles.dateLabelCenter}> بتاريخ: {today}</Text>
-
-          <View style={{ height: 25 }} />
-
-          <Image source={{ uri: "https://science-cairo.com/HomePageAdverticements/1326.jpg" }} style={styles.flexibleImage} resizeMode="contain" />
-          <Text style={styles.dateLabelCenter}> بتاريخ: {today}</Text>
-        </View>
-      </View>
-    );
-  };
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <SafeAreaView
       style={[styles.container, { backgroundColor: t.bg }]}
+      edges={["top", "bottom"]}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        {activeTab === "login" ? <LoginContent /> : <UpdatesContent />}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          showsVerticalScrollIndicator={false}
+        >
+          {activeTab === "login" ? (
+            <View
+              style={[
+                styles.card,
+                { backgroundColor: t.card, shadowColor: t.shadow },
+              ]}
+            >
+              <View style={styles.cardHeader}>
+                <Ionicons
+                  name="school"
+                  size={80}
+                  color={t.accent}
+                  style={styles.logoIcon}
+                />
+                <Text style={[styles.title, { color: t.text }]}>
+                  University Portal
+                </Text>
+                <Text style={[styles.subtitle, { color: t.textSub }]}>
+                  Secure Access Login
+                </Text>
+                <Text style={[styles.welcomeText, { color: t.text }]}>
+                  Welcome Back
+                </Text>
+                <Text style={[styles.instructionText, { color: t.textSub }]}>
+                  Please sign in to continue.
+                </Text>
+              </View>
 
-        {activeTab === "login" && (
-          <View style={styles.footer}>
-            <View style={styles.footerLinks}>
-              <TouchableOpacity>
-                <Text style={[styles.footerLink, { color: t.textSub }]}>Privacy Policy</Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={[styles.footerLink, { color: t.textSub }]}>Terms of Service</Text>
-              </TouchableOpacity>
+              <View style={styles.form}>
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: t.text }]}>
+                    Student ID or Email
+                  </Text>
+                  <View
+                    style={[
+                      styles.inputWrapper,
+                      { backgroundColor: t.input, borderColor: t.inputBorder },
+                    ]}
+                  >
+                    <Ionicons
+                      name="person"
+                      size={20}
+                      color={t.textSub}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={[styles.input, { color: t.text }]}
+                      placeholder="Enter your ID or email"
+                      placeholderTextColor={t.textMuted}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="emailAddress"
+                      autoComplete="username"
+                      value={email}
+                      onChangeText={setEmail}
+                      editable={!loading}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <View style={styles.labelRow}>
+                    <Text style={[styles.label, { color: t.text }]}>
+                      Password
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => router.push("/(auth)/forget-password")}
+                    >
+                      <Text style={[styles.forgotLink, { color: t.accent }]}>
+                        Forgot Password?
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={[
+                      styles.inputWrapper,
+                      { backgroundColor: t.input, borderColor: t.inputBorder },
+                    ]}
+                  >
+                    <Ionicons
+                      name="lock-closed"
+                      size={20}
+                      color={t.textSub}
+                      style={styles.inputIcon}
+                    />
+                    <TextInput
+                      style={[styles.input, { color: t.text }]}
+                      placeholder="Enter your password"
+                      placeholderTextColor={t.textMuted}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="password"
+                      autoComplete="password"
+                      value={password}
+                      onChangeText={setPassword}
+                      editable={!loading}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      style={styles.eyeIcon}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={20}
+                        color={t.textSub}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.rememberMe}>
+                  <TouchableOpacity
+                    onPress={() => setRememberMe(!rememberMe)}
+                    style={styles.checkbox}
+                  >
+                    <Ionicons
+                      name={rememberMe ? "checkbox" : "square-outline"}
+                      size={20}
+                      color={t.accent}
+                    />
+                  </TouchableOpacity>
+                  <Text style={[styles.checkboxText, { color: t.textSub }]}>
+                    Remember me on this device
+                  </Text>
+                </View>
+
+                {error && <Text style={styles.error}>{error}</Text>}
+
+                <TouchableOpacity
+                  style={[
+                    styles.loginBtn,
+                    { backgroundColor: t.accent },
+                    loading && styles.buttonDisabled,
+                  ]}
+                  onPress={handleLogin}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color={t.accentFg} />
+                  ) : (
+                    <Text style={[styles.buttonText, { color: t.accentFg }]}>
+                      Log In
+                    </Text>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.googleBtn, loading && styles.buttonDisabled]}
+                  onPress={handleGoogleLogin}
+                  disabled={loading}
+                >
+                  <Text style={styles.googleBtnText}>Log In with Google</Text>
+                </TouchableOpacity>
+
+                <View style={styles.newStudent}>
+                  <Text style={[styles.newStudentText, { color: t.textSub }]}>
+                    New student?{" "}
+                  </Text>
+                  <TouchableOpacity onPress={() => router.push("/register")}>
+                    <Text style={[styles.highlight, { color: t.accent }]}>
+                      Activate your account
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-            <Text style={[styles.copyright, { color: t.textMuted }]}>© 2026 University Portal. All rights reserved.</Text>
-          </View>
-        )}
-      </ScrollView>
+          ) : (
+            <HomeScreen />
+          )}
 
-      {/* البار السفلي النحيف جداً بخيارين فقط */}
+          {activeTab === "login" && (
+            <View style={styles.footer}>
+              <View style={styles.footerLinks}>
+                <TouchableOpacity>
+                  <Text style={[styles.footerLink, { color: t.textSub }]}>
+                    Privacy Policy
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={[styles.footerLink, { color: t.textSub }]}>
+                    Terms of Service
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={[styles.copyright, { color: t.textMuted }]}>
+                © 2026 University Portal. All rights reserved.
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+
       <View
         style={[
           styles.bottomBar,
@@ -309,7 +301,7 @@ export default function LoginScreen() {
           onPress={() => handleTabChange("updates")}
         >
           <Ionicons
-            name="megaphone"
+            name="home-outline"
             size={18}
             color={activeTab === "updates" ? t.accent : t.textSub}
           />
@@ -319,10 +311,9 @@ export default function LoginScreen() {
               { color: activeTab === "updates" ? t.accent : t.textSub },
             ]}
           >
-           News & Ads
+            Home
           </Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => handleTabChange("login")}
@@ -342,7 +333,7 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -435,22 +426,17 @@ const styles = StyleSheet.create({
   bottomBar: {
     position: "absolute",
     bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: "row",
-    height: 45,
     width: "100%",
+    height: 48,
     justifyContent: "space-around",
     alignItems: "center",
     borderTopWidth: 0.5,
-    paddingBottom: Platform.OS === "ios" ? 10 : 0,
+    zIndex: 10,
+    elevation: 10,
   },
   tabItem: { alignItems: "center", flex: 1, justifyContent: "center" },
   tabLabel: { fontSize: 9, marginTop: 1, fontWeight: "500" },
-
-  // الأخبار والتحديثات
-  newsCard: { padding: 12, borderLeftWidth: 4, backgroundColor: "rgba(0,0,0,0.02)", marginBottom: 10, borderRadius: 8 },
-  newsTextEn: { fontSize: 13, fontWeight: "600", marginBottom: 2 },
-  newsTextAr: { fontSize: 12, textAlign: "right", lineHeight: 18 },
-  dateLabel: { fontSize: 9, color: "#888", marginTop: 5 },
-  dateLabelCenter: { fontSize: 9, color: "#888", textAlign: "center", marginTop: 3 },
-  flexibleImage: { width: "85%", aspectRatio: 16 / 9, borderRadius: 8, backgroundColor: "rgba(0,0,0,0.05)", alignSelf: "center" },
 });

@@ -7,8 +7,7 @@ import {
   // confirmPasswordReset, <-- removed, switching to updatePassword
   updatePassword,
 } from "firebase/auth";
-import { authAPI } from "../../utils/api";
-import apiClient, { saveToken, clearToken } from "../../utils/api";
+import apiClient, { authAPI, clearToken, saveToken } from "../../utils/api";
 import { auth } from "../../utils/firebaseConfig";
 
 // Register user
@@ -16,7 +15,6 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ email, password, name, StudentID }, { rejectWithValue }) => {
     let firebaseUser = null;
-    console.log(StudentID);
     try {
       // Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(
@@ -59,7 +57,18 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      let loginEmail = email.trim();
+      if (!loginEmail.includes("@")) {
+        // Treat as student ID, fetch email
+        const res = await apiClient.get(`/auth/student-email/${loginEmail}`);
+        loginEmail = res.data.email;
+      }
+
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        loginEmail,
+        password,
+      );
 
       // Force token refresh so the interceptor has a valid token immediately
       const idToken = await userCredential.user.getIdToken(true);
@@ -97,19 +106,20 @@ export const loginUser = createAsyncThunk(
 );
 
 // Logout user
-export const logoutUser = createAsyncThunk(
-  "auth/logoutUser",
-  async (_, { rejectWithValue }) => {
-    try {
-      await signOut(auth);
-      await clearToken();
-      await authAPI.logout();
-      return null;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  },
-);
+export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
+  // Clear local session first — always, regardless of network
+  try {
+    await signOut(auth);
+  } catch (_) {}
+  try {
+    await clearToken();
+  } catch (_) {}
+  // Best-effort backend call — don't block or fail logout if it errors
+  try {
+    await authAPI.logout();
+  } catch (_) {}
+  return null;
+});
 
 // Get current user
 export const getCurrentUser = createAsyncThunk(
@@ -117,7 +127,6 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       if (auth.currentUser) {
-        console.log("true auth.currentUser");
         const response = await authAPI.getMe();
         return {
           uid: auth.currentUser.uid,
@@ -221,6 +230,13 @@ const authSlice = createSlice({
 
     // Logout
     builder.addCase(logoutUser.fulfilled, (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
+      state.firebaseToken = null;
+    });
+    builder.addCase(logoutUser.rejected, (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.loading = false;

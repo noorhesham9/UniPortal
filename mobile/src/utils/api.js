@@ -2,7 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { auth } from "./firebaseConfig";
 
-const API_URL = "http://192.168.1.104:3100/api/v1";
+import { Platform } from "react-native";
+
+const API_URL =
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3100/api/v1" // Android emulator → host localhost
+    : "http://localhost:3100/api/v1"; // iOS simulator → host localhost
 const TOKEN_KEY = "@firebase_token";
 
 // Call this after login to persist the token
@@ -32,15 +37,9 @@ apiClient.interceptors.request.use(
         token = await auth.currentUser.getIdToken();
         // Keep stored token in sync
         await AsyncStorage.setItem(TOKEN_KEY, token);
-        console.log(`[API] Token from Firebase: ${auth.currentUser.email}`);
       } else {
         // Firebase has no session (Expo Go) — use stored token
         token = await AsyncStorage.getItem(TOKEN_KEY);
-        if (token) {
-          console.log(`[API] Token from AsyncStorage`);
-        } else {
-          console.warn(`[API] No token available`);
-        }
       }
 
       if (token) {
@@ -49,17 +48,13 @@ apiClient.interceptors.request.use(
     } catch (error) {
       console.error("Error getting token:", error);
     }
-    console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => Promise.reject(error),
 );
 
 apiClient.interceptors.response.use(
-  (response) => {
-    console.log(`[API] ✓ ${response.status} ${response.config.url}`);
-    return response;
-  },
+  (response) => response,
   (error) => {
     console.error(
       `[API] ✗ ${error.response?.status} ${error.config?.url} —`,
@@ -82,6 +77,16 @@ export const authAPI = {
     apiClient.post("/auth/login", { email, password }),
   getMe: () => apiClient.get("/auth/me"),
   logout: () => apiClient.get("/auth/logout"),
+  getEmailByStudentId: (studentId) =>
+    axios.get(`${API_URL}/auth/student-email/${studentId}`, { timeout: 10000 }),
+};
+
+// Public endpoints (no auth needed)
+export const publicAPI = {
+  getAnnouncements: () =>
+    axios.get(`${API_URL}/announcements/public`, { timeout: 10000 }),
+  getSiteLock: () => apiClient.get("/admin/site-lock"),
+  getActiveSemester: () => apiClient.get("/semesters/active/current"),
 };
 
 // Course endpoints
@@ -94,15 +99,30 @@ export const courseAPI = {
 // Enrollment endpoints
 export const enrollmentAPI = {
   createEnrollment: (enrollmentData) =>
-    apiClient.post("/enrollments", enrollmentData),
+    apiClient.post("/enrollment", enrollmentData),
   getCompletedHours: (studentId) =>
-    apiClient.get(`/enrollments/${studentId}/completed-hours`),
+    apiClient.get(`/enrollment/${studentId}/completed-hours`),
   joinWaitlist: (enrollmentData) =>
-    apiClient.post("/enrollments/waitlist/join", enrollmentData),
+    apiClient.post("/enrollment/waitlist/join", enrollmentData),
   getAcademicRecords: (studentId) =>
-    apiClient.get(`/enrollments/${studentId}/academic-records`),
+    apiClient.get(`/enrollment/${studentId}/academic-records`),
   getCurrentSemesterGrades: (studentId) =>
-    apiClient.get(`/enrollments/${studentId}/current-semester-grades`),
+    apiClient.get(`/enrollment/${studentId}/current-semester-grades`),
+  getMyEnrollments: (semesterId) =>
+    apiClient.get(
+      `/enrollment/my${semesterId ? `?semesterId=${semesterId}` : ""}`,
+    ),
+  dropEnrollment: (enrollmentId) =>
+    apiClient.delete(`/enrollment/${enrollmentId}`),
+};
+
+// Grades endpoints
+export const gradesAPI = {
+  getMyGrades: () => apiClient.get("/grades/my"),
+  getMySummary: () => apiClient.get("/grades/my-summary"),
+  getFinalResults: () => apiClient.get("/grades/results"),
+  getAcademicRecord: (studentId) =>
+    apiClient.get(`/grades/academic-record/${studentId}`),
 };
 
 export default apiClient;

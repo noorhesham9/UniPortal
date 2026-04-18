@@ -5,7 +5,7 @@ import Settings from "../(screens)/settings/index";
 export default function SettingsRoute() {
   const { theme } = useAppTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: theme.bg }}>
       <Settings />
     </SafeAreaView>
   );

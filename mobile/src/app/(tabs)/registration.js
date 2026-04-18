@@ -5,7 +5,7 @@ import CourseRegistrationScreen from "../../screens/main/CourseRegistrationScree
 export default function RegistrationRoute() {
   const { theme } = useAppTheme();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: theme.bg }}>
       <CourseRegistrationScreen />
     </SafeAreaView>
   );

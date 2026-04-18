@@ -26,8 +26,9 @@ export default function SettingsScreen() {
   const iconColor = isDark ? "#94a3b8" : "#555";
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
-    router.replace("/(auth)/login");
+    dispatch(logoutUser());
+    // Navigation is handled automatically by TabLayout's useEffect
+    // when isAuthenticated becomes false
   };
 
   const SettingItem = ({

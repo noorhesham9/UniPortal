@@ -7,7 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { fetchCompletedHours } from '../../store/slices/enrollmentSlice';
+import { fetchAcademicSummary } from '../../store/slices/enrollmentSlice';
 import { useAppTheme } from '../../context/ThemeContext';
 
 const AVATAR_PLACEHOLDER = 'https://ui-avatars.com/api/?background=facc15&color=0f172a&size=200&bold=true&name=';
@@ -16,7 +16,7 @@ export default function DashboardScreen() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user } = useSelector((state) => state.auth);
-  const { completedHours, loading } = useSelector((state) => state.enrollment);
+  const { academicSummary, loading } = useSelector((state) => state.enrollment);
   const [refreshing, setRefreshing] = useState(false);
   const { theme } = useAppTheme();
 
@@ -25,7 +25,7 @@ export default function DashboardScreen() {
   }, [user?._id]);
 
   const loadData = async () => {
-    if (user?._id) await dispatch(fetchCompletedHours(user._id));
+    await dispatch(fetchAcademicSummary());
   };
 
   const onRefresh = async () => {
@@ -34,7 +34,8 @@ export default function DashboardScreen() {
     setRefreshing(false);
   };
 
-  const gpa = user?.gpa ?? 0;
+  const gpa = academicSummary?.summary?.cumulativeGPA ?? user?.gpa ?? 0;
+  const completedHours = academicSummary?.summary?.totalCreditsEarned ?? 0;
   const paymentStatus = user?.feesPaid ? 'مسدد' : 'غير مسدد';
 
   const avatarUri = user?.profilePhoto?.url
@@ -53,8 +54,6 @@ export default function DashboardScreen() {
         <Image
           source={{ uri: avatarUri }}
           style={s.avatar}
-          onError={() => console.log('[Avatar Error] failed to load:', avatarUri)}
-          onLoad={() => console.log('[Avatar Loaded]')}
           defaultSource={{ uri: `${AVATAR_PLACEHOLDER}${encodeURIComponent(user?.name || 'S')}` }}
         />
           <View style={s.onlineDot} />
@@ -102,7 +101,8 @@ export default function DashboardScreen() {
           icon="trending-up-outline"
           iconColor="#34C759"
           label="المعدل التراكمي"
-          value={`${gpa} / 5.0`}
+          value={loading ? null : `${gpa} / 4.0`}
+          loading={loading}
           onPress={() => router.push('/(screens)/transcript')}
         />
 

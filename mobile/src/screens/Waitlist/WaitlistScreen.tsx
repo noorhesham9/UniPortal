@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
 } from "react-native";
 import { makeStyles } from "./styles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -55,7 +54,7 @@ const WaitlistScreen: React.FC = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity>
           <Ionicons name="chevron-back" size={24} color={theme.text} />
@@ -152,7 +151,7 @@ const WaitlistScreen: React.FC = () => {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
