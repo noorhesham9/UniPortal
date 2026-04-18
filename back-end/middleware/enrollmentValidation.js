@@ -51,39 +51,67 @@ exports.checkEnrollmentEligibility = async (req, res, next) => {
       start_date: { $lte: now },
       end_date: { $gte: now },
     });
-    if (activeSlices.length > 0) {
-      let allowed = false;
+
+    // No active slice = registration is closed for everyone
+    if (activeSlices.length === 0) {
+      return res.status(403).json({
+        message: "Registration is currently closed. No active registration window.",
+      });
+    }
+
+    // Check if student belongs to any of the active slices
+    let allowed = false;
+    for (const slice of activeSlices) {
+      const studentGpa = user.gpa ?? 0;
+
+      const gpaOk = studentGpa >= slice.min_gpa && studentGpa <= slice.max_gpa;
+
+      const deptOk =
+        !slice.departments?.length ||
+        (user.department && slice.departments.some((id) => id.equals(user.department)));
+
+      const levelOk =
+        !slice.levels?.length ||
+        slice.levels.includes(user.level);
+
+      const studentOk =
+        slice.students?.length > 0 &&
+        slice.students.some((id) => id.equals(user._id));
+
+      if (gpaOk && (studentOk || (deptOk && levelOk))) {
+        allowed = true;
+        break;
+      }
+    }
+
+    if (!allowed) {
+      // Build specific reasons for the student
+      const reasons = [];
       for (const slice of activeSlices) {
         const studentGpa = user.gpa ?? 0;
-
-        // GPA must be within slice range
-        const gpaOk = studentGpa >= slice.min_gpa && studentGpa <= slice.max_gpa;
-
-        // Department match (empty array = no restriction)
+        if (studentGpa < slice.min_gpa || studentGpa > slice.max_gpa) {
+          reasons.push(`Your GPA (${studentGpa.toFixed(2)}) is outside the required range (${slice.min_gpa} – ${slice.max_gpa})`);
+        }
         const deptOk =
           !slice.departments?.length ||
           (user.department && slice.departments.some((id) => id.equals(user.department)));
-
-        // Level match (empty array = no restriction)
+        if (!deptOk) {
+          reasons.push(`Your department is not included in the active registration window`);
+        }
         const levelOk =
           !slice.levels?.length ||
           slice.levels.includes(user.level);
-
-        // Explicit student list (empty = not used)
-        const studentOk =
-          slice.students?.length > 0 &&
-          slice.students.some((id) => id.equals(user._id));
-
-        if (gpaOk && (studentOk || (deptOk && levelOk))) {
-          allowed = true;
-          break;
+        if (!levelOk) {
+          reasons.push(`Your academic level (${user.level || "—"}) is not eligible. Allowed levels: ${slice.levels.join(", ")}`);
         }
       }
-      if (!allowed) {
-        return res.status(403).json({
-          message: "You are not eligible to register in the current slice. Check your GPA, department, or academic level.",
-        });
-      }
+
+      return res.status(403).json({
+        message: reasons.length > 0
+          ? reasons.join(" | ")
+          : "You are not eligible for the current registration window.",
+        reasons,
+      });
     }
 
     // 3. gather the section the student is trying to enroll in

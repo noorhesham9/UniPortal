@@ -1,6 +1,7 @@
 const Enrollment = require("../models/Enrollment");
 const Section = require("../models/Section");
 const User = require("../models/User");
+const RegistrationSlice = require("../models/RegistrationSlice");
 const { sendPushNotification } = require("../services/notificationService");
 
 // Admin: get all enrollments with filters
@@ -12,7 +13,9 @@ exports.getAllEnrollments = async (req, res) => {
     // Build section filter first if semesterId provided
     let sectionIds;
     if (semesterId) {
-      const sections = await Section.find({ semester_id: semesterId }).select("_id").lean();
+      const sections = await Section.find({ semester_id: semesterId })
+        .select("_id")
+        .lean();
       sectionIds = sections.map((s) => s._id);
     }
 
@@ -28,7 +31,9 @@ exports.getAllEnrollments = async (req, res) => {
           { studentId: { $regex: search, $options: "i" } },
           { email: { $regex: search, $options: "i" } },
         ],
-      }).select("_id").lean();
+      })
+        .select("_id")
+        .lean();
       query.student = { $in: students.map((s) => s._id) };
     }
 
@@ -51,7 +56,13 @@ exports.getAllEnrollments = async (req, res) => {
       Enrollment.countDocuments(query),
     ]);
 
-    return res.status(200).json({ success: true, enrollments, total, page: Number(page), totalPages: Math.ceil(total / Number(limit)) });
+    return res.status(200).json({
+      success: true,
+      enrollments,
+      total,
+      page: Number(page),
+      totalPages: Math.ceil(total / Number(limit)),
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -74,7 +85,10 @@ exports.getMyEnrollments = async (req, res) => {
           populate: [
             { path: "course_id", select: "code title credits" },
             { path: "instructor_id", select: "name" },
-            { path: "room_id", select: "room_name building_section type capacity" },
+            {
+              path: "room_id",
+              select: "room_name building_section type capacity",
+            },
           ],
         })
         .sort({ createdAt: -1 })
@@ -88,7 +102,10 @@ exports.getMyEnrollments = async (req, res) => {
         populate: [
           { path: "course_id", select: "code title credits" },
           { path: "instructor_id", select: "name" },
-          { path: "room_id", select: "room_name building_section type capacity" },
+          {
+            path: "room_id",
+            select: "room_name building_section type capacity",
+          },
         ],
       })
       .sort({ createdAt: -1 })
@@ -159,6 +176,54 @@ exports.createEnrollment = async (req, res) => {
     res.status(201).json(enrollment);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin enrollment (bypasses eligibility checks)
+exports.adminEnrollStudent = async (req, res) => {
+  try {
+    const { student, section, studentId, sectionId } = req.body;
+
+    // Support both naming conventions
+    const studentToUse = student || studentId;
+    const sectionToUse = section || sectionId;
+
+    if (!studentToUse || !sectionToUse) {
+      return res.status(400).json({
+        success: false,
+        message: "Student and section are required",
+      });
+    }
+
+    // Check if student already enrolled
+    const existingEnrollment = await Enrollment.findOne({
+      student: studentToUse,
+      section: sectionToUse,
+    });
+
+    if (existingEnrollment) {
+      return res.status(400).json({
+        success: false,
+        message: "Student already enrolled in this section",
+      });
+    }
+
+    // Create enrollment with Approved status (admin bypass)
+    const enrollment = await Enrollment.create({
+      student: studentToUse,
+      section: sectionToUse,
+      status: "Approved",
+    });
+
+    res.status(201).json({
+      success: true,
+      enrollment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -338,10 +403,59 @@ exports.deleteEnrollment = async (req, res) => {
     if (!enrollment) {
       return res.status(404).json({ message: "Enrollment not found" });
     }
+
+    // Students can only drop their own enrollments; admins can drop any
+    const roleName = req.user?.role?.name;
+    const isAdmin = roleName === "admin" || roleName === "super_admin";
+    if (!isAdmin && enrollment.student.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You can only drop your own enrollments." });
+    }
+
+    // Non-admins must be within an active registration slice to drop
+    if (!isAdmin) {
+      const now = new Date();
+      const activeSlices = await RegistrationSlice.find({
+        is_active: true,
+        start_date: { $lte: now },
+        end_date: { $gte: now },
+      });
+
+      if (activeSlices.length === 0) {
+        return res.status(403).json({
+          message:
+            "Registration is currently closed. No active registration window.",
+        });
+      }
+
+      const user = req.user;
+      const allowed = activeSlices.some((slice) => {
+        const studentGpa = user.gpa ?? 0;
+        const gpaOk =
+          studentGpa >= slice.min_gpa && studentGpa <= slice.max_gpa;
+        const deptOk =
+          !slice.departments?.length ||
+          (user.department &&
+            slice.departments.some((id) => id.equals(user.department)));
+        const levelOk =
+          !slice.levels?.length || slice.levels.includes(user.level);
+        const studentOk =
+          slice.students?.length > 0 &&
+          slice.students.some((id) => id.equals(user._id));
+        return gpaOk && (studentOk || (deptOk && levelOk));
+      });
+
+      if (!allowed) {
+        return res.status(403).json({
+          message:
+            "You are not in the active registration window and cannot drop courses.",
+        });
+      }
+    }
+
     const sectionId = enrollment.section;
     await Enrollment.findByIdAndDelete(id);
-
-    // بعد المسح، نترقى طالب من الويتب ليست إذا وجد
     await promoteNextFromWaitlist(sectionId);
 
     res.status(200).json({ message: "Enrollment dropped" });
@@ -455,7 +569,8 @@ exports.getAcademicRecords = async (req, res) => {
       totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : 0;
 
     // Calculate average grade letter
-    const averageGradePoint = totalCredits > 0 ? totalGradePoints / totalCredits : 0;
+    const averageGradePoint =
+      totalCredits > 0 ? totalGradePoints / totalCredits : 0;
     let averageGrade = "N/A";
     if (averageGradePoint >= 3.7) averageGrade = "A";
     else if (averageGradePoint >= 3.3) averageGrade = "B+";
@@ -488,6 +603,7 @@ exports.getAcademicRecords = async (req, res) => {
 exports.getCurrentSemesterGrades = async (req, res) => {
   try {
     const { studentId } = req.params;
+    const GradeConfig = require("../models/GradeConfig");
 
     // Fetch active semester
     const activeSemester = await require("../models/Semester").findOne({
@@ -508,29 +624,54 @@ exports.getCurrentSemesterGrades = async (req, res) => {
     // Fetch enrollments for current semester
     const enrollments = await Enrollment.find({
       student: studentId,
-      status: "Approved",
+      status: { $in: ["Enrolled", "Approved"] },
     })
       .populate({
         path: "section",
         match: { semester_id: activeSemester._id },
-        populate: [
-          { path: "course_id", select: "code title credits" },
-          { path: "semester_id", select: "year term is_active" },
-        ],
+        populate: [{ path: "course_id", select: "code title credits" }],
       })
       .lean();
 
     // Filter only current semester enrollments with valid sections
-    const currentSemesterEnrollments = enrollments.filter((e) => e.section != null);
+    const currentSemesterEnrollments = enrollments.filter(
+      (e) => e.section != null,
+    );
 
-    const courses = currentSemesterEnrollments.map((enrollment) => ({
-      _id: enrollment._id,
-      code: enrollment.section.course_id?.code || "N/A",
-      title: enrollment.section.course_id?.title || "Course",
-      coursework: enrollment.grades_object?.coursework || 0,
-      final: enrollment.grades_object?.final || 0,
-      total: (enrollment.grades_object?.coursework || 0) + (enrollment.grades_object?.final || 0),
-    }));
+    // Fetch grade configs for all sections
+    const sectionIds = currentSemesterEnrollments.map((e) => e.section._id);
+    const configs = await GradeConfig.find({
+      section_id: { $in: sectionIds },
+    }).lean();
+    const configMap = Object.fromEntries(
+      configs.map((c) => [c.section_id.toString(), c]),
+    );
+
+    const courses = currentSemesterEnrollments.map((enrollment) => {
+      const g = enrollment.grades_object || {};
+      const cfg = configMap[enrollment.section._id.toString()];
+      const ywMax = cfg?.year_work_max ?? 40;
+      const finalMax = cfg?.final_max ?? 60;
+
+      // year_work and final_exam are the actual field names used by professors
+      const coursework = parseFloat(g.year_work ?? 0);
+      const finalGrade = parseFloat(g.final_exam ?? 0);
+      const total = parseFloat(g.final_total ?? coursework + finalGrade);
+
+      return {
+        _id: enrollment._id,
+        code: enrollment.section.course_id?.code || "N/A",
+        title: enrollment.section.course_id?.title || "Course",
+        coursework,
+        final: finalGrade,
+        total,
+        ywMax,
+        finalMax,
+        totalMax: ywMax + finalMax,
+        isYearWorkLocked: enrollment.isYearWorkLocked,
+        isFinalExamLocked: enrollment.isFinalExamLocked,
+      };
+    });
 
     // Calculate averages
     let averageCoursework = 0;
@@ -539,11 +680,10 @@ exports.getCurrentSemesterGrades = async (req, res) => {
 
     if (courses.length > 0) {
       averageCoursework =
-        courses.reduce((sum, course) => sum + (course.coursework || 0), 0) /
+        courses.reduce((sum, course) => sum + course.coursework, 0) /
         courses.length;
       averageFinal =
-        courses.reduce((sum, course) => sum + (course.final || 0), 0) /
-        courses.length;
+        courses.reduce((sum, course) => sum + course.final, 0) / courses.length;
       totalOverall =
         courses.reduce((sum, course) => sum + course.total, 0) / courses.length;
     }

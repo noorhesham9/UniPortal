@@ -12,17 +12,6 @@ exports.getAvailableCourses = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Authentication required" });
     }
-    if (!req.user.level) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User level is required" });
-    }
-
-    // Log student info
-    console.log("📚 [getAvailableCourses] Student Info:");
-    console.log("  - ID:", req.user._id);
-    console.log("  - Level:", req.user.level);
-    console.log("  - Department:", req.user.department || "NONE (no department)");
 
     // 0. Check registration slice eligibility
     const now = new Date();
@@ -31,8 +20,6 @@ exports.getAvailableCourses = async (req, res) => {
       start_date: { $lte: now },
       end_date: { $gte: now },
     }).populate("departments", "name");
-
-    console.log("  - Active Slices:", activeSlices.length);
 
     if (activeSlices.length > 0) {
       const eligible = activeSlices.some((slice) => {
@@ -47,9 +34,7 @@ exports.getAvailableCourses = async (req, res) => {
       });
 
       if (!eligible) {
-        // Return the active slice info so the frontend can show why
         const slice = activeSlices[0];
-        console.log("  ❌ Student NOT eligible for registration slice");
         return res.status(403).json({
           success: false,
           message: "Registration is not open for your group yet.",
@@ -63,82 +48,102 @@ exports.getAvailableCourses = async (req, res) => {
           },
         });
       }
-      console.log("  ✓ Student eligible for registration slice");
+    } else {
+      // No active slices at all — registration is fully closed
+      return res.status(403).json({
+        success: false,
+        message:
+          "Registration is currently closed. No active registration window.",
+        sliceLocked: true,
+        registrationClosed: true,
+      });
     }
 
     // 1. Find active semester
     const activeSemester = await Semester.findOne({ is_active: true });
     if (!activeSemester) {
-      console.log("❌ No active semester found");
       return res
         .status(404)
         .json({ success: false, message: "No active semester found" });
     }
-    console.log("📅 Active Semester:", activeSemester._id, `(${activeSemester.year} ${activeSemester.term})`);
 
-    // 2. Get course IDs the student is already enrolled in
-    const enrollments = await Enrollment.find({
-      student: req.user._id,
-    }).populate({
-      path: "section",
-      select: "course_id",
-    });
-    const enrolledCourseIds = enrollments
-      .map((e) => e.section?.course_id)
+    const userLevel = Number(req.user.level) || 1;
+
+    // 2. Get enrollments for CURRENT semester only (to exclude already-enrolled this term)
+    const currentEnrollments = await Enrollment.find({ student: req.user._id })
+      .populate({
+        path: "section",
+        populate: { path: "course_id", select: "_id" },
+      })
+      .lean();
+
+    // Courses enrolled in the ACTIVE semester (exclude from available list)
+    const enrolledThisSemesterCourseIds = currentEnrollments
+      .filter((e) => {
+        const sec = e.section;
+        return sec?.semester_id?.toString() === activeSemester._id.toString();
+      })
+      .map((e) => e.section?.course_id?._id)
       .filter(Boolean);
-    console.log("📝 Already Enrolled Courses:", enrolledCourseIds.length, enrolledCourseIds.map(c => c.toString()));
 
-    // 3. Build course filter based on department and level
-    const userLevel = Number(req.user.level);
+    // 3. Get all passed course IDs (for prerequisite checking)
+    // A course is "passed" if the enrollment is grade-locked and letter_grade != 'F'
+    const passedCourseIds = new Set(
+      currentEnrollments
+        .filter((e) => {
+          const g = e.grades_object || {};
+          return e.isGradeLocked && g.letter_grade && g.letter_grade !== "F";
+        })
+        .map((e) => e.section?.course_id?._id?.toString())
+        .filter(Boolean),
+    );
 
-    // Determine which level requirements to match
-    const maxLevel =
-      activeSemester.course_visibility_levels === "current_and_lower"
-        ? userLevel
-        : userLevel;
-
-    // Build department filter:
-    // - If student has NO department: only see courses with NO department (department = null)
-    // - If student HAS department: see courses with NO department OR courses with their department
+    // 4. Build filters
     const departmentFilter = req.user.department
       ? {
-          $or: [{ department: null }, { department: req.user.department }],
+          $or: [
+            { department: null },
+            { department: { $exists: false } },
+            { department: req.user.department },
+          ],
         }
-      : { department: null };
+      : { $or: [{ department: null }, { department: { $exists: false } }] };
 
-    console.log("🏢 Department Filter:");
-    console.log("  -", JSON.stringify(departmentFilter));
+    const levelFilter = {
+      $or: [
+        { min_level: { $lte: userLevel } },
+        { min_level: null },
+        { min_level: { $exists: false } },
+      ],
+    };
 
-    // Build level filter: show courses where min_level <= student's level
-    const levelFilter = { min_level: { $lte: userLevel } };
-    console.log("📊 Level Filter: min_level ≤", userLevel);
-
-    // 4. Filter out already-enrolled courses, keep only activated ones
-    console.log("\n🔍 Searching for available courses with query:");
-    console.log({
-      departmentFilter,
-      levelFilter,
-      excludeEnrolled: enrolledCourseIds.length,
-      is_activated: true,
-    });
-
-    const availableCourses = await Course.find({
-      ...departmentFilter,
-      ...levelFilter,
-      _id: { $nin: enrolledCourseIds },
-      is_activated: true,
+    // 5. Fetch candidate courses
+    const candidateCourses = await Course.find({
+      $and: [
+        departmentFilter,
+        levelFilter,
+        { _id: { $nin: enrolledThisSemesterCourseIds } },
+        { is_activated: true },
+      ],
     })
-      .populate("prerequisites_array", "code title")
+      .populate("prerequisites_array", "code title _id")
       .sort({ code: 1 });
 
-    console.log("✅ Available Courses Found:", availableCourses.length);
-    if (availableCourses.length > 0) {
-      console.log("   Courses:", availableCourses.map(c => `${c.code} (dept: ${c.department || 'NONE'}, minLvl: ${c.min_level})`));
-    }
+    // 6. Filter by prerequisites — student must have PASSED all prerequisites
+    const availableCourses = candidateCourses.filter((course) => {
+      if (
+        !course.prerequisites_array ||
+        course.prerequisites_array.length === 0
+      )
+        return true;
+      return course.prerequisites_array.every((prereq) =>
+        passedCourseIds.has(prereq._id.toString()),
+      );
+    });
 
     const availableCourseIds = availableCourses.map((c) => c._id);
 
-    // 5. Fetch sections for those courses in the active semester
+    // 7. Fetch sections for those courses in the active semester
     const sections = await Section.find({
       semester_id: activeSemester._id,
       course_id: { $in: availableCourseIds },
@@ -149,13 +154,6 @@ exports.getAvailableCourses = async (req, res) => {
       .sort({ course_id: 1, sectionNumber: 1 })
       .lean();
 
-    console.log("📖 Sections Found:", sections.length);
-    
-    console.log("\n✨ FINAL RESULT:");
-    console.log("  - Available Courses:", availableCourses.length);
-    console.log("  - Available Sections:", sections.length);
-    console.log("═══════════════════════════════════════\n");
-
     return res.status(200).json({
       success: true,
       activeSemesterId: activeSemester._id,
@@ -164,17 +162,14 @@ exports.getAvailableCourses = async (req, res) => {
         term: activeSemester.term,
         startDate: activeSemester.start_date,
         endDate: activeSemester.end_date,
-        courseVisibilityLevels: activeSemester.course_visibility_levels,
       },
-      enrolledCoursesCount: enrolledCourseIds.length,
+      enrolledCoursesCount: enrolledThisSemesterCourseIds.length,
       availableCoursesCount: availableCourses.length,
       courses: availableCourses,
       sections,
     });
   } catch (error) {
-    console.error("❌ Error fetching available courses:");
-    console.error("  Message:", error.message);
-    console.error("  Stack:", error.stack);
+    console.error("❌ Error fetching available courses:", error.message);
     return res.status(500).json({
       success: false,
       message: "Error fetching available courses",
