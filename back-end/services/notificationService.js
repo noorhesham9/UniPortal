@@ -1,10 +1,9 @@
 const admin = require('firebase-admin');
-
 const path = require('path');
 
-const serviceAccount = require(path.join(__dirname, '../uni-portal-64dc1-firebase-adminsdk-fbsvc-64bcc2e9bb.json'));
-
+// Use the already-initialized app or initialize once
 if (!admin.apps.length) {
+    const serviceAccount = require(path.join(__dirname, '../uni-portal-64dc1-firebase-adminsdk-fbsvc-64bcc2e9bb.json'));
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
