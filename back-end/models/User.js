@@ -98,6 +98,18 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Personal info fields (editable by user)
+    phone:           { type: String, default: null },
+    address:         { type: String, default: null },
+    fatherName:      { type: String, default: null },
+    nationality:     { type: String, default: null },
+    homePhone:       { type: String, default: null },
+    dateOfEnrollment:{ type: Date,   default: null },
+    fatherJob:       { type: String, default: null },
+    motherJob:       { type: String, default: null },
+    guardianName:    { type: String, default: null },
+    guardianMobile:  { type: String, default: null },
+
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

@@ -2,47 +2,81 @@ const User = require("../models/User");
 const Role = require("../models/Role");
 const admin = require("../utils/firebaseAdmin");
 const AllowedStudentModel = require("../models/AllowedStudentModel");
+const RegistrationRequest = require("../models/RegistrationRequest");
 
 exports.register = async (req, res) => {
   try {
-    const { idToken, studentId, name } = req.body;
+    const { idToken, activationToken, last4 } = req.body;
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUid = decodedToken.uid;
-    const allowed = await AllowedStudentModel.findOne({
-      studentId: studentId,
-      isActive: true,
+    const firebaseUid  = decodedToken.uid;
+
+    // 1. Find request by activation token
+    const regRequest = await RegistrationRequest.findOne({
+      activationToken,
+      activationExpires: { $gt: new Date() },
+      status: "approved",
     });
 
-    if (!allowed) {
+    if (!regRequest) {
       return res.status(403).json({
         success: false,
-        message: "This Student ID is not authorized by Admin or deactivated.",
+        message: "Invalid or expired activation link. Please contact administration.",
       });
     }
 
-    const existingUser = await User.findOne({ studentId: studentId });
+    // 2. Re-verify security challenge
+    const actualLast4 = regRequest.nationalId.slice(-4);
+    if (last4?.trim() !== actualLast4) {
+      return res.status(403).json({
+        success: false,
+        message: "Security challenge failed.",
+      });
+    }
+
+    // 3. Check not already registered — also verify AllowedStudent.isRegistered
+    const existingUser = await User.findOne({ studentId: regRequest.studentId });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "This Student ID is already linked to another account.",
+        message: "This Student ID is already linked to an account.",
       });
     }
+
+    const allowedRecord = await AllowedStudentModel.findOne({ studentId: regRequest.studentId });
+    if (allowedRecord?.isRegistered) {
+      return res.status(400).json({
+        success: false,
+        message: "This Student ID has already been registered.",
+      });
+    }
+
     const studentRole = await Role.findOne({ name: "student" });
 
     const newUser = await User.create({
-      firebaseUid: firebaseUid,
-      email: decodedToken.email,
-      name: name || decodedToken.name,
-      role: studentRole._id,
-      studentId: studentId,
+      firebaseUid,
+      email:     decodedToken.email,
+      name:      regRequest.fullName,
+      role:      studentRole._id,
+      studentId: regRequest.studentId,
       is_active: true,
       isStudent: true,
     });
 
+    // 5. Mark as registered — invalidate token
+    await AllowedStudentModel.findOneAndUpdate(
+      { studentId: regRequest.studentId },
+      { isRegistered: true }
+    );
+
+    regRequest.firebaseUid      = firebaseUid;
+    regRequest.activationToken  = undefined;
+    regRequest.activationExpires = undefined;
+    await regRequest.save();
+
     res.status(201).json({
       success: true,
-      message: "User created in DB successfully",
+      message: "Account created successfully.",
       user: newUser,
     });
   } catch (error) {
@@ -68,6 +102,14 @@ exports.login = async (req, res) => {
         code: "auth/user-not-found",
         success: false,
         message: "No account found in our records. Please register first.",
+      });
+    }
+
+    if (!user.is_active) {
+      return res.status(403).json({
+        code: "auth/user-inactive",
+        success: false,
+        message: "Your account has been deactivated. Please contact the Student Affairs office.",
       });
     }
 
@@ -118,5 +160,24 @@ exports.getMe = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+// GET email by studentId — used for login with Student ID
+exports.getEmailByStudentId = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const user = await User.findOne({ studentId }).select("email").lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Student ID not found.",
+      });
+    }
+
+    res.json({ success: true, email: user.email });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

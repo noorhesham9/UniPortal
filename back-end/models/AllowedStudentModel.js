@@ -4,27 +4,40 @@ const allowedUserSchema = new mongoose.Schema({
   studentId: {
     type: String,
     required: [true, 'Student ID is required'],
-    unique: true, // يمنع تكرار نفس الرقم التعريفي في القائمة
-    trim: true
+    unique: true,
+    trim: true,
+  },
+  nationalId: {
+    type: String,
+    required: [true, 'National ID is required'],
+    unique: true,
+    trim: true,
+  },
+  examSeatNumber: {
+    type: String,
+    required: [true, 'Exam seat number is required'],
+    unique: true,
+    trim: true,
   },
   email: {
     type: String,
     unique: true,
-    sparse: true, // يسمح بترك الإيميل فارغاً إذا كان الأدمن لا يعرفه مسبقاً
-    lowercase: true
+    sparse: true,
+    lowercase: true,
+    set: (v) => (v?.trim() === "" ? undefined : v?.trim()?.toLowerCase()),
   },
   isActive: {
     type: Boolean,
-    default: true // يسمح للأدمن بإيقاف صلاحية التسجيل لهذا الرقم في أي وقت
+    default: true,
   },
   isRegistered: {
     type: Boolean,
-    default: false // تتحول لـ true بمجرد أن يقوم الطالب بإنشاء حسابه فعلياً
+    default: false,
   },
   addedBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User' // تسجيل من الأدمن الذي أضاف هذا الرقم
-  }
+    ref: 'User',
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('AllowedUser', allowedUserSchema);

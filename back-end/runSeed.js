@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const path = require("path");
 const seedDatabase = require("./utils/seedDatabase");
 
-dotenv.config({ path: "./config.env" });
+dotenv.config({ path: path.join(__dirname, "config.env") });
 
 let dbName = process.env.NODE_ENV === "production" ? "UNIPortal" : "UNIPortalDEV";
 

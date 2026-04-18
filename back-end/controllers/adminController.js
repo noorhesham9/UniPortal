@@ -57,20 +57,31 @@ exports.getAllowedStudents = async (req, res) => {
 };
 exports.addAllowedStudent = async (req, res) => {
   try {
-    const { studentId, email } = req.body;
+    const { studentId, nationalId, examSeatNumber, email } = req.body;
 
-    // التأكد إذا كان موجوداً مسبقاً
-    const existing = await AllowedUser.findOne({ studentId });
+    if (!studentId || !nationalId || !examSeatNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "studentId, nationalId, and examSeatNumber are all required.",
+      });
+    }
+
+    const existing = await AllowedUser.findOne({
+      $or: [{ studentId }, { nationalId }, { examSeatNumber }],
+    });
     if (existing) {
       return res.status(400).json({
         success: false,
-        message: "Student ID already in the allowlist.",
+        message: "A record with this Student ID, National ID, or Exam Seat Number already exists.",
       });
     }
 
     const newAllowedStudent = await AllowedUser.create({
       studentId,
-      email,
+      nationalId,
+      examSeatNumber,
+      // treat empty string as no email — sparse unique index requires null/undefined
+      email: email?.trim() || undefined,
       addedBy: req.user._id,
     });
     res.status(201).json({ success: true, data: newAllowedStudent });
@@ -82,13 +93,9 @@ exports.addAllowedStudent = async (req, res) => {
 // إضافة قائمة طلاب (مثلاً من ملف Excel أو Array)
 exports.bulkAddAllowedStudents = async (req, res) => {
   try {
-    const { studentsList } = req.body; // Array of objects [{studentId: '123'}, {studentId: '456'}]
-
-    // استخدام insertMany لإضافة الكل مرة واحدة (أسرع)
-    const result = await AllowedUser.insertMany(studentsList, {
-      ordered: false,
-    });
-
+    // Each item: { studentId, nationalId, examSeatNumber, email? }
+    const { studentsList } = req.body;
+    const result = await AllowedUser.insertMany(studentsList, { ordered: false });
     res.status(201).json({
       success: true,
       message: `${result.length} students added to the allowlist.`,
@@ -96,9 +103,18 @@ exports.bulkAddAllowedStudents = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Some IDs might be duplicates or invalid.",
+      message: "Some records might be duplicates or invalid.",
       error: error.message,
     });
+  }
+};
+
+exports.deleteAllowedStudent = async (req, res) => {
+  try {
+    await AllowedUser.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

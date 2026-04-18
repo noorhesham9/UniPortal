@@ -27,6 +27,10 @@ const departmentSchema = new mongoose.Schema(
       enum: ["Active", "Inactive", "On Hold"],
       default: "Active",
     },
+    required_credits: {
+      type: Number,
+      default: 132, // Total credits required for graduation
+    },
   },
   { timestamps: true },
 );

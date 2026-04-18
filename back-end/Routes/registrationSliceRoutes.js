@@ -1,18 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const { requireAuth } = require("../middleware/requireAuth");
 const {
   createSlice,
   listSlices,
   updateSlice,
   deleteSlice,
 } = require("../controllers/registrationSliceController");
+const { requireAuth } = require("../middleware/requireAuth");
+const { requireRole } = require("../middleware/authorize");
 
-// CRUD on registration slices - only admins or advisors should call these
-router.post("/", requireAuth, createSlice);
-router.get("/", requireAuth, listSlices);
-router.patch("/:id", requireAuth, updateSlice);
-router.delete("/:id", requireAuth, deleteSlice);
+const isAdmin = requireRole("admin", "super_admin");
+
+// CRUD on registration slices - admin/super_admin only
+router.post("/",    requireAuth, isAdmin, createSlice);
+router.get("/",     requireAuth, isAdmin, listSlices);
+router.patch("/:id",requireAuth, isAdmin, updateSlice);
+router.delete("/:id",requireAuth, requireRole("super_admin"), deleteSlice);
 
 // Public endpoint — returns active slice info for students
 router.get("/active", async (req, res) => {
@@ -46,9 +49,9 @@ router.get("/my-eligibility", requireAuth, async (req, res) => {
       end_date: { $gte: now },
     }).populate("departments", "name");
 
-    // No active slice — registration is open to all (or not configured)
+    // No active slice — registration is CLOSED for everyone
     if (!slice) {
-      return res.json({ success: true, eligible: true, slice: null, reasons: [] });
+      return res.json({ success: true, eligible: false, registrationClosed: true, slice: null, reasons: ["Registration is currently closed. No active registration window."] });
     }
 
     const studentGpa = user.gpa ?? 0;

@@ -15,7 +15,30 @@ exports.getMySections = async (req, res) => {
       .sort({ day: 1, start_time: 1 })
       .lean();
 
-    return res.status(200).json({ success: true, sections });
+    // Count actual enrolled students from Enrollment collection
+    const Enrollment = require("../models/Enrollment");
+    const sectionIds = sections.map((s) => s._id);
+    const enrollmentCounts = await Enrollment.aggregate([
+      {
+        $match: {
+          section: { $in: sectionIds },
+          status: { $in: ["Enrolled", "Approved", "Pending"] },
+        },
+      },
+      { $group: { _id: "$section", count: { $sum: 1 } } },
+    ]);
+
+    const countMap = Object.fromEntries(
+      enrollmentCounts.map((e) => [e._id.toString(), e.count])
+    );
+
+    // Replace enrolled_students array with actual count
+    const sectionsWithCount = sections.map((sec) => ({
+      ...sec,
+      enrolled_students: Array(countMap[sec._id.toString()] || 0).fill(null),
+    }));
+
+    return res.status(200).json({ success: true, sections: sectionsWithCount });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

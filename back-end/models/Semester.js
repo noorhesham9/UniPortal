@@ -13,6 +13,10 @@ const SemesterSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    show_final_results: {
+        type: Boolean,
+        default: false
+    },
     start_date: {
         type: Date,
         required: true

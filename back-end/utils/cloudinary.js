@@ -33,6 +33,25 @@ const chatFileStorage = new CloudinaryStorage({
   },
 });
 
+const announcementFileStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => ({
+    folder: "uni-portal/announcements",
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "pdf"],
+    type: "upload",        // always public delivery
+    resource_type: "auto",
+  }),
+});
+
+const announcementImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "uni-portal/announcements/images",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    // No transformation — preserve original image as uploaded
+  },
+});
+
 // Memory storage — used when we upload to cloudinary manually in the controller
 const memoryStorage = multer({ storage: multer.memoryStorage() });
 
@@ -50,9 +69,11 @@ const uploadToCloudinary = (buffer, options = {}) =>
     stream.end(buffer);
   });
 
-exports.uploadProfilePhoto = multer({ storage: profilePhotoStorage });
-exports.uploadTuitionReceipt = multer({ storage: tuitionReceiptStorage });
-exports.uploadChatFile = multer({ storage: chatFileStorage });
-exports.memoryStorage = memoryStorage;
-exports.uploadToCloudinary = uploadToCloudinary;
-exports.cloudinary = cloudinary;
+exports.uploadProfilePhoto     = multer({ storage: profilePhotoStorage });
+exports.uploadTuitionReceipt   = multer({ storage: tuitionReceiptStorage });
+exports.uploadChatFile         = multer({ storage: chatFileStorage });
+exports.uploadAnnouncementFile = multer({ storage: announcementFileStorage });
+exports.uploadAnnouncementImage = multer({ storage: announcementImageStorage });
+exports.memoryStorage          = memoryStorage;
+exports.uploadToCloudinary     = uploadToCloudinary;
+exports.cloudinary             = cloudinary;

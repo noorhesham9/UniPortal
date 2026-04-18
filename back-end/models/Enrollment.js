@@ -29,6 +29,14 @@ const enrollmentSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isYearWorkLocked: {
+        type: Boolean,
+        default: false
+    },
+    isFinalExamLocked: {
+        type: Boolean,
+        default: false
+    },
     completed_hours: {
         type: Number,
         default: 0
