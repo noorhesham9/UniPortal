@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, browserSessionPersistence, setPersistence } from "firebase/auth";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAOaf5bHKBsz_fRUH81iM9M6XoZuk29DDI",
   authDomain: "uni-portal-64dc1.firebaseapp.com",
@@ -10,5 +11,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app); 
+export const auth = getAuth(app);
+
+// Use session persistence — clears when the browser tab/window is closed
+// This prevents auto-login on a different device or after logout
+setPersistence(auth, browserSessionPersistence);
+
 export const googleProvider = new GoogleAuthProvider();
