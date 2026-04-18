@@ -1,19 +1,19 @@
 import axios from "axios";
-import {
-  deleteUser,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
-import { useEffect, useState } from "react";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { useEffect, useRef, useState } from "react";
 import { FiEye, FiEyeOff, FiLock, FiUser } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { loginSuccess } from "../../services/store/reducers/authSlice";
 import { loginWithToken } from "../../services/AuthServices";
-import { auth, googleProvider } from "../../utils/firebaseConfig";
+import { auth } from "../../utils/firebaseConfig";
 import "./Login.css";
 import loginLogoSvg from "./login_logo.svg";
+import PublicNav from "../Home/PublicNav";
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAAC_GjmneDWnvrWue";
+
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -21,126 +21,82 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  const [error, setError] = useState("");
+  const turnstileRef = useRef(null);
 
-  // التحقق من وجود token - إذا كان موجوداً، انتقل إلى dashboard
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
+    document.body.classList.add("public-page");
+    return () => document.body.classList.remove("public-page");
+  }, []);
+
+  useEffect(() => {
+    if (user) navigate("/dashboard");
   }, [user, navigate]);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleEmailLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    if (!turnstileToken) return setError("Please complete the security check.");
+
     try {
       localStorage.clear();
-
-      // كود مسح الكوكيز اللي كتبناه فوق
       const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        document.cookie =
-          name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      for (const cookie of cookies) {
+        const name = cookie.split("=")[0].trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
       }
       await signOut(auth);
-      console.log("Previous Firebase session cleared");
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      const idToken = await result.user.getIdToken();
 
-      console.log("Result:", result);
-      console.log("Firebase ID Token:", idToken);
-      const response = await loginWithToken(idToken);
+      let loginEmail = email.trim();
+      if (!loginEmail.includes("@")) {
+        try {
+          const res = await axios.get(
+            `${process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1"}/auth/student-email/${loginEmail}`
+          );
+          loginEmail = res.data.email;
+        } catch {
+          setError("Student ID not found. Please check your ID and try again.");
+          return;
+        }
+      }
 
+      const result   = await signInWithEmailAndPassword(auth, loginEmail, password);
+      const idToken  = await result.user.getIdToken();
+      const response = await loginWithToken(idToken, turnstileToken);
       dispatch(loginSuccess(response.user));
       navigate("/dashboard");
-    } catch (error) {
-      if (error.response) {
-        const { code, message } = error.response.data;
+    } catch (err) {
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
+      if (err.response) {
+        const { code, message } = err.response.data;
         if (code === "auth/user-not-found") {
-          alert("الحساب ده مش موجود عندنا في قاعدة البيانات، سجل الأول");
+          setError("No account found. Please register first.");
+        } else if (code === "auth/user-inactive") {
+          navigate("/inactive");
         } else {
-          alert(message || "حدث خطأ ما");
+          setError(message || "An error occurred.");
         }
       } else {
-        console.error("Error without response:", error.message);
+        setError(err.message || "An error occurred.");
       }
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      localStorage.clear();
-
-      // كود مسح الكوكيز اللي كتبناه فوق
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        document.cookie =
-          name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      }
-
-      await signOut(auth);
-      console.log("Previous Firebase session cleared");
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-      // const userEmail = result.user.email;
-      // const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-      // console.log("Sign-in methods for email:", methods);
-      // if (methods.length > 0 && !methods.includes("google.com")) {
-      //   console.log(methods);
-      //   console.log("الحساب موجود بالباسورد، جاري الربط...");
-
-      //   // هنا المشكلة إن الربط (Link) بيحتاج اليوزر يكون مسجل دخول بالباسورد الأول
-      //   // فالحل الأفضل لليوزر هو إظهار رسالة:
-      //   alert(
-      //     "هذا الحساب مسجل بالباسورد. يرجى تسجيل الدخول بالباسورد مرة واحدة لربط حساب جوجل.",
-      //   );
-
-      //   // كحل بديل (لو مش عايز تضايق اليوزر):
-      //   // فيربيز أحياناً بيعمل الـ Linking تلقائياً لو الإعدادات "Link accounts with same email" مفعلة
-      //   // بس عشان تضمن إن الباسورد ميتمسحش، لازم اليوزر يكون عمل Login بالباسورد الأول.
-      // }
-      console.log("Firebase ID Token:", idToken);
-
-      const response = await loginWithToken(idToken);
-
-      if (response.success) {
-        dispatch(loginSuccess(response.user));
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      const user = auth.currentUser;
-      await deleteUser(user);
-      console.error(
-        "Login Error:",
-        error.response?.data?.message || error.message,
-      );
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-cardd ">
+      <PublicNav />
+      <div className="login-cardd">
         <div className="card-header">
-          <img
-            src={loginLogoSvg}
-            alt="University Logo"
-            className="logo-image"
-          />
+          <img src={loginLogoSvg} alt="University Logo" className="logo-image" />
           <h2>University Portal</h2>
           <p className="subtitle">Secure Access Login</p>
-
           <h3 className="welcome-text">Welcome Back</h3>
           <p className="instruction-text">Please sign in to continue.</p>
         </div>
-        <form onSubmit={handleEmailLogin} className="login-form">
+
+        <form onSubmit={handleLogin} className="login-form">
           <div className="input-group">
             <label>Student ID or Email</label>
             <div className="input-wrapper">
@@ -157,14 +113,7 @@ function Login() {
           <div className="input-group">
             <div className="label-row">
               <label>Password</label>
-              <Link
-                to="/forgot-password"
-                style={{
-                  color: "#FBBF24",
-                  fontSize: "12px",
-                  textDecoration: "none",
-                }}
-              >
+              <Link to="/forgot-password" style={{ color: "#FBBF24", fontSize: "12px", textDecoration: "none" }}>
                 Forgot Password?
               </Link>
             </div>
@@ -176,11 +125,7 @@ function Login() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
               />
-              <span
-                className="eye-icon"
-                onClick={togglePasswordVisibility}
-                style={{ cursor: "pointer" }}
-              >
+              <span className="eye-icon" onClick={() => setShowPassword(!showPassword)} style={{ cursor: "pointer" }}>
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </span>
             </div>
@@ -191,28 +136,33 @@ function Login() {
             <label htmlFor="remember">Remember me on this device</label>
           </div>
 
-          <button type="submit" className="login-btn">
+          {error && <p style={{ color: "#ef4444", fontSize: "0.85rem", margin: "0", textAlign: "center" }}>{error}</p>}
+
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onExpire={() => setTurnstileToken(null)}
+            onError={() => setTurnstileToken(null)}
+            options={{ theme: "dark" }}
+            style={{ margin: "0.75rem 0" }}
+          />
+
+          <button type="submit" className="login-btn" disabled={!turnstileToken}>
             Log In
-          </button>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            style={{
-              marginTop: "10px",
-            }}
-            className="login-btn"
-          >
-            Log In with Google
           </button>
 
           <p className="new-student">
             New student?{" "}
-            <Link to="/register" className="highlight">
-              Activate your account
-            </Link>
+            <Link to="/register" className="highlight">Activate your account</Link>
+          </p>
+          <p className="new-student">
+            Already submitted a request?{" "}
+            <Link to="/register/status" className="highlight">Check status</Link>
           </p>
         </form>
       </div>
+
       <footer className="login-footer">
         <div className="footer-links">
           <Link to="/privacy">Privacy Policy</Link>

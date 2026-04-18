@@ -1,11 +1,20 @@
 .login-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
-  padding-top: 80px;
   min-height: 100vh;
   background-color: hsl(var(--background));
+}
+
+.login-container .home-nav {
+  width: 100%;
+  box-sizing: border-box;
+  align-self: stretch;
+}
+
+.login-container .login-cardd {
+  margin-top: 3rem;
+  margin-bottom: 2rem;
 }
 
 .login-cardd {
