@@ -58,12 +58,28 @@ export const getAllowedStudents = async () => {
   return res.data;
 };
 
-export const addAllowedStudent = async (studentId, note) => {
-  const res = await api.post("/admin/allow_Student", { studentId, note });
+export const addAllowedStudent = async ({ studentId, nationalId, examSeatNumber, email }) => {
+  const res = await api.post("/admin/allow_Student", { studentId, nationalId, examSeatNumber, email });
   return res.data;
 };
 
 export const deleteAllowedStudent = async (id) => {
   const res = await api.delete(`/admin/allowed_students/${id}`);
   return res.data;
+};
+
+// --- Registration Requests ---
+export const getRegistrationRequests = async (status = "pending_approval") => {
+  const res = await api.get(`/registration-requests?status=${status}`);
+  return res.data;
+};
+
+export const reviewRegistrationRequest = async (id, action, adminNote = "") => {
+  const res = await api.patch(`/registration-requests/${id}/review`, { action, adminNote });
+  return res.data;
+};
+
+export const getIdCardSignedUrl = async (requestId) => {
+  const res = await api.get(`/registration-requests/${requestId}/id-card-url`);
+  return res.data; // { url, expiresIn }
 };

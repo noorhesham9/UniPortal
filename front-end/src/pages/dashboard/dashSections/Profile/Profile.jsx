@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaGraduationCap, FaUserTie } from "react-icons/fa";
 import { FiCamera, FiChevronUp, FiEdit2, FiUpload } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,11 +20,19 @@ function Profile({ siteLocked = false }) {
   const [receiptUploading, setReceiptUploading] = useState(false);
   const [receiptMsg, setReceiptMsg] = useState(null);
   const [photoError, setPhotoError] = useState(null);
-
-  if (!user) return <div className="sp-loading">Loading...</div>;
+  const [academicSummary, setAcademicSummary] = useState(null);
 
   const roleName = user?.role?.name || "student";
   const isStaff = STAFF_ROLES.includes(roleName);
+
+  useEffect(() => {
+    if (roleName !== "student") return;
+    api.get("/grades/my-summary")
+      .then((res) => setAcademicSummary(res.data.summary))
+      .catch(() => {});
+  }, [roleName]);
+
+  if (!user) return <div className="sp-loading">Loading...</div>;
 
   const nameArray = user.name ? user.name.split(" ") : ["U", "N"];
   const firstName = nameArray[0] || "User";
@@ -234,7 +242,8 @@ function Profile({ siteLocked = false }) {
           </div>
         </div>
 
-        {/* Tuition receipt card */}
+        {/* Tuition receipt card — hidden when fees are paid */}
+        {!user.feesPaid && (
         <div className="sp-fee-card">
           <div className="sp-fee-info">
             <div className="sp-fee-icon">💸</div>
@@ -273,6 +282,7 @@ function Profile({ siteLocked = false }) {
           <input ref={receiptInputRef} type="file" accept="image/jpg,image/jpeg,image/png,application/pdf"
             style={{ display: "none" }} onChange={handleReceiptChange} disabled={siteLocked} />
         </div>
+        )}
 
         {/* Student info grid */}
         <div className="sp-grid">
@@ -326,27 +336,53 @@ function Profile({ siteLocked = false }) {
 
             <div className="sp-card">
               <div className="sp-card-header">
-                <h3>Degree Progress</h3>
+                <h3>Academic Summary</h3>
               </div>
               <div className="sp-card-body">
-                <div className="sp-progress-item">
-                  <div className="sp-progress-header">
-                    <span className="sp-progress-label">Core Requirements</span>
-                    <span className="sp-progress-percent">90%</span>
+                <div className="sp-academic-stats">
+                  <div className="sp-acad-stat">
+                    <span className="sp-acad-stat-value">
+                      {academicSummary ? academicSummary.cumulativeGPA.toFixed(2) : "—"}
+                    </span>
+                    <span className="sp-acad-stat-label">Cumulative GPA</span>
                   </div>
-                  <div className="sp-progress-bar">
-                    <div className="sp-progress-fill" style={{ width: "90%" }} />
+                  <div className="sp-acad-stat">
+                    <span className="sp-acad-stat-value highlight">
+                      {academicSummary ? academicSummary.currentSemesterHours : "—"}
+                    </span>
+                    <span className="sp-acad-stat-label">
+                      Current Semester Hours
+                      {academicSummary?.activeSemester && (
+                        <small style={{ display: "block", opacity: 0.6 }}>
+                          {academicSummary.activeSemester}
+                        </small>
+                      )}
+                    </span>
+                  </div>
+                  <div className="sp-acad-stat">
+                    <span className="sp-acad-stat-value" style={{ color: "#f97316" }}>
+                      {academicSummary ? academicSummary.remainingCredits : "—"}
+                    </span>
+                    <span className="sp-acad-stat-label">Hours to Graduation</span>
                   </div>
                 </div>
-                <div className="sp-progress-item">
-                  <div className="sp-progress-header">
-                    <span className="sp-progress-label">Electives</span>
-                    <span className="sp-progress-percent" style={{ color: "#f97316" }}>65%</span>
+
+                {academicSummary && (
+                  <div className="sp-progress-item" style={{ marginTop: "1rem" }}>
+                    <div className="sp-progress-header">
+                      <span className="sp-progress-label">
+                        Degree Progress ({academicSummary.totalCreditsEarned}/{academicSummary.requiredCredits} hrs)
+                      </span>
+                      <span className="sp-progress-percent">{academicSummary.completionPercentage}%</span>
+                    </div>
+                    <div className="sp-progress-bar">
+                      <div
+                        className="sp-progress-fill"
+                        style={{ width: `${Math.min(academicSummary.completionPercentage, 100)}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="sp-progress-bar">
-                    <div className="sp-progress-fill orange" style={{ width: "65%" }} />
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>

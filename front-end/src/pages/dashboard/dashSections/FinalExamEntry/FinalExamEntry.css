@@ -1,0 +1,65 @@
+.fee-page { padding: 2rem; max-width: 1000px; }
+.fee-loading, .fee-empty { color: #64748b; padding: 3rem; text-align: center; }
+
+.fee-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.fee-header h1 { font-size: 1.6rem; font-weight: 800; color: #f1f5f9; margin: 0 0 0.25rem; }
+.fee-header p { color: #64748b; font-size: 0.875rem; margin: 0; }
+
+.fee-save-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: #f59e0b; color: #0d1b2a; border: none;
+  padding: 0.55rem 1.25rem; border-radius: 0.4rem;
+  font-weight: 700; cursor: pointer; font-size: 0.875rem;
+}
+.fee-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.fee-select-wrap { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.5rem; max-width: 480px; }
+.fee-select-wrap label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+.fee-select-wrap select {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0.4rem; padding: 0.6rem 0.75rem; color: #f1f5f9; font-size: 0.875rem; outline: none;
+}
+.fee-select-wrap select:focus { border-color: #f59e0b; }
+
+.fee-table-wrap { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; overflow: hidden; }
+.fee-table { width: 100%; border-collapse: collapse; }
+.fee-table th { padding: 0.75rem 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: .07em; color: #475569; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.fee-table td { padding: 0.75rem 1rem; font-size: 0.875rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.fee-table tr:last-child td { border-bottom: none; }
+.fee-row-locked td { opacity: 0.6; }
+
+.fee-id { font-family: monospace; color: #475569; font-size: 0.8rem; }
+.fee-name { font-weight: 600; color: #f1f5f9; }
+.fee-center { text-align: center; }
+
+.fee-input {
+  width: 64px; text-align: center; background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 0.35rem;
+  padding: 0.35rem; color: #f1f5f9; font-size: 0.875rem; outline: none;
+}
+.fee-input:focus { border-color: #f59e0b; }
+
+.fee-total { text-align: center; font-weight: 700; }
+.fee-pass-total { color: #22c55e; }
+.fee-fail-total { color: #ef4444; }
+
+.fee-grade { font-size: 0.8rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 0.3rem; }
+.fee-grade-Ap, .fee-grade-A { background: rgba(34,197,94,0.15); color: #22c55e; }
+.fee-grade-Bp, .fee-grade-B { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.fee-grade-Cp, .fee-grade-C { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.fee-grade-D { background: rgba(249,115,22,0.15); color: #f97316; }
+.fee-grade-F { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+.fee-pass-badge { font-size: 0.75rem; font-weight: 700; color: #22c55e; background: rgba(34,197,94,0.12); padding: 0.2rem 0.5rem; border-radius: 0.3rem; }
+.fee-fail-badge { font-size: 0.75rem; font-weight: 700; color: #ef4444; background: rgba(239,68,68,0.12); padding: 0.2rem 0.5rem; border-radius: 0.3rem; }
+.fee-locked-badge { font-size: 0.72rem; color: #475569; display: flex; align-items: center; gap: 0.25rem; justify-content: center; }
+.fee-pending { font-size: 0.75rem; color: #475569; }
+
+.fee-picker-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 0.4rem; }
+
+.fee-lock-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  border: none; padding: 0.55rem 1.25rem; border-radius: 0.4rem;
+  font-weight: 700; cursor: pointer; font-size: 0.875rem; color: white;
+}
+.fee-lock-btn:disabled { opacity: 0.5; cursor: not-allowed; }

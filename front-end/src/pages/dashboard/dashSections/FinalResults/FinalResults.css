@@ -1,0 +1,76 @@
+.fr-page { padding: 2rem; max-width: 960px; }
+.fr-loading { color: #64748b; padding: 3rem; text-align: center; }
+
+.fr-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.75rem; padding: 5rem 2rem; text-align: center; color: #64748b;
+}
+.fr-empty span { font-size: 3rem; }
+.fr-empty p { font-size: 1rem; color: #94a3b8; margin: 0; }
+.fr-empty small { font-size: 0.8rem; }
+
+.fr-header { margin-bottom: 1.5rem; }
+.fr-header h1 { font-size: 1.6rem; font-weight: 800; color: #f1f5f9; margin: 0 0 0.25rem; }
+.fr-header p { color: #64748b; font-size: 0.875rem; margin: 0; }
+
+/* ── Summary ── */
+.fr-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem; margin-bottom: 2rem;
+}
+.fr-stat {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 0.65rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.fr-stat span { font-size: 1.8rem; font-weight: 800; color: #f1f5f9; }
+.fr-stat small { font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: .06em; }
+.fr-stat-gpa span { color: #f59e0b; }
+
+/* ── Tabs ── */
+.fr-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.fr-tab {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  color: #64748b; padding: 0.45rem 1rem; border-radius: 0.4rem;
+  cursor: pointer; font-size: 0.85rem; transition: all .15s;
+}
+.fr-tab:hover { border-color: #f59e0b; color: #f59e0b; }
+.fr-tab.active { background: rgba(245,158,11,0.12); border-color: #f59e0b; color: #f59e0b; font-weight: 700; }
+
+/* ── Semester Block ── */
+.fr-sem-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;
+}
+.fr-sem-meta strong { color: #f1f5f9; }
+
+/* ── Table ── */
+.fr-table-wrap { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; overflow: hidden; }
+.fr-table { width: 100%; border-collapse: collapse; }
+.fr-table th { padding: 0.75rem 1rem; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: .07em; color: #475569; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.fr-table td { padding: 1rem; font-size: 0.875rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+.fr-table tr:last-child td { border-bottom: none; }
+.fr-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.fr-course-name { font-weight: 600; color: #f1f5f9; }
+.fr-course-code { font-size: 0.72rem; color: #475569; margin-top: 2px; }
+
+/* ── Total bar ── */
+.fr-total-bar { display: flex; flex-direction: column; gap: 0.3rem; min-width: 120px; }
+.fr-total-bar span { font-size: 0.9rem; font-weight: 600; color: #f1f5f9; }
+.fr-bar-bg { height: 5px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.fr-bar-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+.fr-bar-pass { background: #22c55e; }
+.fr-bar-fail { background: #ef4444; }
+
+/* ── Grade badge ── */
+.fr-grade { font-size: 0.85rem; font-weight: 800; padding: 0.2rem 0.55rem; border-radius: 0.3rem; }
+.fr-a { background: rgba(34,197,94,0.15); color: #22c55e; }
+.fr-b { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.fr-c { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.fr-d { background: rgba(249,115,22,0.15); color: #f97316; }
+.fr-f { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ── Status ── */
+.fr-status { font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 0.3rem; }
+.fr-pass { background: rgba(34,197,94,0.12); color: #22c55e; }
+.fr-fail { background: rgba(239,68,68,0.12); color: #ef4444; }

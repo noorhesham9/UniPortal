@@ -4,8 +4,8 @@ import { FiCalendar, FiDownload, FiBook, FiClock, FiUser, FiMapPin } from "react
 import api from "../../../../services/api";
 import "./MyEnrollments.css";
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
-const DAYS_AR = { Sunday: "الأحد", Monday: "الاثنين", Tuesday: "الثلاثاء", Wednesday: "الأربعاء", Thursday: "الخميس" };
+const DAYS = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
+const DAYS_AR = { Saturday: "السبت", Sunday: "الأحد", Monday: "الاثنين", Tuesday: "الثلاثاء", Wednesday: "الأربعاء", Thursday: "الخميس" };
 
 // Build 30-min slots from 08:00 to 20:00
 const TIME_SLOTS = [];

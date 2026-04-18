@@ -1,0 +1,487 @@
+/* AcademicRecords - converted from Tailwind */
+
+:root {
+  --ar-primary: #fdc003;
+  --ar-on-primary: #1a1a1a;
+  --ar-surface: #1c1c1e;
+  --ar-surface-low: #2c2c2e;
+  --ar-surface-high: #3a3a3c;
+  --ar-surface-variant: #48484a;
+  --ar-on-surface: #f5f5f5;
+  --ar-on-surface-variant: #aeaeb2;
+  --ar-outline-variant: #48484a;
+}
+
+.ar-root {
+  background-color: var(--ar-surface);
+  color: var(--ar-on-surface);
+  min-height: 100vh;
+  padding-bottom: 96px;
+}
+
+/* Header */
+.ar-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  background: rgba(28, 28, 30, 0.6);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
+}
+
+.ar-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  width: 100%;
+}
+
+.ar-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--ar-surface-high);
+}
+
+.ar-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ar-logo {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--ar-primary);
+}
+
+.ar-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ar-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ar-on-surface);
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.ar-icon-btn:hover {
+  background-color: var(--ar-surface-high);
+}
+
+/* Main */
+.ar-main {
+  padding-top: 96px;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Hero / GPA Section */
+.ar-hero {
+  position: relative;
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+
+.ar-hero-card {
+  background-color: var(--ar-surface-low);
+  border-radius: 2rem;
+  padding: 32px;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.ar-hero-decoration {
+  position: absolute;
+  top: -96px;
+  right: -96px;
+  width: 256px;
+  height: 256px;
+  background: rgba(253, 192, 3, 0.1);
+  border-radius: 50%;
+  filter: blur(80px);
+}
+
+.ar-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ar-ring-wrap {
+  position: relative;
+  width: 192px;
+  height: 192px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ar-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ar-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ar-gpa-value {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--ar-primary);
+  line-height: 1;
+}
+
+.ar-gpa-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ar-on-surface-variant);
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.ar-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.ar-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.ar-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ar-on-surface);
+}
+
+.ar-stat-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ar-on-surface-variant);
+}
+
+.ar-stat-divider {
+  border-left: 1px solid rgba(72, 72, 74, 0.2);
+  padding-left: 16px;
+}
+
+/* History Section */
+.ar-history {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ar-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.ar-history-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ar-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.ar-history-count {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--ar-on-surface-variant);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Active Semester Card */
+.ar-card-active {
+  background-color: var(--ar-surface-high);
+  border-radius: 1.5rem;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s;
+}
+
+.ar-card-active-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ar-card-active-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ar-on-surface);
+  margin: 0 0 4px 0;
+}
+
+.ar-card-active-sub {
+  font-size: 0.75rem;
+  color: var(--ar-on-surface-variant);
+  font-weight: 500;
+  margin: 0;
+}
+
+.ar-badge {
+  background: rgba(253, 192, 3, 0.1);
+  color: var(--ar-primary);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.ar-card-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.ar-card-stat {
+  flex: 1;
+  background: rgba(72, 72, 74, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.ar-card-stat-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--ar-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.ar-card-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ar-primary);
+}
+
+.ar-card-stat-value-neutral {
+  color: var(--ar-on-surface);
+}
+
+.ar-details-btn {
+  width: 100%;
+  margin-top: 16px;
+  background-color: var(--ar-primary);
+  color: var(--ar-on-primary);
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s;
+}
+
+.ar-details-btn:active {
+  transform: scale(0.98);
+}
+
+.ar-details-btn span {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Past Semester Card */
+.ar-card-past {
+  background-color: var(--ar-surface-low);
+  border-radius: 1.5rem;
+  padding: 20px;
+  transition: background-color 0.3s;
+}
+
+.ar-card-past:hover {
+  background-color: var(--ar-surface-high);
+}
+
+.ar-card-past-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ar-card-past-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ar-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--ar-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ar-on-surface-variant);
+}
+
+.ar-card-past-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ar-on-surface);
+  margin: 0 0 4px 0;
+}
+
+.ar-card-past-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ar-card-past-meta span {
+  font-size: 0.75rem;
+  color: var(--ar-on-surface-variant);
+}
+
+.ar-expand-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(72, 72, 74, 0.2);
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ar-on-surface-variant);
+  transition: all 0.2s;
+}
+
+.ar-expand-btn:hover {
+  color: var(--ar-primary);
+}
+
+.ar-expand-btn:active {
+  transform: scale(0.9);
+}
+
+/* Load More */
+.ar-load-more {
+  width: 100%;
+  padding: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: rgba(174, 174, 178, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  transition: color 0.2s;
+}
+
+.ar-load-more:hover {
+  color: var(--ar-primary);
+}
+
+/* Bottom Nav */
+.ar-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 50;
+  background: rgba(28, 28, 30, 0.8);
+  backdrop-filter: blur(24px);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.ar-bottom-nav-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 80px;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.ar-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  color: rgba(245, 245, 245, 0.6);
+  text-decoration: none;
+  transition: all 0.2s;
+  border-radius: 12px;
+}
+
+.ar-nav-item:hover {
+  color: var(--ar-primary);
+}
+
+.ar-nav-item:active {
+  transform: scale(0.9);
+}
+
+.ar-nav-item.active {
+  color: var(--ar-primary);
+  background: rgba(253, 192, 3, 0.1);
+}
+
+.ar-nav-item span.material-symbols-outlined {
+  margin-bottom: 4px;
+}
+
+.ar-nav-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}

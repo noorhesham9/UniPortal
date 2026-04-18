@@ -493,3 +493,131 @@ body {
   color: hsl(var(--primary));
 }
 
+
+/* ── Tabs ── */
+.aid-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0; }
+.aid-tab { background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; padding: 0.6rem 1.2rem; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all .15s; display: flex; align-items: center; gap: 0.4rem; }
+.aid-tab:hover { color: #f1f5f9; }
+.aid-tab.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+.aid-badge { background: #ef4444; color: #fff; border-radius: 999px; font-size: 0.65rem; padding: 0.1rem 0.45rem; font-weight: 700; }
+
+/* ── Form grid ── */
+.aid-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+
+/* ── Requests ── */
+.aid-requests { padding: 0 0 2rem; }
+.aid-req-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }
+.aid-req-filter { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.4rem; padding: 0.5rem 0.75rem; color: #f1f5f9; font-size: 0.875rem; outline: none; }
+.aid-req-filter:focus { border-color: #f59e0b; }
+
+.aid-status-badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 0.3rem; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+.aid-img-link { display: inline-flex; align-items: center; gap: 0.25rem; color: #818cf8; font-size: 0.8rem; text-decoration: none; }
+.aid-img-link:hover { color: #a5b4fc; }
+
+.aid-approve-btn, .aid-reject-btn { border: none; border-radius: 0.3rem; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.9rem; transition: opacity .15s; }
+.aid-approve-btn { background: rgba(34,197,94,0.15); color: #22c55e; }
+.aid-approve-btn:hover { opacity: 0.8; }
+.aid-reject-btn  { background: rgba(239,68,68,0.15);  color: #ef4444; }
+.aid-reject-btn:hover  { opacity: 0.8; }
+
+/* ── Review Modal ── */
+.aid-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+.aid-modal {
+  background: #111c2d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  width: 100%; max-width: 460px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.aid-modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.aid-modal-header h2 {
+  font-size: 1.1rem; font-weight: 700;
+  color: #f1f5f9; margin: 0;
+}
+.aid-modal-header button {
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.aid-modal-header button:hover { background: rgba(255,255,255,0.12); color: #f1f5f9; }
+
+.aid-modal-body {
+  padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.aid-modal-student {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #94a3b8; font-size: 0.875rem; margin: 0;
+  line-height: 1.5;
+}
+.aid-modal-student strong { color: #f1f5f9; font-weight: 600; }
+
+.aid-modal-label {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  font-size: 0.72rem; font-weight: 700;
+  color: #475569; text-transform: uppercase; letter-spacing: .08em;
+}
+.aid-modal-textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  color: #e2e8f0; font-size: 0.875rem;
+  resize: vertical; font-family: inherit; outline: none;
+  transition: border-color .15s, background .15s;
+  min-height: 90px;
+}
+.aid-modal-textarea:focus {
+  border-color: #f59e0b;
+  background: rgba(255, 255, 255, 0.07);
+}
+.aid-modal-textarea::placeholder { color: #475569; }
+
+.aid-modal-footer {
+  display: flex; justify-content: flex-end; gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+}
+.aid-modal-cancel {
+  background: transparent; color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.6rem 1.25rem; border-radius: 0.5rem;
+  cursor: pointer; font-size: 0.875rem; font-weight: 500;
+  transition: all .15s;
+}
+.aid-modal-cancel:hover { border-color: #64748b; color: #f1f5f9; }
+
+.aid-modal-confirm {
+  display: flex; align-items: center; gap: 0.4rem;
+  border: none; border-radius: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  font-weight: 700; font-size: 0.875rem;
+  cursor: pointer; color: #fff;
+  transition: opacity .15s, transform .1s;
+}
+.aid-modal-confirm:disabled { opacity: 0.45; cursor: not-allowed; }
+.aid-modal-confirm:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.aid-modal-confirm:active:not(:disabled) { transform: translateY(0); }
+.aid-confirm-approve { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.aid-confirm-reject  { background: linear-gradient(135deg, #ef4444, #dc2626); }

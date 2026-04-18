@@ -142,9 +142,12 @@ const RegisterCourses = () => {
       const enrollData = await getMyEnrollments(activeSemesterId);
       setEnrollmentsRes(enrollData);
     } catch (err) {
-      const msg =
-        err?.message || err?.response?.data?.message || "Enrollment failed";
-      alert(msg);
+      const data = err?.response?.data;
+      if (data?.reasons?.length) {
+        alert("Enrollment not allowed:\n\n" + data.reasons.map((r, i) => `${i + 1}. ${r}`).join("\n"));
+      } else {
+        alert(data?.message || err?.message || "Enrollment failed");
+      }
     } finally {
       setEnrollingSectionId(null);
     }
@@ -198,6 +201,23 @@ const RegisterCourses = () => {
             <p className="vc-locked-msg">
               The system is temporarily locked by the administration. Please
               check back later.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Registration fully closed — no active slice
+  if (eligibility && eligibility.registrationClosed) {
+    return (
+      <div className="vc-container">
+        <div className="vc-main">
+          <div className="vc-locked-box">
+            <div className="vc-locked-icon">🔒</div>
+            <h3 className="vc-locked-title">Registration is Currently Closed</h3>
+            <p className="vc-locked-msg">
+              There is no active registration window at this time. Please check back later or contact the administration.
             </p>
           </div>
         </div>

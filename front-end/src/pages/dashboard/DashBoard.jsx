@@ -42,6 +42,17 @@ import StudyPlanAdmin from "./dashSections/StudyPlanAdmin/StudyPlanAdmin";
 import StudyPlanStudent from "./dashSections/StudyPlanStudent/StudyPlanStudent";
 import TuitionApproval from "./dashSections/TuitionApproval/TuitionApproval";
 import ViewEnrollment from "./dashSections/ViewEnrollment";
+import AdminCollegeInfo from "./dashSections/AdminCollegeInfo/AdminCollegeInfo";
+import MyGrades from "./dashSections/MyGrades/MyGrades";
+import FinalResults from "./dashSections/FinalResults/FinalResults";
+import FinalExamEntry from "./dashSections/FinalExamEntry/FinalExamEntry";
+import YearWorkEntry from "./dashSections/YearWorkEntry/YearWorkEntry";
+import AdManagement from "./dashSections/AdManagement/AdManagement";
+import SemesterManagement from "./dashSections/SemesterManagement/SemesterManagement";
+import AdminFinalLockStatus from "./dashSections/AdminFinalLockStatus/AdminFinalLockStatus";
+import AcademicRecord from "./dashSections/AcademicRecord/AcademicRecord";
+import Notifications from "./dashSections/Notifications/Notifications";
+import ProfessorSchedule from "./dashSections/ProfessorSchedule/ProfessorSchedule";
 
 function DashBoard() {
   const [searchParams] = useSearchParams();
@@ -214,6 +225,42 @@ function DashBoard() {
         ) : (
           <Denied />
         );
+      case "ad_management":
+        return can("view_users") ? <AdManagement /> : <Denied />;
+
+      case "my_grades":
+        return isStudent ? <MyGrades /> : <Denied />;
+
+      case "academic_record":
+        return isStudent ? <AcademicRecord /> : <Denied />;
+
+      case "final_results":
+        return isStudent ? <FinalResults /> : <Denied />;
+
+      case "notifications":
+        return isStudent ? <Notifications /> : <Denied />;
+
+      case "professor_schedule":
+        return can("view_sections") ? <ProfessorSchedule /> : <Denied />;
+
+      case "final_exam_entry":
+        return can("view_sections") ? <FinalExamEntry /> : <Denied />;
+
+      case "year_work_entry":
+        return can("view_sections") ? <YearWorkEntry /> : <Denied />;
+
+      case "ad_management":
+        return can("view_users") ? <AdManagement /> : <Denied />;
+
+      case "admin_college_info":
+        return can("view_users") ? <AdminCollegeInfo /> : <Denied />;
+
+      case "admin_final_lock_status":
+        return can("view_sections") ? <AdminFinalLockStatus /> : <Denied />;
+
+      case "semester_management":
+        return can("view_users") ? <SemesterManagement /> : <Denied />;
+
       case "edit_profile":
         return <EditProfile />;
 

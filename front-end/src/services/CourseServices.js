@@ -58,7 +58,7 @@ export const getMyEnrollments = async (semesterId = null) => {
 };
 
 export const enrollInSection = async (sectionId) => {
-  const res = await api.post("/enrollment/enroll", { section: sectionId });
+  const res = await api.post("/enrollment/", { section: sectionId });
   return res.data;
 };
 

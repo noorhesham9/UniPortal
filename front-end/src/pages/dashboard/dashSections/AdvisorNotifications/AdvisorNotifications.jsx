@@ -105,8 +105,10 @@ export default function AdvisorNotifications() {
           <div className="an-student-list">
             {fetching ? (
               <div className="an-empty">Loading students...</div>
+            ) : filtered.length === 0 && students.length === 0 ? (
+              <div className="an-empty">No students assigned to you as advisor yet.</div>
             ) : filtered.length === 0 ? (
-              <div className="an-empty">No students found</div>
+              <div className="an-empty">No students match your search</div>
             ) : (
               filtered.map((s) => {
                 const isSelected = selected.includes(s._id);

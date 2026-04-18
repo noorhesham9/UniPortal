@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   FiCamera,
+  FiLock,
   FiSettings,
   FiUser,
 } from "react-icons/fi";
@@ -8,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../services/api";
 import { loginSuccess } from "../../../../services/store/reducers/authSlice";
+import ChangePassword from "../Settings/ChangePassword";
 import "./EditProfile.css";
 
 const STAFF_ROLES = ["admin", "super_admin", "professor"];
@@ -20,7 +22,10 @@ const EditProfile = () => {
   const roleName = user?.role?.name || "student";
   const isStaff = STAFF_ROLES.includes(roleName);
 
-  const tabs = [{ label: "Personal Info", icon: <FiUser /> }];
+  const tabs = [
+    { label: "Personal Info", icon: <FiUser /> },
+    { label: "Change Password", icon: <FiLock /> }
+  ];
 
   const [activeTab, setActiveTab] = useState("Personal Info");
   const [saving, setSaving] = useState(false);
@@ -39,14 +44,14 @@ const EditProfile = () => {
     mobileNumber: user?.phone || "",
     address: user?.address || "",
     // student-only extras
-    fatherNameEn: "",
-    nationality: "Egyptian",
-    homePhoneNumber: "",
-    dateOfEnrollment: "",
-    fatherJob: "",
-    motherJob: "",
-    guardianName: "",
-    guardianMobile: "",
+    fatherNameEn: user?.fatherName || "",
+    nationality: user?.nationality || "Egyptian",
+    homePhoneNumber: user?.homePhone || "",
+    dateOfEnrollment: user?.dateOfEnrollment ? new Date(user.dateOfEnrollment).toISOString().split("T")[0] : "",
+    fatherJob: user?.fatherJob || "",
+    motherJob: user?.motherJob || "",
+    guardianName: user?.guardianName || "",
+    guardianMobile: user?.guardianMobile || "",
   });
 
   const handleChange = (e) =>
@@ -80,12 +85,25 @@ const EditProfile = () => {
     setSaving(true);
     setSaveMsg(null);
     try {
-      // placeholder — wire to your update-user endpoint when ready
-      await new Promise((r) => setTimeout(r, 400));
+      const res = await api.patch("/auth/me", {
+        firstNameEn: formData.firstNameEn,
+        lastNameEn: formData.lastNameEn,
+        phone: formData.mobileNumber,
+        address: formData.address,
+        fatherName: formData.fatherNameEn,
+        nationality: formData.nationality,
+        homePhone: formData.homePhoneNumber,
+        dateOfEnrollment: formData.dateOfEnrollment || undefined,
+        fatherJob: formData.fatherJob,
+        motherJob: formData.motherJob,
+        guardianName: formData.guardianName,
+        guardianMobile: formData.guardianMobile,
+      });
+      dispatch(loginSuccess(res.data.user));
       setSaveMsg({ type: "success", text: "Changes saved" });
       setTimeout(() => navigate("/dashboard?section=profile"), 800);
-    } catch {
-      setSaveMsg({ type: "error", text: "Failed to save changes" });
+    } catch (err) {
+      setSaveMsg({ type: "error", text: err.response?.data?.message || "Failed to save changes" });
     } finally {
       setSaving(false);
     }
@@ -341,6 +359,21 @@ const EditProfile = () => {
                 )}
               </div>
             </>
+          )}
+
+          {/* ── Change Password tab (all roles) ── */}
+          {activeTab === "Change Password" && (
+            <div className="ep-card">
+              <h3 className="ep-card-title">
+                <FiLock style={{ color: "#facc15" }} /> Change Password
+              </h3>
+              <p className="ep-card-subtitle">
+                Update your account password for enhanced security.
+              </p>
+              <div style={{ marginTop: "1.5rem" }}>
+                <ChangePassword />
+              </div>
+            </div>
           )}
 
         </main>

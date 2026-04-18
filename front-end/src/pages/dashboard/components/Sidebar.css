@@ -132,7 +132,7 @@
 }
 
 .sidebar-cat-items.open {
-  max-height: 600px;
+  max-height: 2000px;
   opacity: 1;
 }
 
