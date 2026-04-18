@@ -15,6 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAppTheme } from "../../context/ThemeContext";
 import {
   fetchAvailableCourses,
+  fetchCompletedHours,
+  fetchCurrentEnrollments,
   joinWaitlist,
   registerForCourse,
 } from "../../store/slices/enrollmentSlice";
@@ -28,6 +30,10 @@ export default function CourseRegistrationScreen() {
   const {
     courses: availableCourses,
     sections: availableSections,
+    completedHours,
+    currentEnrollments,
+    isRegistrationOpen,
+    registrationClosedReason,
     loading,
     error,
   } = useSelector((state) => state.enrollment);
@@ -39,7 +45,11 @@ export default function CourseRegistrationScreen() {
 
   useEffect(() => {
     loadCourses();
-  }, []);
+    if (user?._id) {
+      dispatch(fetchCompletedHours(user._id));
+      dispatch(fetchCurrentEnrollments());
+    }
+  }, [user?._id]);
 
   const loadCourses = () => dispatch(fetchAvailableCourses());
 
@@ -67,6 +77,17 @@ export default function CourseRegistrationScreen() {
     );
   }, [availableCourses, availableSections]);
 
+  const currentCredits = useMemo(() => {
+    return (
+      currentEnrollments?.reduce(
+        (sum, e) => sum + (e.section?.course_id?.credits || 0),
+        0,
+      ) || 0
+    );
+  }, [currentEnrollments]);
+
+  const availableCredits = MAX_CREDITS - currentCredits;
+
   const filteredGroups = useMemo(() => {
     if (!searchQuery.trim()) return courseGroups;
     const q = searchQuery.trim().toLowerCase();
@@ -93,7 +114,7 @@ export default function CourseRegistrationScreen() {
       Alert.alert("Enrolled", "You have been enrolled successfully.");
       loadCourses();
     } else {
-      Alert.alert("Error", error || "Enrollment failed");
+      Alert.alert("Error", result.payload || "Enrollment failed");
     }
     setEnrollingSectionId(null);
   };
@@ -111,7 +132,7 @@ export default function CourseRegistrationScreen() {
       Alert.alert("Added", "You have been added to the waitlist.");
       loadCourses();
     } else {
-      Alert.alert("Error", error || "Failed to join waitlist");
+      Alert.alert("Error", result.payload || "Failed to join waitlist");
     }
     setEnrollingSectionId(null);
   };
@@ -236,6 +257,8 @@ export default function CourseRegistrationScreen() {
 
   const SectionRow = ({ sec }) => {
     const isFull = (sec.enrolled_students?.length ?? 0) >= sec.capacity;
+    const credits = sec.course_id?.credits || 0;
+    const canEnroll = availableCredits >= credits;
     const instructor = sec.instructor_id?.name ?? "–";
     const room = sec.room_id?.room_name ?? sec.room_id?.number ?? "–";
     const time = [sec.day, sec.start_time, sec.end_time]
@@ -253,7 +276,11 @@ export default function CourseRegistrationScreen() {
           <Text style={s.sectionMeta}>Cap. {sec.capacity}</Text>
         </View>
         <View style={s.sectionActions}>
-          {isFull ? (
+          {!canEnroll ? (
+            <Text style={{ fontSize: 12, color: theme.error }}>
+              غير متاح التسجيل حاليا
+            </Text>
+          ) : isFull ? (
             <TouchableOpacity
               style={[s.btn, s.btnWaitlist]}
               onPress={() => handleWaitlist(sec._id)}
@@ -321,6 +348,10 @@ export default function CourseRegistrationScreen() {
   const ListHeader = () => (
     <View style={s.listHeader}>
       <Text style={s.subtitle}>
+        أنا سجلت {currentCredits} ساعة في هذا التيرم ومتاح لي {availableCredits}{" "}
+        ساعة.
+      </Text>
+      <Text style={s.subtitle}>
         Select a section per course to enroll. Max {MAX_CREDITS} credits.
       </Text>
       <View style={s.searchBox}>
@@ -341,34 +372,78 @@ export default function CourseRegistrationScreen() {
     </View>
   );
 
-  const ListEmpty = () => (
-    <View style={s.emptyBox}>
-      <Ionicons name="alert-circle-outline" size={48} color={theme.border} />
-      <Text style={s.emptyText}>
-        {courseGroups.length === 0
-          ? "No courses available for this semester."
-          : "No courses match your search."}
-      </Text>
-    </View>
-  );
+  const ListEmpty = () => {
+    if (registrationClosedReason === "closed") {
+      return (
+        <View style={s.emptyBox}>
+          <Ionicons name="lock-closed-outline" size={48} color={theme.border} />
+          <Text style={[s.emptyText, { fontWeight: "700", color: theme.text }]}>
+            التسجيل مغلق حالياً
+          </Text>
+          <Text style={s.emptyText}>لا يوجد نافذة تسجيل نشطة في الوقت الحالي.</Text>
+        </View>
+      );
+    }
+    if (registrationClosedReason === "not_in_slice") {
+      return (
+        <View style={s.emptyBox}>
+          <Ionicons name="time-outline" size={48} color="#f59e0b" />
+          <Text style={[s.emptyText, { fontWeight: "700", color: theme.text }]}>
+            لم يحن دورك بعد
+          </Text>
+          <Text style={s.emptyText}>
+            أنت لست ضمن الشريحة المفتوحة حالياً. انتظر حتى يُفتح التسجيل لمجموعتك.
+          </Text>
+        </View>
+      );
+    }
+    return (
+      <View style={s.emptyBox}>
+        <Ionicons name="alert-circle-outline" size={48} color={theme.border} />
+        <Text style={s.emptyText}>
+          {courseGroups.length === 0
+            ? "No courses available for this semester."
+            : "No courses match your search."}
+        </Text>
+      </View>
+    );
+  };
 
   // ── Render ────────────────────────────────────────────────────────────────
 
   if (loading && courseGroups.length === 0) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.bg,
-          gap: 12,
-        }}
-      >
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.bg, gap: 12 }}>
         <ActivityIndicator size="large" color={theme.accent} />
-        <Text style={{ fontSize: 14, color: theme.textSub }}>
-          Loading courses…
+        <Text style={{ fontSize: 14, color: theme.textSub }}>Loading courses…</Text>
+      </View>
+    );
+  }
+
+  // Registration closed or student not in slice — show full-screen message
+  if (registrationClosedReason) {
+    const isClosed = registrationClosedReason === "closed";
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.bg, justifyContent: "center", alignItems: "center", padding: 32 }}>
+        <Ionicons
+          name={isClosed ? "lock-closed-outline" : "time-outline"}
+          size={64}
+          color={isClosed ? "#ef4444" : "#f59e0b"}
+        />
+        <Text style={{ fontSize: 18, fontWeight: "800", color: theme.text, marginTop: 16, textAlign: "center" }}>
+          {isClosed ? "التسجيل مغلق حالياً" : "لم يحن دورك بعد"}
         </Text>
+        <Text style={{ fontSize: 14, color: theme.textSub, marginTop: 8, textAlign: "center", lineHeight: 22 }}>
+          {isClosed
+            ? "لا يوجد نافذة تسجيل نشطة في الوقت الحالي."
+            : "أنت لست ضمن الشريحة المفتوحة حالياً.\nانتظر حتى يُفتح التسجيل لمجموعتك."}
+        </Text>
+        <TouchableOpacity
+          onPress={loadCourses}
+          style={{ marginTop: 24, backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, paddingVertical: 10, paddingHorizontal: 24, borderRadius: 10 }}
+        >
+          <Text style={{ fontSize: 14, color: theme.text, fontWeight: "600" }}>تحديث</Text>
+        </TouchableOpacity>
       </View>
     );
   }
