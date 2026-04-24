@@ -89,3 +89,5 @@ mobile/GoogleService-Info.plist
 *.log
 mobile/package-lock.json
 commit_mobile.sh
+front-end/src/utils/firebaseConfig.js
+mobile/src/utils/firebaseConfig.js
