@@ -28,13 +28,12 @@ const sectionSchema = new mongoose.Schema(
     start_time: { type: String, required: true },
     end_time: { type: String, required: true },
     capacity: { type: Number, required: true },
-    enrolled_students: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-    ],
+    enrolled_count: { type: Number, default: 0 }, // Track number of enrolled students
+    enrolled_students: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     status: {
       type: String,
       enum: ["Open", "Full", "Cancelled", "Tentative"],
-      default: "Open"
+      default: "Open",
     },
     waitlist: [
       {

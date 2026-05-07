@@ -7,27 +7,42 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const globalErrorHandler = require("./utils/errorHandler");
 
-// Global limiter — 200 requests per 15 minutes per IP
+// Global limiter — 200 requests per 15 minutes per IP (disabled in dev)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: process.env.NODE_ENV === "development" ? 0 : 200, // 0 = unlimited in dev
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.method === "OPTIONS", // ignore CORS preflight
-  message: { success: false, message: "Too many requests, please try again later." },
+  skip: (req) =>
+    req.method === "OPTIONS" || process.env.NODE_ENV === "development", // skip in dev
+  message: {
+    success: false,
+    message: "Too many requests, please try again later.",
+  },
 });
 
-// Auth limiter — only counts actual POST attempts, not preflight
+// Auth limiter — only counts actual POST attempts, not preflight (disabled in dev)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 30,
+  max: process.env.NODE_ENV === "development" ? 0 : 30, // 0 = unlimited in dev
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.method === "OPTIONS",
-  message: { success: false, message: "Too many login attempts, please try again later." },
+  skip: (req) =>
+    req.method === "OPTIONS" || process.env.NODE_ENV === "development", // skip in dev
+  message: {
+    success: false,
+    message: "Too many login attempts, please try again later.",
+  },
 });
 const adminRoute = require("./Routes/adminRoute");
 const notificationRouter = require("./Routes/notificationRoutes");
+
+// Log rate limiting status
+if (process.env.NODE_ENV === "development") {
+  console.log("⚠️  Rate limiting is DISABLED (development mode)");
+} else {
+  console.log("✓ Rate limiting is ENABLED (production mode)");
+}
 
 let app = express();
 app.use(helmet());
@@ -85,16 +100,26 @@ app.use("/api/v1/departments", require("./Routes/departmentRoutes"));
 app.use("/api/v1/study-plan", require("./Routes/studyPlanRoutes"));
 app.use("/api/v1/admin", adminRoute);
 app.use("/api/v1/announcements", require("./Routes/announcementRoutes"));
-app.use("/api/v1/public/departments", require("./Routes/publicDepartmentRoutes"));
+app.use(
+  "/api/v1/public/departments",
+  require("./Routes/publicDepartmentRoutes"),
+);
 app.use("/api/v1/college-info", require("./Routes/collegeInfoRoutes"));
 app.use("/api/v1/grades", require("./Routes/gradesRoutes"));
 app.use("/api/v1/grade-config", require("./Routes/gradeConfigRoutes"));
-app.use("/api/v1/registration-requests", require("./Routes/registrationRequestRoutes"));
+app.use(
+  "/api/v1/registration-requests",
+  require("./Routes/registrationRequestRoutes"),
+);
 app.use("/api/v1/upload", require("./Routes/uploadRoutes"));
 app.use("/api/v1/chat", require("./Routes/chatRoutes"));
 app.use("/api/v1/receipts", require("./Routes/receiptRoutes"));
 app.use("/api/notifications", notificationRouter);
 app.use("/api/v1/notifications", notificationRouter);
+app.use(
+  "/api/v1/schedule-generator",
+  require("./Routes/scheduleGeneratorRoutes"),
+);
 app.all(/(.*)/, (req, res) => {
   return res.status(404).json({
     success: false,
