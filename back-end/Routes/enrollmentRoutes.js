@@ -6,6 +6,7 @@ const {
   getMyEnrollments,
   createEnrollment,
   adminEnrollStudent,
+  bulkAdminEnrollStudents,
   approveEnrollment,
   updateGrades,
   getCompletedHours,
@@ -19,24 +20,46 @@ const {
 
 const { requireAuth } = require("../middleware/requireAuth");
 const { requirePermission, requireRole } = require("../middleware/authorize");
-const { checkEnrollmentEligibility } = require("../middleware/enrollmentValidation");
+const {
+  checkEnrollmentEligibility,
+} = require("../middleware/enrollmentValidation");
 
 const isAdmin = requireRole("admin", "super_admin");
 
-router.get("/my",  requireAuth, getMyEnrollments);
-router.get("/all", requireAuth, requirePermission("view_enrollments"), getAllEnrollments);
-router.post("/",   requireAuth, checkEnrollmentEligibility, createEnrollment);
-router.post("/admin-enroll", requireAuth, requirePermission("create_enrollment"), adminEnrollStudent);
+router.get("/my", requireAuth, getMyEnrollments);
+router.get(
+  "/all",
+  requireAuth,
+  requirePermission("view_enrollments"),
+  getAllEnrollments,
+);
+router.post("/", requireAuth, checkEnrollmentEligibility, createEnrollment);
+router.post(
+  "/admin-enroll",
+  requireAuth,
+  requirePermission("create_enrollment"),
+  adminEnrollStudent,
+);
+router.post(
+  "/admin-enroll-bulk",
+  requireAuth,
+  requirePermission("create_enrollment"),
+  bulkAdminEnrollStudents,
+);
 
 // Static routes (must be before dynamic routes)
-router.post("/waitlist/join",        requireAuth, joinWaitlist);
+router.post("/waitlist/join", requireAuth, joinWaitlist);
 router.delete("/waitlist/leave/:id", requireAuth, leaveWaitlist);
-router.get("/waitlist/rank/:id",     requireAuth, getWaitlistRank);
+router.get("/waitlist/rank/:id", requireAuth, getWaitlistRank);
 
 // Dynamic routes (must be after static routes)
-router.get("/:studentId/completed-hours",        requireAuth, getCompletedHours);
-router.get("/:studentId/academic-records",       requireAuth, getAcademicRecords);
-router.get("/:studentId/current-semester-grades",requireAuth, getCurrentSemesterGrades);
+router.get("/:studentId/completed-hours", requireAuth, getCompletedHours);
+router.get("/:studentId/academic-records", requireAuth, getAcademicRecords);
+router.get(
+  "/:studentId/current-semester-grades",
+  requireAuth,
+  getCurrentSemesterGrades,
+);
 router.delete("/:id", requireAuth, deleteEnrollment);
 
 // // Future tasks

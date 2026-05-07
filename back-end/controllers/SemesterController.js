@@ -1,12 +1,71 @@
 const Semester = require("../models/Semester");
 
-// جلب جميع الترمات
+// جلب جميع الترمات مع pagination, sorting, و filtering
 exports.getAllSemesters = async (req, res) => {
   try {
-    const semesters = await Semester.find().sort({ year: -1, term: 1 });
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = "year",
+      sortOrder = "desc",
+      year,
+      term,
+      is_active,
+      show_final_results,
+      search,
+    } = req.query;
+
+    // Build filter object
+    const filter = {};
+
+    if (year) filter.year = parseInt(year);
+    if (term) filter.term = term;
+    if (is_active !== undefined) filter.is_active = is_active === "true";
+    if (show_final_results !== undefined)
+      filter.show_final_results = show_final_results === "true";
+
+    // Search by year or term
+    if (search) {
+      filter.$or = [
+        { year: parseInt(search) || 0 },
+        { term: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Build sort object
+    const sortObj = {};
+    sortObj[sortBy] = sortOrder === "asc" ? 1 : -1;
+
+    // Add secondary sort by term if sorting by year
+    if (sortBy === "year") {
+      const termOrder = { Fall: 1, Spring: 2, Summer: 3 };
+      sortObj.term = sortOrder === "asc" ? 1 : -1;
+    }
+
+    // Calculate pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Execute query with pagination
+    const [semesters, total] = await Promise.all([
+      Semester.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
+      Semester.countDocuments(filter),
+    ]);
+
+    const totalPages = Math.ceil(total / limitNum);
+
     return res.status(200).json({
       success: true,
       semesters,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1,
+      },
     });
   } catch (error) {
     console.error("Error fetching semesters:", error);
@@ -189,24 +248,24 @@ exports.getActiveSemester = async (req, res) => {
 exports.setActiveSemester = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // إلغاء تفعيل جميع الترمات
     await Semester.updateMany({}, { is_active: false });
-    
+
     // تفعيل الترم المحدد
     const semester = await Semester.findByIdAndUpdate(
       id,
       { is_active: true },
-      { new: true }
+      { new: true },
     );
-    
+
     if (!semester) {
       return res.status(404).json({
         success: false,
         message: "Semester not found",
       });
     }
-    
+
     return res.status(200).json({
       success: true,
       message: "Active semester updated successfully",
@@ -231,44 +290,58 @@ exports.toggleFinalResults = async (req, res) => {
     const semester = await Semester.findByIdAndUpdate(
       id,
       { show_final_results },
-      { new: true }
+      { new: true },
     );
 
     if (!semester) {
-      return res.status(404).json({ success: false, message: "Semester not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Semester not found" });
     }
 
     // Notify ALL students in the system when results are shown
     if (show_final_results) {
       try {
         const Notification = require("../models/Notification");
-        const User         = require("../models/User");
-        const Role         = require("../models/Role");
-        const { sendPushNotification } = require("../services/notificationService");
+        const User = require("../models/User");
+        const Role = require("../models/Role");
+        const {
+          sendPushNotification,
+        } = require("../services/notificationService");
 
         const studentRole = await Role.findOne({ name: "student" }).lean();
         if (studentRole) {
           const students = await User.find(
             { role: studentRole._id, is_active: true },
-            "_id fcmToken"
+            "_id fcmToken",
           ).lean();
 
           const title = `Final Results Available — ${semester.term} ${semester.year}`;
-          const body  = `Your final results for ${semester.term} ${semester.year} are now available. Check your results page.`;
+          const body = `Your final results for ${semester.term} ${semester.year} are now available. Check your results page.`;
 
           await Notification.insertMany(
-            students.map((s) => ({ recipient: s._id, title, body, type: "system" }))
+            students.map((s) => ({
+              recipient: s._id,
+              title,
+              body,
+              type: "system",
+            })),
           );
 
           const withToken = students.filter((s) => s.fcmToken);
           if (withToken.length > 0) {
             await Promise.allSettled(
-              withToken.map((s) => sendPushNotification(s.fcmToken, title, body))
+              withToken.map((s) =>
+                sendPushNotification(s.fcmToken, title, body),
+              ),
             );
           }
         }
       } catch (notifErr) {
-        console.error("Failed to send final results notifications:", notifErr.message);
+        console.error(
+          "Failed to send final results notifications:",
+          notifErr.message,
+        );
       }
     }
 
@@ -279,6 +352,12 @@ exports.toggleFinalResults = async (req, res) => {
     });
   } catch (error) {
     console.error("Error toggling final results:", error);
-    return res.status(500).json({ success: false, message: "Error toggling final results", error: error.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Error toggling final results",
+        error: error.message,
+      });
   }
 };

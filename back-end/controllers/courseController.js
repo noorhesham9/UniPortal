@@ -35,6 +35,39 @@ exports.getAvailableCourses = async (req, res) => {
 
       if (!eligible) {
         const slice = activeSlices[0];
+
+        // Build reasons why student is not eligible
+        const reasons = [];
+        const studentGpa = req.user.gpa ?? 0;
+        const studentLevel = String(req.user.level);
+
+        if (studentGpa < slice.min_gpa || studentGpa > slice.max_gpa) {
+          reasons.push(
+            `Your GPA (${studentGpa.toFixed(2)}) is outside the allowed range (${slice.min_gpa} - ${slice.max_gpa})`,
+          );
+        }
+        if (
+          slice.departments?.length > 0 &&
+          !slice.departments.some((d) => d._id.equals(req.user.department))
+        ) {
+          reasons.push(
+            `Your department is not included in this registration window`,
+          );
+        }
+        if (slice.levels?.length > 0 && !slice.levels.includes(studentLevel)) {
+          reasons.push(
+            `Your level (${studentLevel}) is not included in this registration window`,
+          );
+        }
+        if (
+          slice.students?.length > 0 &&
+          !slice.students.some((id) => id.equals(req.user._id))
+        ) {
+          reasons.push(
+            `You are not in the specific student list for this window`,
+          );
+        }
+
         return res.status(403).json({
           success: false,
           message: "Registration is not open for your group yet.",
@@ -43,9 +76,19 @@ exports.getAvailableCourses = async (req, res) => {
             name: slice.name,
             start_date: slice.start_date,
             end_date: slice.end_date,
+            min_gpa: slice.min_gpa,
+            max_gpa: slice.max_gpa,
             levels: slice.levels,
-            departments: slice.departments,
+            departments:
+              slice.departments?.map((d) => ({ _id: d._id, name: d.name })) ||
+              [],
           },
+          student: {
+            gpa: studentGpa,
+            department: req.user.department?.name || "Unknown",
+            level: studentLevel,
+          },
+          reasons,
         });
       }
     } else {

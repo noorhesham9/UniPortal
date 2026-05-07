@@ -215,9 +215,85 @@ exports.adminEnrollStudent = async (req, res) => {
       status: "Approved",
     });
 
+    // Increment enrolled_count in Section
+    await Section.findByIdAndUpdate(sectionToUse, {
+      $inc: { enrolled_count: 1 },
+    });
+
     res.status(201).json({
       success: true,
       enrollment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Bulk admin enrollment (enroll multiple students in one section)
+exports.bulkAdminEnrollStudents = async (req, res) => {
+  try {
+    const { studentIds, sectionId } = req.body;
+
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "studentIds must be a non-empty array",
+      });
+    }
+
+    if (!sectionId) {
+      return res.status(400).json({
+        success: false,
+        message: "sectionId is required",
+      });
+    }
+
+    // Check which students are already enrolled
+    const existingEnrollments = await Enrollment.find({
+      student: { $in: studentIds },
+      section: sectionId,
+    }).select("student");
+
+    const alreadyEnrolledIds = existingEnrollments.map((e) =>
+      e.student.toString(),
+    );
+
+    // Filter out already enrolled students
+    const studentsToEnroll = studentIds.filter(
+      (id) => !alreadyEnrolledIds.includes(id),
+    );
+
+    if (studentsToEnroll.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "All selected students are already enrolled in this section",
+        alreadyEnrolled: alreadyEnrolledIds.length,
+      });
+    }
+
+    // Create bulk enrollments
+    const enrollmentsToCreate = studentsToEnroll.map((studentId) => ({
+      student: studentId,
+      section: sectionId,
+      status: "Approved",
+    }));
+
+    const createdEnrollments = await Enrollment.insertMany(enrollmentsToCreate);
+
+    // Increment enrolled_count in Section
+    await Section.findByIdAndUpdate(sectionId, {
+      $inc: { enrolled_count: createdEnrollments.length },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Successfully enrolled ${createdEnrollments.length} student(s)`,
+      enrolled: createdEnrollments.length,
+      skipped: alreadyEnrolledIds.length,
+      enrollments: createdEnrollments,
     });
   } catch (error) {
     res.status(500).json({
