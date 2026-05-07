@@ -120,6 +120,21 @@ app.use(
   "/api/v1/schedule-generator",
   require("./Routes/scheduleGeneratorRoutes"),
 );
+
+// Root route - Welcome message
+app.get("/", (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "Welcome to Casera",
+    version: "1.0.0",
+    endpoints: {
+      api: "/api/v1",
+      health: "/api/health",
+      home: "/api/v1/home",
+    },
+  });
+});
+
 app.all(/(.*)/, (req, res) => {
   return res.status(404).json({
     success: false,
