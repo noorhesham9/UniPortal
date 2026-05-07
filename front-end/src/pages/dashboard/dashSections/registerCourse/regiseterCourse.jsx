@@ -52,7 +52,16 @@ const RegisterCourses = () => {
       setEnrollmentsRes(enrollmentsData);
     } catch (err) {
       const data = err?.response?.data;
-      if (data?.locked) {
+      
+      // Check if it's a slice lock error with details
+      if (data?.sliceLocked && data?.activeSlice) {
+        setEligibility({
+          eligible: false,
+          slice: data.activeSlice,
+          student: data.student,
+          reasons: data.reasons || [],
+        });
+      } else if (data?.locked) {
         setSiteLocked(true);
       } else {
         setError(

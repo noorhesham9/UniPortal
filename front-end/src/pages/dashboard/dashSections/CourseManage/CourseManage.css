@@ -176,3 +176,18 @@
 .cm-badge-full      { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
 .cm-badge-cancelled { background: rgba(100,116,139,0.15); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
 .cm-badge-tentative { background: rgba(250,204,21,0.15);  color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .cm-header { flex-direction: column; align-items: flex-start; }
+  .cm-title { font-size: 1.3rem; }
+  .cm-table th, .cm-table td { padding: 0.55rem 0.75rem; font-size: 0.8rem; }
+  .cm-summary { gap: 0.5rem; }
+  .cm-stat { font-size: 0.78rem; padding: 0.35rem 0.75rem; }
+}
+@media (max-width: 600px) {
+  .cm-course-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .cm-course-info { flex-wrap: wrap; }
+  .cm-enroll-wrap { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .cm-enroll-bar { width: 100%; min-width: 0; }
+}

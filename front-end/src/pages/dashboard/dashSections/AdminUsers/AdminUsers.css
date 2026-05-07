@@ -408,3 +408,61 @@
   align-items: center;
   gap: 0.3rem;
 }
+
+/* ── Search clear button ──────────────────────────────────────────────────── */
+.admin-usr-search-box {
+  position: relative;
+}
+
+.admin-usr-clear-btn {
+  background: none;
+  border: none;
+  color: var(--textsecondary);
+  cursor: pointer;
+  padding: 0.1rem;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.admin-usr-clear-btn:hover { color: var(--foreground); }
+
+/* ── Toolbar search box tweak ─────────────────────────────────────────────── */
+.admin-usr-toolbar {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--divider);
+  margin-bottom: 0;
+}
+
+/* ── Pagination info ──────────────────────────────────────────────────────── */
+.admin-pagination-info {
+  font-size: 0.82rem;
+  color: var(--textsecondary);
+}
+
+/* ── Pagination ellipsis ──────────────────────────────────────────────────── */
+.admin-page-ellipsis {
+  padding: 0 0.4rem;
+  color: var(--textsecondary);
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Sortable column header ───────────────────────────────────────────────── */
+.admin-usr-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.admin-usr-table th.sortable:hover {
+  color: var(--foreground);
+}
+
+.admin-usr-table th svg {
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}

@@ -323,3 +323,21 @@ input:checked + .sps-slider:before {
   font-size: 1.1rem;
   grid-column: 1 / -1;
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .study-plan-student-container { padding: 1rem; }
+  .sps-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .sps-controls { padding: 1rem; gap: 1rem; }
+  .sps-controls-right { gap: 1rem; flex-wrap: wrap; }
+  .sps-controls-left { flex-wrap: wrap; gap: 1rem; }
+  .sps-select { min-width: 0; width: 100%; }
+  .sps-headline { font-size: 1.4rem; }
+}
+@media (max-width: 600px) {
+  .sps-controls { flex-direction: column; align-items: flex-start; }
+  .sps-controls-right { flex-direction: column; width: 100%; }
+  .sps-sem-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .sps-table th, .sps-table td { padding: 0.6rem 0.5rem; font-size: 0.78rem; }
+  .sps-sem-card { overflow-x: auto; }
+}

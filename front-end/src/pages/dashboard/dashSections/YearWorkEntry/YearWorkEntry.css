@@ -95,3 +95,17 @@
   font-weight: 700; cursor: pointer; font-size: 0.875rem; color: white;
 }
 .ywe-lock-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ywe-page { padding: 1rem; max-width: 100%; }
+  .ywe-header h1 { font-size: 1.3rem; }
+  .ywe-select-wrap { max-width: 100%; }
+  .ywe-table-wrap { overflow-x: auto; }
+  .ywe-table th, .ywe-table td { padding: 0.55rem 0.75rem; font-size: 0.8rem; }
+}
+@media (max-width: 600px) {
+  .ywe-input { width: 52px; }
+  .ywe-header { flex-direction: column; align-items: flex-start; }
+  .ywe-id { display: none; }
+}

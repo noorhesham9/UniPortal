@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { FiCheck, FiEye, FiEyeOff, FiCalendar, FiPlus, FiX } from "react-icons/fi";
+import { useEffect, useState, useRef } from "react";
+import { FiCheck, FiEye, FiEyeOff, FiCalendar, FiPlus, FiX, FiChevronLeft, FiChevronRight, FiSearch, FiFilter } from "react-icons/fi";
 import api from "../../../../services/api";
 import "./SemesterManagement.css";
 
@@ -18,14 +18,47 @@ export default function SemesterManagement() {
   });
   const [saving, setSaving] = useState(false);
 
+  // Pagination & Filters
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [pagination, setPagination] = useState(null);
+  const [sortBy, setSortBy] = useState("year");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [filters, setFilters] = useState({
+    year: "",
+    term: "",
+    is_active: "",
+    show_final_results: "",
+    search: "",
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const debounceRef = useRef(null);
+
   useEffect(() => {
     loadSemesters();
-  }, []);
+  }, [page, sortBy, sortOrder, filters]);
 
   const loadSemesters = () => {
     setLoading(true);
-    api.get("/semesters")
-      .then((r) => setSemesters(r.data.semesters || []))
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      sortBy,
+      sortOrder,
+    });
+
+    // Add filters
+    if (filters.year) params.append("year", filters.year);
+    if (filters.term) params.append("term", filters.term);
+    if (filters.is_active) params.append("is_active", filters.is_active);
+    if (filters.show_final_results) params.append("show_final_results", filters.show_final_results);
+    if (filters.search) params.append("search", filters.search);
+
+    api.get(`/semesters?${params}`)
+      .then((r) => {
+        setSemesters(r.data.semesters || []);
+        setPagination(r.data.pagination);
+      })
       .catch(() => alert("Failed to load semesters"))
       .finally(() => setLoading(false));
   };
@@ -74,7 +107,41 @@ export default function SemesterManagement() {
     }
   };
 
-  if (loading) return <div className="sm-loading">Loading semesters...</div>;
+  const handleSearchChange = (value) => {
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: value }));
+      setPage(1);
+    }, 300);
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortOrder("desc");
+    }
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      year: "",
+      term: "",
+      is_active: "",
+      show_final_results: "",
+      search: "",
+    });
+    setPage(1);
+  };
+
+  if (loading && page === 1) return <div className="sm-loading">Loading semesters...</div>;
 
   const activeSemester = semesters.find((s) => s.is_active);
 
@@ -107,21 +174,91 @@ export default function SemesterManagement() {
         </div>
       )}
 
+      {/* Filters & Search */}
+      <div className="sm-toolbar">
+        <div className="sm-search-wrap">
+          <FiSearch className="sm-search-icon" />
+          <input
+            type="text"
+            className="sm-search"
+            placeholder="Search by year or term..."
+            onChange={(e) => handleSearchChange(e.target.value)}
+          />
+        </div>
+        <button className="sm-filter-btn" onClick={() => setShowFilters(!showFilters)}>
+          <FiFilter size={14} /> Filters
+        </button>
+      </div>
+
+      {showFilters && (
+        <div className="sm-filters-panel">
+          <div className="sm-filters-grid">
+            <div className="sm-filter-group">
+              <label>Year</label>
+              <input
+                type="number"
+                value={filters.year}
+                onChange={(e) => handleFilterChange("year", e.target.value)}
+                placeholder="e.g. 2025"
+              />
+            </div>
+            <div className="sm-filter-group">
+              <label>Term</label>
+              <select value={filters.term} onChange={(e) => handleFilterChange("term", e.target.value)}>
+                <option value="">All Terms</option>
+                <option value="Fall">Fall</option>
+                <option value="Spring">Spring</option>
+                <option value="Summer">Summer</option>
+              </select>
+            </div>
+            <div className="sm-filter-group">
+              <label>Status</label>
+              <select value={filters.is_active} onChange={(e) => handleFilterChange("is_active", e.target.value)}>
+                <option value="">All</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            <div className="sm-filter-group">
+              <label>Results</label>
+              <select value={filters.show_final_results} onChange={(e) => handleFilterChange("show_final_results", e.target.value)}>
+                <option value="">All</option>
+                <option value="true">Visible</option>
+                <option value="false">Hidden</option>
+              </select>
+            </div>
+          </div>
+          <button className="sm-clear-filters" onClick={clearFilters}>Clear Filters</button>
+        </div>
+      )}
+
       <div className="sm-table-wrap">
         <table className="sm-table">
           <thead>
             <tr>
-              <th>Term</th>
-              <th>Year</th>
-              <th>Start Date</th>
-              <th>End Date</th>
+              <th onClick={() => handleSort("term")} className="sm-sortable">
+                Term {sortBy === "term" && (sortOrder === "asc" ? "↑" : "↓")}
+              </th>
+              <th onClick={() => handleSort("year")} className="sm-sortable">
+                Year {sortBy === "year" && (sortOrder === "asc" ? "↑" : "↓")}
+              </th>
+              <th onClick={() => handleSort("start_date")} className="sm-sortable">
+                Start Date {sortBy === "start_date" && (sortOrder === "asc" ? "↑" : "↓")}
+              </th>
+              <th onClick={() => handleSort("end_date")} className="sm-sortable">
+                End Date {sortBy === "end_date" && (sortOrder === "asc" ? "↑" : "↓")}
+              </th>
               <th>Status</th>
               <th>Final Results</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {semesters.map((s) => (
+            {loading ? (
+              <tr><td colSpan={7} className="sm-loading-row">Loading...</td></tr>
+            ) : semesters.length === 0 ? (
+              <tr><td colSpan={7} className="sm-empty-row">No semesters found.</td></tr>
+            ) : semesters.map((s) => (
               <tr key={s._id} className={s.is_active ? "sm-row-active" : ""}>
                 <td className="sm-term">{s.term}</td>
                 <td>{s.year}</td>
@@ -160,6 +297,44 @@ export default function SemesterManagement() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="sm-pagination">
+          <span className="sm-page-info">
+            Showing {semesters.length} of {pagination.total} semesters
+          </span>
+          <div className="sm-page-btns">
+            <button
+              className="sm-page-btn"
+              onClick={() => setPage((p) => p - 1)}
+              disabled={!pagination.hasPrevPage}
+            >
+              <FiChevronLeft />
+            </button>
+            {Array.from({ length: Math.min(3, pagination.totalPages) }, (_, i) => {
+              const p = Math.max(1, page - 1) + i;
+              if (p > pagination.totalPages) return null;
+              return (
+                <button
+                  key={p}
+                  className={`sm-page-btn ${page === p ? "active" : ""}`}
+                  onClick={() => setPage(p)}
+                >
+                  {p}
+                </button>
+              );
+            })}
+            <button
+              className="sm-page-btn"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!pagination.hasNextPage}
+            >
+              <FiChevronRight />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Create Semester Modal */}
       {showModal && (

@@ -774,6 +774,35 @@
   min-width: 280px;
 }
 .vc-slice-label  { font-size: 0.72rem; font-weight: 700; color: var(--textsecondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.35rem; }
+.vc-slice-detail { font-size: 0.85rem; color: var(--textprimary); margin: 0 0 0.5rem; }
+.vc-slice-detail strong { color: var(--accent-alt); }
 .vc-slice-name   { font-size: 1rem; font-weight: 700; color: var(--foreground); margin: 0 0 0.25rem; }
 .vc-slice-dates  { font-size: 0.82rem; color: #facc15; margin: 0 0 0.25rem; }
 .vc-slice-detail { font-size: 0.82rem; color: var(--textsecondary); margin: 0.15rem 0 0; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .vc-container {
+    flex-direction: column;
+    padding: 16px;
+    gap: 20px;
+  }
+  .vc-main { max-width: 100%; }
+  .vc-sidebar {
+    width: 100%;
+    position: static;
+    max-height: none;
+    order: -1;
+  }
+  .vc-courses-Search input { width: 100%; min-width: 0; }
+  .vc-card-meta { gap: 12px; flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  .vc-container { padding: 12px; }
+  .vc-courses-title { font-size: 18px; }
+  .vc-card { flex-direction: column; gap: 10px; }
+  .vc-card-content { padding-right: 0; }
+  .vc-toggle { top: 12px; right: 12px; }
+  .vc-header-row { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .vc-section-row { flex-direction: column; align-items: flex-start; }
+}

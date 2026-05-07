@@ -74,3 +74,19 @@
 .fr-status { font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 0.3rem; }
 .fr-pass { background: rgba(34,197,94,0.12); color: #22c55e; }
 .fr-fail { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .fr-page { padding: 1rem; max-width: 100%; }
+  .fr-header h1 { font-size: 1.3rem; }
+  .fr-summary { grid-template-columns: repeat(2, 1fr); }
+  .fr-table-wrap { overflow-x: auto; }
+  .fr-table th, .fr-table td { padding: 0.6rem 0.75rem; font-size: 0.8rem; }
+}
+@media (max-width: 600px) {
+  .fr-summary { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .fr-stat { padding: 0.85rem; }
+  .fr-stat span { font-size: 1.4rem; }
+  .fr-sem-meta { flex-direction: column; gap: 0.25rem; align-items: flex-start; }
+  .fr-total-bar { min-width: 80px; }
+}

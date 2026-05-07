@@ -239,3 +239,17 @@
 
 .mp-msg-ok  { margin: 0; font-size: 0.85rem; color: #10b981; text-align: center; }
 .mp-msg-err { margin: 0; font-size: 0.85rem; color: #ef4444; text-align: center; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .mp-header { flex-direction: column; align-items: flex-start; }
+  .mp-title { font-size: 1.3rem; }
+  .mp-card { flex-direction: column; gap: 0.85rem; }
+  .mp-card-right { padding-top: 0; border-top: 1px solid var(--divider); width: 100%; justify-content: flex-start; }
+}
+@media (max-width: 600px) {
+  .mp-card { padding: 0.85rem 1rem; }
+  .mp-modal { max-width: 100%; border-radius: var(--radius) var(--radius) 0 0; }
+  .mp-overlay { align-items: flex-end; padding: 0; }
+  .mp-drop-zone { padding: 1.25rem 0.75rem; }
+}

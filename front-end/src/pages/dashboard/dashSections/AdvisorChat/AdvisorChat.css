@@ -422,3 +422,26 @@
 
 .ac-receipt-link { color: #facc15; text-decoration: none; }
 .ac-receipt-link:hover { text-decoration: underline; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .ac-root { flex-direction: column; height: auto; min-height: 0; }
+  .ac-roster {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--divider);
+    max-height: 220px;
+  }
+  .ac-roster-list { max-height: 160px; }
+  .ac-detail { display: none; }
+  .ac-chat { min-height: 400px; }
+  .ac-messages { padding: 1rem; }
+  .ac-input-bar { padding: 0.75rem 1rem; }
+  .ac-bubble { max-width: 80%; }
+}
+@media (max-width: 600px) {
+  .ac-chat-header { padding: 0.75rem 1rem; }
+  .ac-bubble { max-width: 90%; }
+  .ac-bubble-img { max-width: 160px; }
+}

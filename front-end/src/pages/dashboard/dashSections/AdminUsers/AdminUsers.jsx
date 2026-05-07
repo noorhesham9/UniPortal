@@ -1,52 +1,199 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { FiPlus, FiSearch, FiX, FiUserCheck, FiLogIn, FiMoreVertical, FiSlash, FiUsers } from "react-icons/fi";
-import { getUsers, getAdvisors, assignAdvisor, impersonateUser } from "../../../../services/AdminServices";
+import {
+  FiChevronDown, FiChevronLeft, FiChevronRight, FiChevronUp,
+  FiLogIn, FiMoreVertical, FiPlus, FiSearch, FiSlash,
+  FiUserCheck, FiUsers, FiX,
+} from "react-icons/fi";
+import {
+  assignAdvisor, getAdvisors, getUsers, impersonateUser,
+} from "../../../../services/AdminServices";
 import { startImpersonation } from "../../../../services/store/reducers/authSlice";
 import api from "../../../../services/api";
 import "./AdminUsers.css";
 
+const LIMIT = 15;
+
+const SORT_FIELDS = {
+  name:       "Name",
+  email:      "Email",
+  createdAt:  "Joined",
+};
+
 const AdminUsers = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [filterRole, setFilterRole] = useState("All Users");
-  const [impersonateLoading, setImpersonateLoading] = useState(null);
-  const [openMenu, setOpenMenu] = useState(null);
+
+  // ── Table state ────────────────────────────────────────────────────────────
+  const [users,      setUsers]      = useState([]);
+  const [total,      setTotal]      = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page,       setPage]       = useState(1);
+  const [loading,    setLoading]    = useState(false);
+
+  // ── Filters / sort ─────────────────────────────────────────────────────────
+  const [search,     setSearch]     = useState("");
+  const [filterRole, setFilterRole] = useState("");      // "" | "student" | "professor"
+  const [filterStatus, setFilterStatus] = useState(""); // "" | "active" | "inactive"
+  const [sort,       setSort]       = useState("name");
+  const [order,      setOrder]      = useState("asc");
+
+  const searchRef   = useRef(null);
+  const debounceRef = useRef(null);
+
+  // ── Menus / modals ─────────────────────────────────────────────────────────
+  const [openMenu,   setOpenMenu]   = useState(null);
   const menuRef = useRef(null);
 
-  // Advisor modal state
-  const [advisorModal, setAdvisorModal] = useState(null);
-  const [advisors, setAdvisors] = useState([]);
+  const [advisorModal,   setAdvisorModal]   = useState(null);
+  const [advisors,       setAdvisors]       = useState([]);
   const [selectedAdvisor, setSelectedAdvisor] = useState("");
-  const [assigning, setAssigning] = useState(false);
+  const [assigning,      setAssigning]      = useState(false);
 
-  // Create staff modal
-  const [createModal, setCreateModal] = useState(false);
-  const [createForm, setCreateForm]   = useState({ name: "", email: "", password: "", role: "professor", department: "" });
-  const [creating, setCreating]       = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [departments, setDepartments] = useState([]);
+  const [deptModal,    setDeptModal]    = useState(null);
+  const [departments,  setDepartments]  = useState([]);
   const [selectedDept, setSelectedDept] = useState("");
   const [assigningDept, setAssigningDept] = useState(false);
 
-  // Department modal state
-  const [deptModal, setDeptModal] = useState(null);
+  const [createModal, setCreateModal] = useState(false);
+  const [createForm,  setCreateForm]  = useState({ name: "", email: "", password: "", role: "professor", department: "" });
+  const [creating,    setCreating]    = useState(false);
+  const [createError, setCreateError] = useState("");
 
-  // Close menu on outside click
+  const [impersonateLoading, setImpersonateLoading] = useState(null);
+
+  // ── Close dropdown on outside click ───────────────────────────────────────
   useEffect(() => {
-    const handleClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMenu(null);
-      }
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(null);
     };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  useEffect(() => { fetchUsers(); }, [filterRole]); // eslint-disable-line
+  // ── Fetch ──────────────────────────────────────────────────────────────────
+  const fetchUsers = useCallback(async (overridePage = page) => {
+    setLoading(true);
+    try {
+      const data = await getUsers({
+        role: filterRole, search, page: overridePage,
+        limit: LIMIT, sort, order, status: filterStatus,
+      });
+      setUsers(data.users || []);
+      setTotal(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+      setPage(data.page || overridePage);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [filterRole, search, sort, order, filterStatus, page]);
+
+  // Reset to page 1 when filters/sort change
+  useEffect(() => {
+    setPage(1);
+    fetchUsers(1);
+  }, [filterRole, filterStatus, sort, order]); // eslint-disable-line
+
+  // Debounce search
+  useEffect(() => {
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setPage(1);
+      fetchUsers(1);
+    }, 350);
+    return () => clearTimeout(debounceRef.current);
+  }, [search]); // eslint-disable-line
+
+  // Re-fetch when page changes (but not on filter changes — those reset to 1 above)
+  useEffect(() => {
+    fetchUsers(page);
+  }, [page]); // eslint-disable-line
+
+  // ── Sort toggle ────────────────────────────────────────────────────────────
+  const handleSort = (field) => {
+    if (sort === field) setOrder(o => o === "asc" ? "desc" : "asc");
+    else { setSort(field); setOrder("asc"); }
+  };
+
+  const SortIcon = ({ field }) => {
+    if (sort !== field) return <FiChevronDown size={12} style={{ opacity: 0.3 }} />;
+    return order === "asc" ? <FiChevronUp size={12} /> : <FiChevronDown size={12} />;
+  };
+
+  // ── Pagination helpers ─────────────────────────────────────────────────────
+  const goTo = (p) => { if (p >= 1 && p <= totalPages) setPage(p); };
+
+  const pageNumbers = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) pages.push(i);
+      else if (pages[pages.length - 1] !== "…") pages.push("…");
+    }
+    return pages;
+  };
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+  const handleToggleActive = async (user) => {
+    try {
+      await api.patch(`/admin/users/${user._id}`, { is_active: !user.is_active });
+      fetchUsers(page);
+    } catch { alert("Failed to update user status."); }
+  };
+
+  const openAdvisorModal = async (user) => {
+    setOpenMenu(null);
+    setAdvisorModal({ studentId: user._id, studentName: user.name });
+    setSelectedAdvisor(user.advisor?._id || "");
+    if (!advisors.length) {
+      try { setAdvisors(await getAdvisors()); } catch {}
+    }
+  };
+
+  const openDeptModal = async (user) => {
+    setOpenMenu(null);
+    setDeptModal({ userId: user._id, userName: user.name });
+    setSelectedDept(user.department?._id || "");
+    if (!departments.length) {
+      try {
+        const r = await api.get("/departments");
+        setDepartments(r.data.departments || r.data || []);
+      } catch {}
+    }
+  };
+
+  const handleAssign = async () => {
+    setAssigning(true);
+    try {
+      await assignAdvisor(advisorModal.studentId, selectedAdvisor || null);
+      setAdvisorModal(null);
+      fetchUsers(page);
+    } catch { alert("Failed to assign advisor."); }
+    finally { setAssigning(false); }
+  };
+
+  const handleAssignDept = async () => {
+    setAssigningDept(true);
+    try {
+      await api.patch(`/admin/users/${deptModal.userId}`, { department: selectedDept || null });
+      setDeptModal(null);
+      fetchUsers(page);
+    } catch { alert("Failed to change department."); }
+    finally { setAssigningDept(false); }
+  };
+
+  const handleImpersonate = async (user) => {
+    setOpenMenu(null);
+    setImpersonateLoading(user._id);
+    try {
+      const res = await impersonateUser(user._id);
+      dispatch(startImpersonation(res.user));
+      navigate("/dashboard");
+    } catch { alert("Failed to impersonate user."); }
+    finally { setImpersonateLoading(null); }
+  };
 
   const handleCreateStaff = async () => {
     setCreateError("");
@@ -58,102 +205,15 @@ const AdminUsers = () => {
       await api.post("/admin/create-staff", { name, email, password, role, department: department || undefined });
       setCreateModal(false);
       setCreateForm({ name: "", email: "", password: "", role: "professor", department: "" });
-      fetchUsers();
+      fetchUsers(1);
     } catch (err) {
       setCreateError(err.response?.data?.message || "Failed to create account.");
-    } finally {
-      setCreating(false);
-    }
+    } finally { setCreating(false); }
   };
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const roleMap = { "Students": "student", "Faculty": "professor" };
-      const role = roleMap[filterRole] || null;
-      const data = await getUsers(role);
-      setUsers(Array.isArray(data) ? data : (data.users || []));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openAdvisorModal = async (user) => {
-    setOpenMenu(null);
-    setAdvisorModal({ studentId: user._id, studentName: user.name, currentAdvisor: user.advisor });
-    setSelectedAdvisor(user.advisor?._id || "");
-    if (advisors.length === 0) {
-      try {
-        const data = await getAdvisors();
-        setAdvisors(data);
-      } catch (e) { console.error(e); }
-    }
-  };
-
-  const openDeptModal = async (user) => {
-    setOpenMenu(null);
-    setDeptModal({ userId: user._id, userName: user.name, currentDept: user.department?._id });
-    setSelectedDept(user.department?._id || "");
-    if (departments.length === 0) {
-      try {
-        const res = await api.get("/departments");
-        setDepartments(res.data.departments || res.data || []);
-      } catch (e) { console.error(e); }
-    }
-  };
-
-  const handleAssign = async () => {
-    if (!advisorModal) return;
-    setAssigning(true);
-    try {
-      await assignAdvisor(advisorModal.studentId, selectedAdvisor || null);
-      setAdvisorModal(null);
-      fetchUsers();
-    } catch (e) {
-      alert("Failed to assign advisor.");
-    } finally {
-      setAssigning(false);
-    }
-  };
-
-  const handleAssignDept = async () => {
-    if (!deptModal) return;
-    setAssigningDept(true);
-    try {
-      await api.patch(`/admin/users/${deptModal.userId}`, { department: selectedDept || null });
-      setDeptModal(null);
-      fetchUsers();
-    } catch (e) {
-      alert("Failed to change department.");
-    } finally {
-      setAssigningDept(false);
-    }
-  };
-
-  const handleImpersonate = async (user) => {
-    setOpenMenu(null);
-    setImpersonateLoading(user._id);
-    try {
-      const res = await impersonateUser(user._id);
-      dispatch(startImpersonation(res.user));
-      navigate("/dashboard");
-    } catch (e) {
-      alert("Failed to impersonate user.");
-    } finally {
-      setImpersonateLoading(null);
-    }
-  };
-
-  const handleToggleActive = async (user) => {
-    try {
-      await api.patch(`/admin/users/${user._id}`, { is_active: !user.is_active });
-      fetchUsers();
-    } catch (e) {
-      alert("Failed to update user status.");
-    }
-  };
+  // ── Render ─────────────────────────────────────────────────────────────────
+  const from = total === 0 ? 0 : (page - 1) * LIMIT + 1;
+  const to   = Math.min(page * LIMIT, total);
 
   return (
     <div className="admin-usr-container">
@@ -163,71 +223,129 @@ const AdminUsers = () => {
           <p className="admin-usr-subtitle">Manage system access for Students, Faculty, and Staff</p>
         </div>
         <div className="admin-usr-actions">
-          <button className="admin-btn-primary bg-blue-primary" onClick={() => { setCreateModal(true); setCreateError(""); if (!departments.length) api.get("/departments").then(r => setDepartments(r.data.departments || [])).catch(() => {}); }}><FiPlus /> Add User</button>
+          <button
+            className="admin-btn-primary bg-blue-primary"
+            onClick={() => {
+              setCreateModal(true); setCreateError("");
+              if (!departments.length) api.get("/departments").then(r => setDepartments(r.data.departments || [])).catch(() => {});
+            }}
+          >
+            <FiPlus /> Add User
+          </button>
         </div>
       </header>
 
+      {/* Stats */}
       <div className="admin-stats-container">
         <div className="admin-stat-card">
           <span className="admin-usr-stat-label">TOTAL USERS</span>
-          <div className="admin-stat-value">{users.length || "—"}</div>
+          <div className="admin-stat-value">{total || "—"}</div>
         </div>
         <div className="admin-stat-card">
           <span className="admin-usr-stat-label">FACULTY</span>
-          <div className="admin-stat-value">{users.filter(u => u.role?.name === "professor").length || "—"}</div>
+          <div className="admin-stat-value">{users.filter(u => u.role?.name === "professor").length}</div>
         </div>
         <div className="admin-stat-card">
           <span className="admin-usr-stat-label">STUDENTS</span>
-          <div className="admin-stat-value">{users.filter(u => u.role?.name === "student").length || "—"}</div>
+          <div className="admin-stat-value">{users.filter(u => u.role?.name === "student").length}</div>
         </div>
         <div className="admin-stat-card">
           <span className="admin-usr-stat-label">ACTIVE</span>
           <div className="admin-stat-value">
-            <span className="admin-dot green"></span> {users.filter(u => u.is_active).length || "—"}
+            <span className="admin-dot green" /> {users.filter(u => u.is_active).length}
           </div>
         </div>
       </div>
 
       <div className="admin-table-card">
+        {/* Toolbar */}
         <div className="admin-usr-toolbar">
+          {/* Search */}
           <div className="admin-usr-search-box">
             <FiSearch className="admin-usr-search-icon" />
-            <input type="text" placeholder="Search by name, department, or role..." className="admin-usr-search-input" />
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Search by name, email, or ID…"
+              className="admin-usr-search-input"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            {search && (
+              <button className="admin-usr-clear-btn" onClick={() => setSearch("")}>
+                <FiX size={13} />
+              </button>
+            )}
           </div>
+
+          {/* Role filter */}
           <div className="admin-usr-filters">
-            {["All Users", "Students", "Faculty"].map(f => (
+            {[["", "All Users"], ["student", "Students"], ["professor", "Faculty"]].map(([val, label]) => (
               <button
-                key={f}
-                className={`admin-usr-filter-btn ${filterRole === f ? "active" : ""}`}
-                onClick={() => setFilterRole(f)}
+                key={val}
+                className={`admin-usr-filter-btn ${filterRole === val ? "active" : ""}`}
+                onClick={() => setFilterRole(val)}
               >
-                {f}
+                {label}
               </button>
             ))}
           </div>
+
+          {/* Status filter */}
+          <select
+            className="admin-co-select"
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
+          {/* Sort */}
+          <select
+            className="admin-co-select"
+            value={`${sort}:${order}`}
+            onChange={e => {
+              const [s, o] = e.target.value.split(":");
+              setSort(s); setOrder(o);
+            }}
+          >
+            {Object.entries(SORT_FIELDS).flatMap(([field, label]) => [
+              <option key={`${field}:asc`}  value={`${field}:asc`}>{label} ↑</option>,
+              <option key={`${field}:desc`} value={`${field}:desc`}>{label} ↓</option>,
+            ])}
+          </select>
         </div>
 
+        {/* Table */}
         <div className="admin-table-wrapper">
           <table className="admin-table admin-usr-table">
             <thead>
               <tr>
-                <th>NAME</th>
+                <th className="sortable" onClick={() => handleSort("name")}>
+                  NAME <SortIcon field="name" />
+                </th>
                 <th>ROLE</th>
-                <th>DEPARTMENT</th>
+                <th className="sortable" onClick={() => handleSort("department")}>
+                  DEPARTMENT <SortIcon field="department" />
+                </th>
                 <th>ADVISOR</th>
-                <th>STATUS</th>
+                <th className="sortable" onClick={() => handleSort("is_active")}>
+                  STATUS <SortIcon field="is_active" />
+                </th>
                 <th style={{ textAlign: "right" }}>ACTIONS</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" className="admin-loading">Loading...</td></tr>
+                <tr><td colSpan="6" className="admin-loading">Loading…</td></tr>
               ) : users.length === 0 ? (
                 <tr><td colSpan="6" className="admin-loading">No users found.</td></tr>
-              ) : users.map((u, i) => {
+              ) : users.map((u) => {
                 const isStudent = u.role?.name === "student";
                 return (
-                  <tr key={u._id || i}>
+                  <tr key={u._id}>
                     <td>
                       <div className="admin-bold-text">{u.name}</div>
                       <div className="admin-co-meta">{u.email}</div>
@@ -252,17 +370,13 @@ const AdminUsers = () => {
                     </td>
                     <td style={{ textAlign: "right" }}>
                       <div className="admin-usr-action-btns" ref={openMenu === u._id ? menuRef : null}>
-                        {/* Inactive / Active toggle button */}
                         <button
                           className={`admin-usr-btn ${u.is_active ? "red" : "green-btn"}`}
                           onClick={() => handleToggleActive(u)}
-                          title={u.is_active ? "Deactivate user" : "Activate user"}
                         >
                           <FiSlash size={13} />
-                          {u.is_active ? "Inactive" : "Activate"}
+                          {u.is_active ? "Deactivate" : "Activate"}
                         </button>
-
-                        {/* 3-dot menu */}
                         <div className="admin-usr-menu-wrap">
                           <button
                             className="admin-usr-btn admin-usr-dots-btn"
@@ -270,34 +384,19 @@ const AdminUsers = () => {
                           >
                             <FiMoreVertical size={16} />
                           </button>
-
                           {openMenu === u._id && (
                             <div className="admin-usr-dropdown">
-                              <button
-                                className="admin-usr-dropdown-item"
-                                onClick={() => handleImpersonate(u)}
-                                disabled={impersonateLoading === u._id}
-                              >
+                              <button className="admin-usr-dropdown-item" onClick={() => handleImpersonate(u)} disabled={impersonateLoading === u._id}>
                                 <FiLogIn size={14} />
-                                {impersonateLoading === u._id ? "Loading..." : "Impersonate"}
+                                {impersonateLoading === u._id ? "Loading…" : "Impersonate"}
                               </button>
-
                               {isStudent && (
-                                <button
-                                  className="admin-usr-dropdown-item"
-                                  onClick={() => openAdvisorModal(u)}
-                                >
-                                  <FiUserCheck size={14} />
-                                  Assign Advisor
+                                <button className="admin-usr-dropdown-item" onClick={() => openAdvisorModal(u)}>
+                                  <FiUserCheck size={14} /> Assign Advisor
                                 </button>
                               )}
-
-                              <button
-                                className="admin-usr-dropdown-item"
-                                onClick={() => openDeptModal(u)}
-                              >
-                                <FiUsers size={14} />
-                                Change Department
+                              <button className="admin-usr-dropdown-item" onClick={() => openDeptModal(u)}>
+                                <FiUsers size={14} /> Change Department
                               </button>
                             </div>
                           )}
@@ -311,12 +410,28 @@ const AdminUsers = () => {
           </table>
         </div>
 
+        {/* Footer / Pagination */}
         <div className="admin-table-footer">
-          <span>Showing {users.length} users</span>
+          <span className="admin-pagination-info">
+            {total === 0 ? "No results" : `Showing ${from}–${to} of ${total} users`}
+          </span>
+          <div className="admin-pagination">
+            <button className={`admin-page-btn ${page === 1 ? "disabled" : ""}`} onClick={() => goTo(page - 1)}>
+              <FiChevronLeft />
+            </button>
+            {pageNumbers().map((n, i) =>
+              n === "…"
+                ? <span key={`e${i}`} className="admin-page-ellipsis">…</span>
+                : <button key={n} className={`admin-page-btn ${page === n ? "active" : ""}`} onClick={() => goTo(n)}>{n}</button>
+            )}
+            <button className={`admin-page-btn ${page === totalPages ? "disabled" : ""}`} onClick={() => goTo(page + 1)}>
+              <FiChevronRight />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Assign Advisor Modal */}
+      {/* ── Assign Advisor Modal ─────────────────────────────────────────────── */}
       {advisorModal && (
         <div className="admin-modal-overlay" onClick={() => setAdvisorModal(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
@@ -331,22 +446,18 @@ const AdminUsers = () => {
               <label style={{ display: "block", fontSize: "0.8rem", color: "#a1a1aa", marginBottom: "0.5rem" }}>SELECT ADVISOR</label>
               <select value={selectedAdvisor} onChange={e => setSelectedAdvisor(e.target.value)} className="admin-modal-select">
                 <option value="">— Remove advisor —</option>
-                {advisors.map(a => (
-                  <option key={a._id} value={a._id}>{a.name} ({a.email})</option>
-                ))}
+                {advisors.map(a => <option key={a._id} value={a._id}>{a.name} ({a.email})</option>)}
               </select>
             </div>
             <div className="admin-modal-footer">
               <button className="edit-dept-cancel" onClick={() => setAdvisorModal(null)}>Cancel</button>
-              <button className="edit-dept-save" onClick={handleAssign} disabled={assigning}>
-                {assigning ? "Saving..." : "Save"}
-              </button>
+              <button className="edit-dept-save" onClick={handleAssign} disabled={assigning}>{assigning ? "Saving…" : "Save"}</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Change Department Modal */}
+      {/* ── Change Department Modal ──────────────────────────────────────────── */}
       {deptModal && (
         <div className="admin-modal-overlay" onClick={() => setDeptModal(null)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
@@ -361,22 +472,18 @@ const AdminUsers = () => {
               <label style={{ display: "block", fontSize: "0.8rem", color: "#a1a1aa", marginBottom: "0.5rem" }}>SELECT DEPARTMENT</label>
               <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)} className="admin-modal-select">
                 <option value="">— No department —</option>
-                {departments.map(d => (
-                  <option key={d._id} value={d._id}>{d.name}</option>
-                ))}
+                {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
               </select>
             </div>
             <div className="admin-modal-footer">
               <button className="edit-dept-cancel" onClick={() => setDeptModal(null)}>Cancel</button>
-              <button className="edit-dept-save" onClick={handleAssignDept} disabled={assigningDept}>
-                {assigningDept ? "Saving..." : "Save"}
-              </button>
+              <button className="edit-dept-save" onClick={handleAssignDept} disabled={assigningDept}>{assigningDept ? "Saving…" : "Save"}</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Create Staff Modal */}
+      {/* ── Create Staff Modal ───────────────────────────────────────────────── */}
       {createModal && (
         <div className="admin-modal-overlay" onClick={() => setCreateModal(false)}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
@@ -387,19 +494,15 @@ const AdminUsers = () => {
             <div className="admin-modal-body" style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
               {createError && <p style={{ color: "#ef4444", fontSize: "0.82rem", margin: 0 }}>{createError}</p>}
               {[
-                { label: "Full Name *", key: "name", type: "text", placeholder: "Dr. Ahmed Ali" },
-                { label: "Email *", key: "email", type: "email", placeholder: "ahmed@university.edu" },
-                { label: "Password *", key: "password", type: "password", placeholder: "Min. 6 characters" },
+                { label: "Full Name *",  key: "name",     type: "text",     placeholder: "Dr. Ahmed Ali" },
+                { label: "Email *",      key: "email",    type: "email",    placeholder: "ahmed@university.edu" },
+                { label: "Password *",   key: "password", type: "password", placeholder: "Min. 6 characters" },
               ].map(({ label, key, type, placeholder }) => (
                 <label key={key} style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.78rem", color: "#64748b", textTransform: "uppercase" }}>
                   {label}
-                  <input
-                    type={type}
-                    placeholder={placeholder}
-                    value={createForm[key]}
+                  <input type={type} placeholder={placeholder} value={createForm[key]}
                     onChange={e => setCreateForm(f => ({ ...f, [key]: e.target.value }))}
-                    className="admin-modal-select"
-                  />
+                    className="admin-modal-select" />
                 </label>
               ))}
               <label style={{ display: "flex", flexDirection: "column", gap: "0.35rem", fontSize: "0.78rem", color: "#64748b", textTransform: "uppercase" }}>
@@ -416,14 +519,11 @@ const AdminUsers = () => {
                   {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                 </select>
               </label>
-              <p style={{ fontSize: "0.75rem", color: "#475569", margin: 0 }}>
-                Credentials will be sent automatically to the email above.
-              </p>
             </div>
             <div className="admin-modal-footer">
               <button className="edit-dept-cancel" onClick={() => setCreateModal(false)}>Cancel</button>
               <button className="edit-dept-save" onClick={handleCreateStaff} disabled={creating}>
-                {creating ? "Creating..." : "Create & Send Email"}
+                {creating ? "Creating…" : "Create & Send Email"}
               </button>
             </div>
           </div>
