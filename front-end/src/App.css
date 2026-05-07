@@ -240,3 +240,52 @@ body.public-page #root {
   overflow: auto !important;
   height: auto !important;
 }
+
+/* ── Global select/option dark theme fix ── */
+select {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+select option {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* ── Global responsive guards ────────────────────────────────────────────── */
+
+/* Prevent horizontal overflow on all public pages */
+body.public-page {
+  overflow-x: hidden !important;
+}
+
+/* Ensure images never overflow their containers */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Minimum touch target size for interactive elements on mobile */
+@media (max-width: 900px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+
+  /* Tables always scroll horizontally rather than overflow */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Reduce dashboard main padding on tablet */
+  .dashboard-main {
+    padding: 1rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-main {
+    padding: 0.75rem !important;
+  }
+}

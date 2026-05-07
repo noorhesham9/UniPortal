@@ -190,3 +190,17 @@
     color: var(--accent-alt) !important;
   }
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .login-cardd {
+    padding: 24px 20px;
+    margin-top: 1.5rem;
+    border-radius: 8px;
+  }
+  .login-cardd .login-footer { margin-top: 2rem; }
+  .login-footer .footer-links { gap: 12px; flex-wrap: wrap; justify-content: center; }
+}
+@media (max-width: 400px) {
+  .login-cardd { padding: 20px 16px; }
+}

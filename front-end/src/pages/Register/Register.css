@@ -276,3 +276,14 @@ h1 {
   cursor: pointer; font-size: 0.82rem;
 }
 .rs-confirm-no:hover { border-color: #64748b; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .main-content { padding: 1.5rem 1rem; }
+  .register-card { padding: 28px 20px; border-radius: 8px; }
+  .footer-links { gap: 12px; flex-wrap: wrap; justify-content: center; }
+}
+@media (max-width: 400px) {
+  .register-card { padding: 20px 14px; }
+  .main-content { padding: 1rem; }
+}

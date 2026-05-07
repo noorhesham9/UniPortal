@@ -368,3 +368,30 @@
   text-align: center;
   margin: 0;
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .home-nav { padding: 0.75rem 1.25rem; }
+  .home-nav-links { display: none; }
+  .home-hero { padding: 3rem 1.25rem; flex-direction: column; }
+  .home-hero-content h1 { font-size: 2rem; }
+  .home-hero-status { min-width: 0; width: 100%; }
+  .home-announcements { padding: 2.5rem 1.25rem; }
+  .home-footer { padding: 2rem 1.25rem; }
+}
+@media (max-width: 600px) {
+  .home-nav { padding: 0.65rem 1rem; }
+  .home-nav-actions { gap: 0.5rem; }
+  .home-hero { padding: 2rem 1rem; }
+  .home-hero-content h1 { font-size: 1.6rem; }
+  .home-hero-content p { font-size: 0.9rem; }
+  .home-hero-cta { flex-direction: column; }
+  .home-btn-primary, .home-btn-ghost { width: 100%; text-align: center; justify-content: center; }
+  .home-announcements { padding: 1.5rem 1rem; }
+  .home-section-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .home-ann-body { flex-direction: column; }
+  .home-ann-img-wrap { flex: none; width: 100%; }
+  .home-footer { padding: 1.5rem 1rem; }
+  .home-footer-col { min-width: 0; width: 100%; }
+  .home-status-grid { grid-template-columns: 1fr 1fr; }
+}
