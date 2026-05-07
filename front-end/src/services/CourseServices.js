@@ -5,17 +5,28 @@ export const createCourse = async (courseData) => {
   return res.data;
 };
 
-export const getAllCourses = async (page = 1, limit = 10, search = "", filters = {}) => {
+export const getAllCourses = async (
+  page = 1,
+  limit = 10,
+  search = "",
+  filters = {},
+) => {
   const params = new URLSearchParams({ page, limit });
   if (search) params.append("search", search);
-  if (filters.department_id) params.append("department_id", filters.department_id);
-  if (filters.academic_year) params.append("academic_year", filters.academic_year);
+  if (filters.department_id)
+    params.append("department_id", filters.department_id);
+  if (filters.academic_year)
+    params.append("academic_year", filters.academic_year);
   if (filters.semester_num) params.append("semester_num", filters.semester_num);
   const res = await api.get(`/courses?${params}`);
   return res.data;
 };
 
-export const getOfferedCourses = async (semesterId, search = "", department_id = "") => {
+export const getOfferedCourses = async (
+  semesterId,
+  search = "",
+  department_id = "",
+) => {
   const params = new URLSearchParams({ semesterId });
   if (search) params.append("search", search);
   if (department_id) params.append("department_id", department_id);
@@ -52,7 +63,9 @@ export const getAvailableCourses = async () => {
 export { getDepartments } from "./AdminServices";
 
 export const getMyEnrollments = async (semesterId = null) => {
-  const url = semesterId ? `/enrollment/my?semesterId=${semesterId}` : "/enrollment/my";
+  const url = semesterId
+    ? `/enrollment/my?semesterId=${semesterId}`
+    : "/enrollment/my";
   const res = await api.get(url);
   return res.data;
 };
@@ -72,7 +85,19 @@ export { getSections } from "./SectionServices";
 
 // Admin direct enrollment — bypasses all eligibility checks
 export const adminEnrollStudent = async (studentId, sectionId) => {
-  const res = await api.post("/enrollment/admin-enroll", { studentId, sectionId });
+  const res = await api.post("/enrollment/admin-enroll", {
+    studentId,
+    sectionId,
+  });
+  return res.data;
+};
+
+// Bulk admin enrollment — enroll multiple students in one section
+export const bulkAdminEnrollStudents = async (studentIds, sectionId) => {
+  const res = await api.post("/enrollment/admin-enroll-bulk", {
+    studentIds,
+    sectionId,
+  });
   return res.data;
 };
 

@@ -1,20 +1,33 @@
 import api from "./api";
 
 // --- Users ---
-export const getUsers = async (role = null) => {
-  const url = role ? `/admin/users?role=${role}` : "/admin/users";
-  const res = await api.get(url);
-  return res.data;
+export const getUsers = async ({
+  role = "",
+  search = "",
+  page = 1,
+  limit = 15,
+  sort = "name",
+  order = "asc",
+  status = "",
+} = {}) => {
+  const params = new URLSearchParams({ page, limit, sort, order });
+  if (role) params.append("role", role);
+  if (search) params.append("search", search);
+  if (status) params.append("status", status);
+  const res = await api.get(`/admin/users?${params}`);
+  return res.data; // { users, total, page, totalPages, limit }
 };
 
 export const getAdvisors = async () => {
-  // Returns users who have the assign_advisor permission (professors)
-  const res = await api.get("/admin/users?role=professor");
-  return Array.isArray(res.data) ? res.data : (res.data.users || []);
+  const res = await api.get("/admin/users?role=professor&limit=200");
+  const data = res.data;
+  return Array.isArray(data) ? data : data.users || [];
 };
 
 export const assignAdvisor = async (studentId, advisorId) => {
-  const res = await api.patch(`/admin/users/${studentId}/assign-advisor`, { advisorId });
+  const res = await api.patch(`/admin/users/${studentId}/assign-advisor`, {
+    advisorId,
+  });
   return res.data;
 };
 
@@ -29,7 +42,14 @@ export const stopImpersonation = async () => {
 };
 
 // --- Departments ---
-export const getDepartments = async ({ page = 1, limit = 10, search = "", status = "", sortBy = "createdAt", order = "desc" } = {}) => {
+export const getDepartments = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  status = "",
+  sortBy = "createdAt",
+  order = "desc",
+} = {}) => {
   const params = new URLSearchParams({ page, limit, sortBy, order });
   if (search) params.append("search", search);
   if (status) params.append("status", status);
@@ -58,8 +78,18 @@ export const getAllowedStudents = async () => {
   return res.data;
 };
 
-export const addAllowedStudent = async ({ studentId, nationalId, examSeatNumber, email }) => {
-  const res = await api.post("/admin/allow_Student", { studentId, nationalId, examSeatNumber, email });
+export const addAllowedStudent = async ({
+  studentId,
+  nationalId,
+  examSeatNumber,
+  email,
+}) => {
+  const res = await api.post("/admin/allow_Student", {
+    studentId,
+    nationalId,
+    examSeatNumber,
+    email,
+  });
   return res.data;
 };
 
@@ -75,7 +105,10 @@ export const getRegistrationRequests = async (status = "pending_approval") => {
 };
 
 export const reviewRegistrationRequest = async (id, action, adminNote = "") => {
-  const res = await api.patch(`/registration-requests/${id}/review`, { action, adminNote });
+  const res = await api.patch(`/registration-requests/${id}/review`, {
+    action,
+    adminNote,
+  });
   return res.data;
 };
 

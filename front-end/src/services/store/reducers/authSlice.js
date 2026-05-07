@@ -22,7 +22,9 @@ export const authSlice = createSlice({
       state.user = action.payload;
       state.loading = false;
       localStorage.setItem("user", JSON.stringify(action.payload));
-      state.isAdmin = action.payload.role.name === "admin";
+      state.isAdmin =
+        action.payload.role?.name === "admin" ||
+        action.payload.role?.name === "super_admin";
       state.opendash = false;
     },
     logoutUser: (state) => {
@@ -54,7 +56,14 @@ export const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, logoutUser, Opendash, closedash, startImpersonation, stopImpersonation } =
-  authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  logoutUser,
+  Opendash,
+  closedash,
+  startImpersonation,
+  stopImpersonation,
+} = authSlice.actions;
 
 export default authSlice.reducer;
