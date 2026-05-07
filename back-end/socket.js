@@ -1,15 +1,15 @@
 const { Server } = require("socket.io");
-const admin  = require("./utils/firebaseAdmin");
-const User   = require("./models/User");
-const jwt    = require("jsonwebtoken");
+const admin = require("./utils/firebaseAdmin");
+const User = require("./models/User");
+const jwt = require("jsonwebtoken");
 const cookie = require("cookie");
 
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:8081",
-  "https://your-university-domain.com",
-];
+  process.env.FRONTEND_URL, // Add your production frontend URL as environment variable
+].filter(Boolean); // Remove undefined values
 
 let io;
 
@@ -17,7 +17,7 @@ const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
       origin: allowedOrigins,
-      credentials: true,  // required for cookies to be sent with the handshake
+      credentials: true, // required for cookies to be sent with the handshake
     },
   });
 
@@ -34,10 +34,12 @@ const initSocket = (httpServer) => {
       if (impToken) {
         try {
           const decoded = jwt.verify(impToken, process.env.SECRET_STR);
-          const user = await User.findById(decoded.impersonatedUserId).select("_id name");
+          const user = await User.findById(decoded.impersonatedUserId).select(
+            "_id name",
+          );
           if (user) {
-            socket.userId        = String(user._id);
-            socket.userName      = user.name;
+            socket.userId = String(user._id);
+            socket.userName = user.name;
             socket.isImpersonating = true;
             console.log(`[Socket] Impersonating "${user.name}" (${user._id})`);
             return next();
@@ -52,10 +54,12 @@ const initSocket = (httpServer) => {
       if (!token) return next(new Error("No token"));
 
       const decoded = await admin.auth().verifyIdToken(token);
-      const user = await User.findOne({ firebaseUid: decoded.uid }).select("_id name");
+      const user = await User.findOne({ firebaseUid: decoded.uid }).select(
+        "_id name",
+      );
       if (!user) return next(new Error("User not found"));
 
-      socket.userId   = String(user._id);
+      socket.userId = String(user._id);
       socket.userName = user.name;
       next();
     } catch {
@@ -65,7 +69,9 @@ const initSocket = (httpServer) => {
 
   io.on("connection", (socket) => {
     socket.join(socket.userId);
-    console.log(`[Socket] User "${socket.userName}" (${socket.userId}) joined room`);
+    console.log(
+      `[Socket] User "${socket.userName}" (${socket.userId}) joined room`,
+    );
     socket.on("disconnect", () => {
       console.log(`[Socket] User "${socket.userName}" disconnected`);
     });
@@ -76,16 +82,28 @@ const initSocket = (httpServer) => {
 
 // Call this from controllers to push a message to a specific user
 const emitToUser = (userId, event, payload) => {
+  if (process.env.NODE_ENV === "production") {
+    console.log(
+      `[Socket] Skipped emit in production: "${event}" to user ${userId}`,
+    );
+    return;
+  }
   if (io) {
     const room = String(userId);
     const sockets = io.sockets.adapter.rooms.get(room);
-    console.log(`[Socket] Emitting "${event}" to room "${room}" — ${sockets ? sockets.size : 0} socket(s) in room`);
+    console.log(
+      `[Socket] Emitting "${event}" to room "${room}" — ${sockets ? sockets.size : 0} socket(s) in room`,
+    );
     io.to(room).emit(event, payload);
   }
 };
 
 // Broadcast to all connected sockets (e.g. site-wide events)
 const emitToAll = (event, payload) => {
+  if (process.env.NODE_ENV === "production") {
+    console.log(`[Socket] Skipped broadcast in production: "${event}"`);
+    return;
+  }
   if (io) {
     io.emit(event, payload);
   }

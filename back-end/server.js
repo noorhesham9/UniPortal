@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const dotenv   = require("dotenv");
+const dotenv = require("dotenv");
 const seedDatabase = require("./utils/seedDatabase");
 
 dotenv.config({ path: "./config.env" });
@@ -10,7 +10,7 @@ process.on("uncaughtException", (err) => {
 });
 
 let dbnamee;
-if (process.env.NODE_ENV === "production")  dbnamee = "UNIPortal";
+if (process.env.NODE_ENV === "production") dbnamee = "UNIPortal";
 else if (process.env.NODE_ENV === "development") dbnamee = "UNIPortalDEV";
 
 const app = require("./app");
@@ -19,8 +19,13 @@ const { initSocket } = require("./socket");
 
 const server = http.createServer(app);
 
-// Attach Socket.io to the same HTTP server
-initSocket(server);
+// Only initialize Socket.io in development (not on Vercel)
+if (process.env.NODE_ENV !== "production") {
+  initSocket(server);
+  console.log("✓ Socket.io initialized (development mode)");
+} else {
+  console.log("⚠️  Socket.io disabled (production/Vercel mode)");
+}
 
 mongoose.connect(process.env.CONN_STR, { dbName: dbnamee }).then(() => {
   console.log("DB Connection Successful");

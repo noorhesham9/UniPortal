@@ -67,9 +67,9 @@ app.use(cookieParser());
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://your-university-domain.com",
   "http://localhost:8081",
-];
+  process.env.FRONTEND_URL, // Add your production frontend URL as environment variable
+].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({
