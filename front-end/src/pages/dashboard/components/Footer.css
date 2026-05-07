@@ -57,3 +57,14 @@
 .dash-footer-right a:hover {
   color: #94a3b8;
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-footer { padding: 0.75rem 1rem; }
+  .dash-footer-right { gap: 1rem; }
+}
+@media (max-width: 600px) {
+  .dash-footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 0.75rem; }
+  .dash-footer-left { flex-direction: column; gap: 0.4rem; align-items: center; }
+  .dash-footer-right { gap: 0.75rem; justify-content: center; }
+}

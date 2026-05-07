@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FiBell, FiLogOut, FiUser } from "react-icons/fi";
+import { FiBell, FiLogOut, FiMenu, FiUser } from "react-icons/fi";
 import { FaGraduationCap } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -8,7 +8,7 @@ import { logoutApi } from "../../../services/AuthServices";
 import api from "../../../services/api";
 import "./Header.css";
 
-const Header = ({ actions }) => {
+const Header = ({ actions, onMenuToggle }) => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -80,6 +80,10 @@ const Header = ({ actions }) => {
   return (
     <header className="dash-header">
       <div className="dash-header-left">
+        {/* Hamburger — only visible on tablet/mobile */}
+        <button className="dash-header-menu-btn" onClick={onMenuToggle} aria-label="Toggle menu">
+          <FiMenu />
+        </button>
         <div className="dash-header-logo">
           <FaGraduationCap />
         </div>

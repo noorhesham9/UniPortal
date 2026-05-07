@@ -24,9 +24,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #0d1b2a;
   flex-shrink: 0;
+  line-height: 1;
+}
+
+.dash-header-logo svg {
+  display: block;
 }
 
 .dash-header-sys {
@@ -66,6 +71,16 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.header-icon-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .header-badge {
@@ -267,4 +282,64 @@
 .header-notif-time {
   font-size: 0.72rem;
   color: #475569;
+}
+
+/* ── Hamburger menu button ────────────────────────────────────────────────── */
+.dash-header-menu-btn {
+  display: none; /* hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.4rem;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.dash-header-menu-btn:hover {
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Responsive header ────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dash-header-menu-btn {
+    display: flex; /* show on tablet/mobile */
+  }
+
+  .dash-header {
+    padding: 0 1rem;
+  }
+
+  /* Hide the "Academic Session" subtitle on small screens */
+  .sys-term {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .dash-header {
+    padding: 0 0.75rem;
+  }
+
+  /* Shrink logo on very small screens */
+  .dash-header-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+
+  .sys-name {
+    font-size: 0.9rem;
+  }
+
+  /* Tighten right-side actions */
+  .dash-header-actions {
+    gap: 0.6rem;
+  }
 }

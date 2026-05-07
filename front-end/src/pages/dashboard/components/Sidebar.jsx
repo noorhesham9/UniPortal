@@ -5,6 +5,7 @@ import {
   FiCalendar,
   FiChevronDown,
   FiClipboard,
+  FiCpu,
   FiCreditCard,
   FiEdit,
   FiFileText,
@@ -78,6 +79,7 @@ const categories = [
       { id: "Create_setions",         label: "Create Sections",   icon: <FiEdit /> },
       { id: "study_plan_admin",       label: "Edit Study Plan",   icon: <FiEdit /> },
       { id: "schedule_bulider",       label: "Schedule Builder",  icon: <FiCalendar /> },
+      { id: "schedule_generator",     label: "AI Schedule",       icon: <FiCpu /> },
     ],
   },
   {
@@ -105,12 +107,17 @@ const categories = [
   },
 ];
 
-function Sidebar({ userPermissions, isStudent, siteLocked }) {
+function Sidebar({ userPermissions, isStudent, siteLocked, isOpen, onClose }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentSection = searchParams.get("section");
   const { user } = useSelector((state) => state.auth);
   const roleName = user?.role?.name || "";
+
+  const handleNavigate = (sectionId) => {
+    navigate(`/dashboard?section=${sectionId}`);
+    if (onClose) onClose(); // close drawer on mobile after navigation
+  };
 
   const [openCats, setOpenCats] = useState(() =>
     Object.fromEntries(categories.map((c) => [c.id, true])),
@@ -128,7 +135,7 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
     : "U";
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${isOpen ? " sidebar-open" : ""}`}>
       <div className="sidebar-user">
         <div className="sidebar-avatar">{nameInitials}</div>
         <div className="sidebar-user-info">
@@ -176,7 +183,7 @@ function Sidebar({ userPermissions, isStudent, siteLocked }) {
                       key={item.id}
                       onClick={() =>
                         !isItemLocked &&
-                        navigate(`/dashboard?section=${item.id}`)
+                        handleNavigate(item.id)
                       }
                       className={`sidebar-item${isActive ? " active" : ""}${isItemLocked ? " locked" : ""}`}
                       title={

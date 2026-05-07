@@ -36,6 +36,7 @@ import RegistrationSlices from "./dashSections/RegistrationSlices/RegistrationSl
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
 import EditRoom from "./dashSections/RoomManagement/EditRoom";
 import ScheduleBuilder from "./dashSections/ScheduleBuilder/ScheduleBuilder";
+import ScheduleGenerator from "./dashSections/ScheduleGenerator/ScheduleGenerator";
 import Settings from "./dashSections/Settings/Settings";
 import StudentChat from "./dashSections/StudentChat/StudentChat";
 import StudyPlanAdmin from "./dashSections/StudyPlanAdmin/StudyPlanAdmin";
@@ -61,6 +62,14 @@ function DashBoard() {
   const section = searchParams.get("section");
 
   const { user, impersonating } = useSelector((state) => state.auth);
+
+  // ── Mobile sidebar state ───────────────────────────────────────────────────
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar whenever the section changes (user navigated)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [section]);
 
   const handleStopImpersonation = async () => {
     try {
@@ -150,6 +159,9 @@ function DashBoard() {
 
       case "schedule_bulider":
         return can("create_section") ? <ScheduleBuilder /> : <Denied />;
+
+      case "schedule_generator":
+        return can("create_section") ? <ScheduleGenerator /> : <Denied />;
 
       case "add_room":
         return can("manage_rooms") ? <AddRoom /> : <Denied />;
@@ -295,13 +307,19 @@ function DashBoard() {
   if (standaloneSection) {
     return (
       <div className="dashboard-root">
+        {/* Mobile overlay backdrop */}
+        {sidebarOpen && (
+          <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+        )}
         <Sidebar
           userPermissions={userPermissions}
           isStudent={isStudent}
           siteLocked={siteLocked}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
         <div className="dashboard-body">
-          <Header actions={getHeaderActions()} />
+          <Header actions={getHeaderActions()} onMenuToggle={() => setSidebarOpen(o => !o)} />
           {impersonating && (
             <ImpersonateBanner onStop={handleStopImpersonation} user={user} />
           )}
@@ -314,13 +332,19 @@ function DashBoard() {
 
   return (
     <div className="dashboard-root">
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
+        <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+      )}
       <Sidebar
         userPermissions={userPermissions}
         isStudent={isStudent}
         siteLocked={siteLocked}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="dashboard-body">
-        <Header actions={getHeaderActions()} />
+        <Header actions={getHeaderActions()} onMenuToggle={() => setSidebarOpen(o => !o)} />
         {impersonating && (
           <ImpersonateBanner onStop={handleStopImpersonation} user={user} />
         )}

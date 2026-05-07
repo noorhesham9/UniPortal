@@ -195,3 +195,28 @@
 .sidebar-support-icon {
   font-size: 0.9rem;
 }
+
+/* ── Responsive: tablet & mobile ─────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.28s ease;
+    box-shadow: none;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Support bar width matches sidebar */
+  .sidebar-support {
+    width: 240px;
+  }
+}
