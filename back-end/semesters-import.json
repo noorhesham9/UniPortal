@@ -1,0 +1,152 @@
+[
+  {
+    "year": 2022,
+    "term": "Fall",
+    "is_active": false,
+    "start_date": "2022-09-01T00:00:00.000Z",
+    "end_date": "2022-12-20T00:00:00.000Z",
+    "add_drop_start": "2022-08-25T00:00:00.000Z",
+    "add_drop_end": "2022-09-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2022,
+    "term": "Spring",
+    "is_active": false,
+    "start_date": "2022-02-01T00:00:00.000Z",
+    "end_date": "2022-05-25T00:00:00.000Z",
+    "add_drop_start": "2022-01-25T00:00:00.000Z",
+    "add_drop_end": "2022-02-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2022,
+    "term": "Summer",
+    "is_active": false,
+    "start_date": "2022-06-01T00:00:00.000Z",
+    "end_date": "2022-08-20T00:00:00.000Z",
+    "add_drop_start": "2022-05-25T00:00:00.000Z",
+    "add_drop_end": "2022-06-10T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2023,
+    "term": "Fall",
+    "is_active": false,
+    "start_date": "2023-09-01T00:00:00.000Z",
+    "end_date": "2023-12-20T00:00:00.000Z",
+    "add_drop_start": "2023-08-25T00:00:00.000Z",
+    "add_drop_end": "2023-09-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2023,
+    "term": "Spring",
+    "is_active": false,
+    "start_date": "2023-02-01T00:00:00.000Z",
+    "end_date": "2023-05-25T00:00:00.000Z",
+    "add_drop_start": "2023-01-25T00:00:00.000Z",
+    "add_drop_end": "2023-02-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2023,
+    "term": "Summer",
+    "is_active": false,
+    "start_date": "2023-06-01T00:00:00.000Z",
+    "end_date": "2023-08-20T00:00:00.000Z",
+    "add_drop_start": "2023-05-25T00:00:00.000Z",
+    "add_drop_end": "2023-06-10T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2024,
+    "term": "Fall",
+    "is_active": false,
+    "start_date": "2024-09-01T00:00:00.000Z",
+    "end_date": "2024-12-20T00:00:00.000Z",
+    "add_drop_start": "2024-08-25T00:00:00.000Z",
+    "add_drop_end": "2024-09-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2024,
+    "term": "Spring",
+    "is_active": false,
+    "start_date": "2024-02-01T00:00:00.000Z",
+    "end_date": "2024-05-25T00:00:00.000Z",
+    "add_drop_start": "2024-01-25T00:00:00.000Z",
+    "add_drop_end": "2024-02-15T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2024,
+    "term": "Summer",
+    "is_active": false,
+    "start_date": "2024-06-01T00:00:00.000Z",
+    "end_date": "2024-08-20T00:00:00.000Z",
+    "add_drop_start": "2024-05-25T00:00:00.000Z",
+    "add_drop_end": "2024-06-10T00:00:00.000Z",
+    "show_final_results": true
+  },
+  {
+    "year": 2025,
+    "term": "Fall",
+    "is_active": false,
+    "start_date": "2025-09-01T00:00:00.000Z",
+    "end_date": "2025-12-20T00:00:00.000Z",
+    "add_drop_start": "2025-08-25T00:00:00.000Z",
+    "add_drop_end": "2025-09-15T00:00:00.000Z",
+    "show_final_results": false
+  },
+  {
+    "year": 2025,
+    "term": "Spring",
+    "is_active": true,
+    "start_date": "2025-02-01T00:00:00.000Z",
+    "end_date": "2025-05-25T00:00:00.000Z",
+    "add_drop_start": "2025-01-25T00:00:00.000Z",
+    "add_drop_end": "2025-02-15T00:00:00.000Z",
+    "show_final_results": false
+  },
+  {
+    "year": 2025,
+    "term": "Summer",
+    "is_active": false,
+    "start_date": "2025-06-01T00:00:00.000Z",
+    "end_date": "2025-08-20T00:00:00.000Z",
+    "add_drop_start": "2025-05-25T00:00:00.000Z",
+    "add_drop_end": "2025-06-10T00:00:00.000Z",
+    "show_final_results": false
+  },
+  {
+    "year": 2026,
+    "term": "Fall",
+    "is_active": false,
+    "start_date": "2026-09-01T00:00:00.000Z",
+    "end_date": "2026-12-20T00:00:00.000Z",
+    "add_drop_start": "2026-08-25T00:00:00.000Z",
+    "add_drop_end": "2026-09-15T00:00:00.000Z",
+    "show_final_results": false
+  },
+  {
+    "year": 2026,
+    "term": "Spring",
+    "is_active": false,
+    "start_date": "2026-02-01T00:00:00.000Z",
+    "end_date": "2026-05-25T00:00:00.000Z",
+    "add_drop_start": "2026-01-25T00:00:00.000Z",
+    "add_drop_end": "2026-02-15T00:00:00.000Z",
+    "show_final_results": false
+  },
+  {
+    "year": 2026,
+    "term": "Summer",
+    "is_active": false,
+    "start_date": "2026-06-01T00:00:00.000Z",
+    "end_date": "2026-08-20T00:00:00.000Z",
+    "add_drop_start": "2026-05-25T00:00:00.000Z",
+    "add_drop_end": "2026-06-10T00:00:00.000Z",
+    "show_final_results": false
+  }
+]
