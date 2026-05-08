@@ -31,7 +31,7 @@ import EditProfile from "./dashSections/EditProfile/EditProfile";
 import MyEnrollments from "./dashSections/MyEnrollments/MyEnrollments";
 import MyPayments from "./dashSections/MyPayments/MyPayments";
 import Profile from "./dashSections/Profile/Profile";
-import RegisterCourses from "./dashSections/registerCourse/RegiseterCourse";
+import RegisterCourses from "./dashSections/registerCourse/RegisterCourse";
 import RegistrationSlices from "./dashSections/RegistrationSlices/RegistrationSlices";
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
 import EditRoom from "./dashSections/RoomManagement/EditRoom";
