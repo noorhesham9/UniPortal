@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { auth } from "../utils/firebaseConfig";
 
-const SOCKET_URL = "http://localhost:3100";
+const SOCKET_URL =
+  import.meta.env.VITE_NODE_ENV === "production"
+    ? import.meta.env.VITE_SOCKET_URL_PROD ||
+      import.meta.env.VITE_API_URL_PROD?.replace("/api/v1", "")
+    : import.meta.env.VITE_SOCKET_URL_DEV ||
+      import.meta.env.VITE_API_URL_DEV?.replace("/api/v1", "");
 
 /**
  * Returns a socket instance once authenticated.

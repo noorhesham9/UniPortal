@@ -5,7 +5,10 @@ import { FiHash, FiSearch, FiAlertTriangle } from "react-icons/fi";
 import PublicNav from "../Home/PublicNav";
 import "./Register.css";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1";
+const API =
+  import.meta.env.VITE_NODE_ENV === "production"
+    ? import.meta.env.VITE_API_URL_PROD
+    : import.meta.env.VITE_API_URL_DEV;
 
 const STATUS_CONFIG = {
   pending_email: {

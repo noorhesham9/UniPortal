@@ -11,7 +11,10 @@ import PublicNav from "../Home/PublicNav";
 import "./Register.css";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAAC_GjmneDWnvrWue";
-const API = process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1";
+const API =
+  import.meta.env.VITE_NODE_ENV === "production"
+    ? import.meta.env.VITE_API_URL_PROD
+    : import.meta.env.VITE_API_URL_DEV;
 
 // step: "loading" | "invalid" | "challenge" | "form" | "done"
 

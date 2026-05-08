@@ -51,8 +51,11 @@ function Login() {
       let loginEmail = email.trim();
       if (!loginEmail.includes("@")) {
         try {
+          const apiBase = import.meta.env.VITE_NODE_ENV === "production"
+            ? import.meta.env.VITE_API_URL_PROD
+            : import.meta.env.VITE_API_URL_DEV;
           const res = await axios.get(
-            `${process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1"}/auth/student-email/${loginEmail}`
+            `${apiBase}/auth/student-email/${loginEmail}`
           );
           loginEmail = res.data.email;
         } catch {

@@ -3,7 +3,10 @@ import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 import PublicNav from "../Home/PublicNav";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1";
+const API =
+  import.meta.env.VITE_NODE_ENV === "production"
+    ? import.meta.env.VITE_API_URL_PROD
+    : import.meta.env.VITE_API_URL_DEV;
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();

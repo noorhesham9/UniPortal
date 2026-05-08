@@ -1,6 +1,9 @@
 import api from "./api";
 
-const BASE = process.env.REACT_APP_API_URL || "http://localhost:3100/api/v1";
+const BASE =
+  import.meta.env.VITE_NODE_ENV === "production"
+    ? import.meta.env.VITE_API_URL_PROD || "http://localhost:3100/api/v1"
+    : import.meta.env.VITE_API_URL_DEV || "http://localhost:3100/api/v1";
 
 // Uses fetch so no auth cookie/token is sent for public endpoints
 export const getPublicAnnouncements = async () => {
@@ -27,14 +30,18 @@ export const getAdminAnnouncements = () =>
   api.get("/announcements").then((r) => r.data);
 
 export const createAnnouncement = (formData) =>
-  api.post("/announcements", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  }).then((r) => r.data);
+  api
+    .post("/announcements", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data);
 
 export const updateAnnouncement = (id, formData) =>
-  api.patch(`/announcements/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  }).then((r) => r.data);
+  api
+    .patch(`/announcements/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then((r) => r.data);
 
 export const deleteAnnouncement = (id) =>
   api.delete(`/announcements/${id}`).then((r) => r.data);
