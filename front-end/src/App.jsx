@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
-import AppRoutes from "./Routes/AppRoutes.jsx";
+import AppRoutes from "./routes/AppRoutes.jsx";
 import { loginSuccess, logoutUser } from "./services/store/reducers/authSlice.js";
 import { getMe, loginWithToken, refreshToken } from "./services/AuthServices.js";
 import { onIdTokenChanged } from "firebase/auth";
