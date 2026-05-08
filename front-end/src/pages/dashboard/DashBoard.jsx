@@ -31,7 +31,7 @@ import EditProfile from "./dashSections/EditProfile/EditProfile";
 import MyEnrollments from "./dashSections/MyEnrollments/MyEnrollments";
 import MyPayments from "./dashSections/MyPayments/MyPayments";
 import Profile from "./dashSections/Profile/Profile";
-import RegisterCourses from "./dashSections/registerCourse/RegiseterCourse";
+import RegisterCourses from "./dashSections/registerCourse/RegisterCourse";
 import RegistrationSlices from "./dashSections/RegistrationSlices/RegistrationSlices";
 import AddRoom from "./dashSections/RoomManagement/AddRoom";
 import EditRoom from "./dashSections/RoomManagement/EditRoom";
@@ -261,8 +261,6 @@ function DashBoard() {
       case "year_work_entry":
         return can("view_sections") ? <YearWorkEntry /> : <Denied />;
 
-      case "ad_management":
-        return can("view_users") ? <AdManagement /> : <Denied />;
 
       case "admin_college_info":
         return can("view_users") ? <AdminCollegeInfo /> : <Denied />;
