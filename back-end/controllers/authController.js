@@ -9,7 +9,7 @@ exports.register = async (req, res) => {
     const { idToken, activationToken, last4 } = req.body;
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUid  = decodedToken.uid;
+    const firebaseUid = decodedToken.uid;
 
     // 1. Find request by activation token
     const regRequest = await RegistrationRequest.findOne({
@@ -21,7 +21,8 @@ exports.register = async (req, res) => {
     if (!regRequest) {
       return res.status(403).json({
         success: false,
-        message: "Invalid or expired activation link. Please contact administration.",
+        message:
+          "Invalid or expired activation link. Please contact administration.",
       });
     }
 
@@ -35,7 +36,9 @@ exports.register = async (req, res) => {
     }
 
     // 3. Check not already registered — also verify AllowedStudent.isRegistered
-    const existingUser = await User.findOne({ studentId: regRequest.studentId });
+    const existingUser = await User.findOne({
+      studentId: regRequest.studentId,
+    });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -43,7 +46,9 @@ exports.register = async (req, res) => {
       });
     }
 
-    const allowedRecord = await AllowedStudentModel.findOne({ studentId: regRequest.studentId });
+    const allowedRecord = await AllowedStudentModel.findOne({
+      studentId: regRequest.studentId,
+    });
     if (allowedRecord?.isRegistered) {
       return res.status(400).json({
         success: false,
@@ -55,9 +60,9 @@ exports.register = async (req, res) => {
 
     const newUser = await User.create({
       firebaseUid,
-      email:     decodedToken.email,
-      name:      regRequest.fullName,
-      role:      studentRole._id,
+      email: decodedToken.email,
+      name: regRequest.fullName,
+      role: studentRole._id,
       studentId: regRequest.studentId,
       is_active: true,
       isStudent: true,
@@ -66,11 +71,11 @@ exports.register = async (req, res) => {
     // 5. Mark as registered — invalidate token
     await AllowedStudentModel.findOneAndUpdate(
       { studentId: regRequest.studentId },
-      { isRegistered: true }
+      { isRegistered: true },
     );
 
-    regRequest.firebaseUid      = firebaseUid;
-    regRequest.activationToken  = undefined;
+    regRequest.firebaseUid = firebaseUid;
+    regRequest.activationToken = undefined;
     regRequest.activationExpires = undefined;
     await regRequest.save();
 
@@ -109,7 +114,8 @@ exports.login = async (req, res) => {
       return res.status(403).json({
         code: "auth/user-inactive",
         success: false,
-        message: "Your account has been deactivated. Please contact the Student Affairs office.",
+        message:
+          "Your account has been deactivated. Please contact the Student Affairs office.",
       });
     }
 
@@ -122,6 +128,8 @@ exports.login = async (req, res) => {
     res.cookie("token", idToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
     res.status(200).json({ success: true, user });
   } catch (error) {

@@ -68,8 +68,10 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:8081",
-  process.env.FRONTEND_URL, // Add your production frontend URL as environment variable
-].filter(Boolean); // Remove undefined values
+  ...(process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(",").map((u) => u.trim())
+    : []),
+].filter(Boolean);
 
 app.use(
   cors({
