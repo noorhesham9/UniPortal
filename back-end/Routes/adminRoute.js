@@ -195,9 +195,12 @@ router.post(
         { expiresIn: "2h" },
       );
 
+      const isProd = process.env.NODE_ENV === "production";
       res.cookie("impersonation_token", impersonationToken, {
         httpOnly: true,
         maxAge: 2 * 60 * 60 * 1000,
+        secure: isProd,
+        sameSite: isProd ? "None" : "Lax",
       });
 
       res.json({ success: true, user: target });
@@ -244,40 +247,32 @@ router.post(
       const { name, email, password, role: roleName, department } = req.body;
 
       if (!name || !email || !password || !roleName) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "name, email, password, and role are required.",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "name, email, password, and role are required.",
+        });
       }
       if (!["admin", "professor"].includes(roleName)) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "role must be 'admin' or 'professor'.",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "role must be 'admin' or 'professor'.",
+        });
       }
       // Only super_admin can create another admin
       if (roleName === "admin" && req.user.role.name !== "super_admin") {
-        return res
-          .status(403)
-          .json({
-            success: false,
-            message: "Only super_admin can create admin accounts.",
-          });
+        return res.status(403).json({
+          success: false,
+          message: "Only super_admin can create admin accounts.",
+        });
       }
 
       // Check email not already used
       const existing = await User.findOne({ email: email.toLowerCase() });
       if (existing) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "This email is already registered.",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "This email is already registered.",
+        });
       }
 
       // Create Firebase user
@@ -290,12 +285,10 @@ router.post(
           displayName: name,
         });
       } catch (fbErr) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Firebase error: ${fbErr.message}`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Firebase error: ${fbErr.message}`,
+        });
       }
 
       const roleDoc = await Role.findOne({ name: roleName });

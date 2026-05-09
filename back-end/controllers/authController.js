@@ -119,17 +119,19 @@ exports.login = async (req, res) => {
       });
     }
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
     });
 
     res.cookie("token", idToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure: isProd,
+      sameSite: isProd ? "None" : "Lax",
     });
     res.status(200).json({ success: true, user });
   } catch (error) {
@@ -138,9 +140,11 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", "", {
     httpOnly: true,
-    secure: false,
+    secure: isProd,
+    sameSite: isProd ? "None" : "Lax",
     maxAge: 0,
   });
 
