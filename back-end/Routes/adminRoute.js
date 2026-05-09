@@ -5,6 +5,7 @@ const { requireAuth } = require("../middleware/requireAuth");
 const { requireRole } = require("../middleware/authorize");
 const User = require("../models/User");
 const Role = require("../models/Role");
+const Permission = require("../models/Permission");
 const jwt = require("jsonwebtoken");
 
 const isAdmin = requireRole("admin", "super_admin");

@@ -1,5 +1,6 @@
 const admin = require("../utils/firebaseAdmin");
 const User = require("../models/User");
+const Permission = require("../models/Permission");
 const jwt = require("jsonwebtoken");
 
 exports.requireAuth = async (req, res, next) => {
@@ -35,24 +36,37 @@ exports.requireAuth = async (req, res, next) => {
       .populate("department");
 
     if (!req.user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     if (!req.user.is_active) {
-      return res.status(403).json({ success: false, message: "User account is inactive" });
+      return res
+        .status(403)
+        .json({ success: false, message: "User account is inactive" });
     }
 
     // Site lock — block students from all routes except /auth/me and /auth/logout
-    if (process.env.SITE_LOCKED === "true" && req.user.role?.name === "student") {
+    if (
+      process.env.SITE_LOCKED === "true" &&
+      req.user.role?.name === "student"
+    ) {
       const allowed = ["/api/v1/auth/me", "/api/v1/auth/logout"];
-      const isAllowed = allowed.some((path) => req.path === path || req.originalUrl.startsWith(path));
+      const isAllowed = allowed.some(
+        (path) => req.path === path || req.originalUrl.startsWith(path),
+      );
       if (!isAllowed) {
-        return res.status(403).json({ success: false, message: "SITE_LOCKED", locked: true });
+        return res
+          .status(403)
+          .json({ success: false, message: "SITE_LOCKED", locked: true });
       }
     }
 
     next();
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Not authorized to access this route" });
+    return res
+      .status(401)
+      .json({ success: false, message: "Not authorized to access this route" });
   }
 };

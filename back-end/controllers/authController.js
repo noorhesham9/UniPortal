@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Role = require("../models/Role");
+const Permission = require("../models/Permission");
 const admin = require("../utils/firebaseAdmin");
 const AllowedStudentModel = require("../models/AllowedStudentModel");
 const RegistrationRequest = require("../models/RegistrationRequest");
