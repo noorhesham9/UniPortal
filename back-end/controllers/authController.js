@@ -135,7 +135,10 @@ exports.login = async (req, res) => {
     });
     res.status(200).json({ success: true, user });
   } catch (error) {
-    res.status(401).json({ success: false, message: "Invalid Token" });
+    console.error("Login error:", error.code, error.message);
+    res
+      .status(401)
+      .json({ success: false, message: "Invalid Token", debug: error.message });
   }
 };
 
