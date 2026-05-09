@@ -7,7 +7,9 @@ import axios from "axios";
 import "./Register.css";
 import PublicNav from "../Home/PublicNav";
 
-const TURNSTILE_SITE_KEY = "0x4AAAAAAC_GjmneDWnvrWue";
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_NODE_ENV === "production"
+  ? "0x4AAAAAAC_GjmneDWnvrWue"
+  : "1x00000000000000000000AA";
 const API =
   import.meta.env.VITE_NODE_ENV === "production"
     ? import.meta.env.VITE_API_URL_PROD

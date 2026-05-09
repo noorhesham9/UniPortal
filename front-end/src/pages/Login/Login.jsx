@@ -12,7 +12,10 @@ import "./Login.css";
 import loginLogoSvg from "./login_logo.svg";
 import PublicNav from "../Home/PublicNav";
 
-const TURNSTILE_SITE_KEY = "0x4AAAAAAC_GjmneDWnvrWue";
+// Dev: always-pass test key | Prod: real key
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_NODE_ENV === "production"
+  ? "0x4AAAAAAC_GjmneDWnvrWue"
+  : "1x00000000000000000000AA";
 
 function Login() {
   const dispatch = useDispatch();
