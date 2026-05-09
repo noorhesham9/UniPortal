@@ -9,6 +9,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "../store/store";
 import { ThemeContextProvider, useAppTheme } from "../context/ThemeContext";
 import { SocketProvider } from "../context/SocketContext";
+import { SiteLockProvider } from "../context/SiteLockContext";
 
 function AppContent() {
   const { isDark } = useAppTheme();
@@ -16,10 +17,12 @@ function AppContent() {
   return (
     <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
       <SocketProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        </Stack>
+        <SiteLockProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </SiteLockProvider>
       </SocketProvider>
     </ThemeProvider>
   );

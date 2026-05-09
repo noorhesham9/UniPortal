@@ -82,13 +82,14 @@ const AllowedIDS = () => {
     catch (err) { setError(err.message); }
   };
 
-  const [loadingIdCard, setLoadingIdCard] = useState(null); // requestId being loaded
+  const [loadingIdCard, setLoadingIdCard] = useState(null);
+  const [idCardModal, setIdCardModal] = useState(null); // { request, imageUrl }
 
-  const handleViewIdCard = async (requestId) => {
-    setLoadingIdCard(requestId);
+  const handleViewIdCard = async (request) => {
+    setLoadingIdCard(request._id);
     try {
-      const { url } = await getIdCardSignedUrl(requestId);
-      window.open(url, "_blank", "noopener,noreferrer");
+      const { url } = await getIdCardSignedUrl(request._id);
+      setIdCardModal({ request, imageUrl: url });
     } catch {
       setError("Failed to load ID card. Please try again.");
     } finally {
@@ -102,6 +103,7 @@ const AllowedIDS = () => {
     try {
       await reviewRegistrationRequest(reviewModal.request._id, reviewModal.action, adminNote);
       setReviewModal(null); setAdminNote("");
+      if (idCardModal?.request?._id === reviewModal.request._id) setIdCardModal(null);
       await loadRequests();
     } catch (err) { setError(err?.response?.data?.message || err.message); }
     finally { setSubmitting(false); }
@@ -283,7 +285,7 @@ const AllowedIDS = () => {
                       {req.idCardImageUrl ? (
                         <button
                           className="aid-img-link"
-                          onClick={() => handleViewIdCard(req._id)}
+                          onClick={() => handleViewIdCard(req)}
                           disabled={loadingIdCard === req._id}
                           style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
                         >
@@ -325,6 +327,51 @@ const AllowedIDS = () => {
             </table>
           </div>
         </div>
+      )}
+
+      {/* ID Card Image Modal */}
+      {idCardModal && createPortal(
+        <div className="aid-modal-overlay" onClick={() => setIdCardModal(null)}>
+          <div className="aid-modal aid-idcard-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="aid-modal-header">
+              <div>
+                <h2>{idCardModal.request.fullName}</h2>
+                <p style={{ margin: 0, fontSize: "0.82rem", color: "#94a3b8" }}>{idCardModal.request.studentId}</p>
+              </div>
+              <button onClick={() => setIdCardModal(null)}><FiX /></button>
+            </div>
+            <div className="aid-idcard-img-wrap">
+              <img
+                src={idCardModal.imageUrl}
+                alt="ID Card"
+                className="aid-idcard-img"
+              />
+            </div>
+            {idCardModal.request.status === "pending_approval" && (
+              <div className="aid-modal-footer">
+                <button
+                  className="aid-modal-confirm aid-confirm-reject"
+                  onClick={() => {
+                    setReviewModal({ request: idCardModal.request, action: "reject" });
+                    setAdminNote("");
+                  }}
+                >
+                  <FiX style={{ marginRight: 6 }} /> Reject
+                </button>
+                <button
+                  className="aid-modal-confirm aid-confirm-approve"
+                  onClick={() => {
+                    setReviewModal({ request: idCardModal.request, action: "approve" });
+                    setAdminNote("");
+                  }}
+                >
+                  <FiCheck style={{ marginRight: 6 }} /> Approve
+                </button>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* Review Modal — rendered via portal to escape any overflow/transform parent */}

@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   Modal,
   RefreshControl,
   SafeAreaView,
@@ -56,6 +57,10 @@ export default function AcceptedIDs() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+
+  // ID card image modal
+  const [idCardModal, setIdCardModal] = useState(null); // { request, imageUrl }
+  const [loadingIdCard, setLoadingIdCard] = useState(null);
 
   const loadWhitelist = async () => {
     setLoading(true);
@@ -153,11 +158,29 @@ export default function AcceptedIDs() {
       );
       setReviewModal(null);
       setAdminNote("");
+      // also close id card modal if open for same request
+      if (idCardModal?.request?._id === reviewModal.request._id) {
+        setIdCardModal(null);
+      }
       await loadRequests();
     } catch (err) {
       setError(err?.response?.data?.message || err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleViewIdCard = async (request) => {
+    setLoadingIdCard(request._id);
+    try {
+      const res = await apiClient.get(
+        `/registration-requests/${request._id}/id-card-url`,
+      );
+      setIdCardModal({ request, imageUrl: res.data.url });
+    } catch {
+      setError("Failed to load ID card. Please try again.");
+    } finally {
+      setLoadingIdCard(null);
     }
   };
 
@@ -174,7 +197,7 @@ export default function AcceptedIDs() {
   ).length;
 
   return (
-    <SafeAreaView edges={['bottom']} style={s.container}>
+    <SafeAreaView edges={["bottom"]} style={s.container}>
       {/* Tabs */}
       <View style={s.tabs}>
         <TouchableOpacity
@@ -526,7 +549,27 @@ export default function AcceptedIDs() {
                     </Text>
                   </Text>
                 </View>
-                {item.status === "pending_approval" && (
+                {item.idCardImageUrl && (
+                  <TouchableOpacity
+                    style={s.viewIdCardBtn}
+                    onPress={() => handleViewIdCard(item)}
+                    disabled={loadingIdCard === item._id}
+                  >
+                    {loadingIdCard === item._id ? (
+                      <ActivityIndicator size="small" color={theme.accent} />
+                    ) : (
+                      <>
+                        <Ionicons
+                          name="id-card-outline"
+                          size={16}
+                          color={theme.accent}
+                        />
+                        <Text style={s.viewIdCardBtnText}>View ID Card</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                )}
+                {item.status === "pending_approval" && !item.idCardImageUrl && (
                   <View style={s.actionRow}>
                     <TouchableOpacity
                       style={s.approveBtn}
@@ -555,6 +598,72 @@ export default function AcceptedIDs() {
           }}
         />
       )}
+
+      {/* ID Card Image Modal */}
+      <Modal
+        visible={!!idCardModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIdCardModal(null)}
+      >
+        <View style={s.modalOverlay}>
+          <View style={[s.modal, { padding: 0, overflow: "hidden" }]}>
+            {/* Header */}
+            <View style={[s.modalHeader, { padding: 16, paddingBottom: 12 }]}>
+              <View>
+                <Text style={s.modalTitle}>
+                  {idCardModal?.request?.fullName}
+                </Text>
+                <Text style={[s.modalStudent, { marginBottom: 0 }]}>
+                  {idCardModal?.request?.studentId}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setIdCardModal(null)}>
+                <Ionicons name="close" size={22} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Image */}
+            <Image
+              source={{ uri: idCardModal?.imageUrl }}
+              style={s.idCardImage}
+              resizeMode="contain"
+            />
+
+            {/* Action buttons — only for pending_approval */}
+            {idCardModal?.request?.status === "pending_approval" && (
+              <View style={[s.actionRow, { padding: 16, paddingTop: 12 }]}>
+                <TouchableOpacity
+                  style={s.approveBtn}
+                  onPress={() => {
+                    setReviewModal({
+                      request: idCardModal.request,
+                      action: "approve",
+                    });
+                    setAdminNote("");
+                  }}
+                >
+                  <Ionicons name="checkmark" size={16} color="#22c55e" />
+                  <Text style={s.approveBtnText}>Approve</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={s.rejectBtn}
+                  onPress={() => {
+                    setReviewModal({
+                      request: idCardModal.request,
+                      action: "reject",
+                    });
+                    setAdminNote("");
+                  }}
+                >
+                  <Ionicons name="close" size={16} color="#ef4444" />
+                  <Text style={s.rejectBtnText}>Reject</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
 
       {/* Review Modal */}
       <Modal
@@ -872,4 +981,24 @@ const makeStyles = (theme) =>
       alignItems: "center",
     },
     confirmBtnText: { fontSize: 14, fontWeight: "700", color: "#fff" },
+
+    viewIdCardBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      marginTop: 12,
+      paddingVertical: 10,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: `${theme.accent}55`,
+      backgroundColor: `${theme.accent}11`,
+    },
+    viewIdCardBtnText: { fontSize: 13, fontWeight: "700", color: theme.accent },
+
+    idCardImage: {
+      width: "100%",
+      height: 280,
+      backgroundColor: "rgba(0,0,0,0.3)",
+    },
   });

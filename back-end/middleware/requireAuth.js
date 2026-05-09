@@ -65,6 +65,11 @@ exports.requireAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error(
+      "[requireAuth] verifyIdToken failed:",
+      error.code,
+      error.message,
+    );
     return res
       .status(401)
       .json({ success: false, message: "Not authorized to access this route" });

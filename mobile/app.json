@@ -17,7 +17,9 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "permissions": ["NOTIFICATIONS"]
+      "permissions": [
+        "NOTIFICATIONS"
+      ]
     },
     "web": {
       "output": "static",
@@ -30,6 +32,12 @@
       "typedRoutes": false,
       "reactCompiler": true,
       "networkInspector": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1f754fa8-a01e-421a-a543-82990cbee777"
+      }
     }
   }
 }

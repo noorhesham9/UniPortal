@@ -7,6 +7,26 @@ import { Platform } from "react-native";
 const API_URL = "https://uni-portal-blue.vercel.app/api/v1";
 const TOKEN_KEY = "@firebase_token";
 
+// Minimal event emitter — lets the axios interceptor signal the SiteLockContext
+// without creating a circular dependency on React context.
+class SimpleEmitter {
+  constructor() {
+    this._listeners = {};
+  }
+  on(event, fn) {
+    (this._listeners[event] ??= []).push(fn);
+  }
+  off(event, fn) {
+    this._listeners[event] = (this._listeners[event] || []).filter(
+      (l) => l !== fn,
+    );
+  }
+  emit(event, data) {
+    (this._listeners[event] || []).forEach((fn) => fn(data));
+  }
+}
+export const siteLockEmitter = new SimpleEmitter();
+
 // Call this after login to persist the token
 export const saveToken = async (token) => {
   await AsyncStorage.setItem(TOKEN_KEY, token);
@@ -24,6 +44,11 @@ const apiClient = axios.create({
 // Add Firebase token to requests
 apiClient.interceptors.request.use(
   async (config) => {
+    // Don't overwrite an explicitly set Authorization header
+    if (config.headers.Authorization) {
+      return config;
+    }
+
     try {
       await auth.authStateReady();
 
@@ -53,11 +78,20 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error(
-      `[API] ✗ ${error.response?.status} ${error.config?.url} —`,
-      error.response?.data?.message || error.message,
-      error.code,
-    );
+    const status = error.response?.status;
+    const message = error.response?.data?.message;
+
+    // Notify SiteLockContext to activate lock screen
+    if (status === 403 && message === "SITE_LOCKED") {
+      siteLockEmitter.emit("locked");
+    } else {
+      console.error(
+        `[API] ✗ ${status} ${error.config?.url} —`,
+        message || error.message,
+        error.code,
+      );
+    }
+
     return Promise.reject(error);
   },
 );

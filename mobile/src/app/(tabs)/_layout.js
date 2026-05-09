@@ -1,10 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSelector } from "react-redux";
 import AppHeader from "../../components/AppHeader";
 import { useAppTheme } from "../../context/ThemeContext";
+import { useSiteLock } from "../../context/SiteLockContext";
 import { useNotifications } from "../../hooks/useNotifications";
 
 export default function TabLayout() {
@@ -18,6 +25,8 @@ export default function TabLayout() {
 
   const router = useRouter();
   const { theme } = useAppTheme();
+  const { siteLocked, checking, refresh } = useSiteLock();
+  const isStudent = isAuthenticated && user?.role?.name === "student";
 
   // Register for push notifications and sync FCM token
   useNotifications();
@@ -29,6 +38,60 @@ export default function TabLayout() {
   }, [isAuthenticated]);
 
   if (!isAuthenticated) return null;
+
+  // Show spinner while checking lock state on app resume
+  if (checking) {
+    return (
+      <View style={[lockStyles.fullScreen, { backgroundColor: theme.bg }]}>
+        <ActivityIndicator size="large" color={theme.accent} />
+      </View>
+    );
+  }
+
+  // Full-screen lock for students
+  if (siteLocked && isStudent) {
+    return (
+      <View style={[lockStyles.fullScreen, { backgroundColor: theme.bg }]}>
+        <AppHeader />
+        <View style={lockStyles.lockBody}>
+          <View
+            style={[
+              lockStyles.iconWrap,
+              { backgroundColor: "rgba(239,68,68,0.1)" },
+            ]}
+          >
+            <Ionicons name="lock-closed" size={48} color="#ef4444" />
+          </View>
+          <Text style={[lockStyles.lockTitle, { color: theme.text }]}>
+            الموقع مغلق مؤقتاً
+          </Text>
+          <Text style={[lockStyles.lockSub, { color: theme.textSub }]}>
+            تم تعليق الخدمات مؤقتاً من قِبل الإدارة.{"\n"}يرجى المحاولة لاحقاً.
+          </Text>
+          <TouchableOpacity
+            style={[lockStyles.refreshBtn, { borderColor: theme.border }]}
+            onPress={refresh}
+            disabled={checking}
+          >
+            {checking ? (
+              <ActivityIndicator size="small" color={theme.accent} />
+            ) : (
+              <>
+                <Ionicons
+                  name="refresh-outline"
+                  size={18}
+                  color={theme.accent}
+                />
+                <Text style={[lockStyles.refreshText, { color: theme.accent }]}>
+                  تحديث
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -59,7 +122,7 @@ export default function TabLayout() {
           name="registration"
           options={{
             title: "التسجيل",
-            href: isAdmin ? null : undefined,
+            href: isAdmin || (siteLocked && isStudent) ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="add-circle-outline" size={24} color={color} />
             ),
@@ -78,7 +141,7 @@ export default function TabLayout() {
           name="grades"
           options={{
             title: "الدرجات",
-            href: isAdmin ? null : undefined,
+            href: isAdmin || (siteLocked && isStudent) ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="bar-chart" size={24} color={color} />
             ),
@@ -88,7 +151,7 @@ export default function TabLayout() {
           name="final-grades"
           options={{
             title: "الدرجات النهائية",
-            href: isAdmin ? null : undefined,
+            href: isAdmin || (siteLocked && isStudent) ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="trophy-outline" size={24} color={color} />
             ),
@@ -98,7 +161,7 @@ export default function TabLayout() {
           name="academic-summary"
           options={{
             title: "السجل الأكاديمي",
-            href: isAdmin ? null : undefined,
+            href: isAdmin || (siteLocked && isStudent) ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="school-outline" size={24} color={color} />
             ),
@@ -108,7 +171,7 @@ export default function TabLayout() {
           name="current-enrollments"
           options={{
             title: "المواد المسجلة",
-            href: isAdmin ? null : undefined,
+            href: isAdmin || (siteLocked && isStudent) ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="book-outline" size={24} color={color} />
             ),
@@ -153,3 +216,35 @@ export default function TabLayout() {
     </View>
   );
 }
+
+const lockStyles = StyleSheet.create({
+  fullScreen: { flex: 1 },
+  lockBody: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 32,
+    gap: 16,
+  },
+  iconWrap: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  lockTitle: { fontSize: 22, fontWeight: "800", textAlign: "center" },
+  lockSub: { fontSize: 14, textAlign: "center", lineHeight: 22 },
+  refreshBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  refreshText: { fontSize: 15, fontWeight: "700" },
+});
