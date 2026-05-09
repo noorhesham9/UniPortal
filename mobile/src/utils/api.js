@@ -4,10 +4,7 @@ import { auth } from "./firebaseConfig";
 
 import { Platform } from "react-native";
 
-const API_URL =
-  Platform.OS === "android"
-    ? "http://10.0.2.2:3100/api/v1" // Android emulator → host localhost
-    : "http://localhost:3100/api/v1"; // iOS simulator → host localhost
+const API_URL = "https://uni-portal-blue.vercel.app/api/v1";
 const TOKEN_KEY = "@firebase_token";
 
 // Call this after login to persist the token
@@ -21,7 +18,7 @@ export const clearToken = async () => {
 
 const apiClient = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000,
 });
 
 // Add Firebase token to requests
@@ -59,6 +56,7 @@ apiClient.interceptors.response.use(
     console.error(
       `[API] ✗ ${error.response?.status} ${error.config?.url} —`,
       error.response?.data?.message || error.message,
+      error.code,
     );
     return Promise.reject(error);
   },
@@ -78,13 +76,12 @@ export const authAPI = {
   getMe: () => apiClient.get("/auth/me"),
   logout: () => apiClient.get("/auth/logout"),
   getEmailByStudentId: (studentId) =>
-    axios.get(`${API_URL}/auth/student-email/${studentId}`, { timeout: 10000 }),
+    apiClient.get(`/auth/student-email/${studentId}`),
 };
 
 // Public endpoints (no auth needed)
 export const publicAPI = {
-  getAnnouncements: () =>
-    axios.get(`${API_URL}/announcements/public`, { timeout: 10000 }),
+  getAnnouncements: () => apiClient.get("/announcements/public"),
   getSiteLock: () => apiClient.get("/admin/site-lock"),
   getActiveSemester: () => apiClient.get("/semesters/active/current"),
 };

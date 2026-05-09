@@ -97,7 +97,7 @@ export default function AcademicRecordsScreen() {
   const totalCredits = data.totalCredits || 0;
   const averageGrade = data.averageGrade || "N/A";
   const semesters = data.semesters || [];
-  const gpaProgress = (cumulativeGPA / 4) * 100;
+  const gpaProgress = (cumulativeGPA / 5) * 100;
 
   const renderSemesterItem = ({ item, index }) => (
     <View style={[styles.semesterCard, index === 0 && styles.activeCard]}>

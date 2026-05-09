@@ -101,7 +101,7 @@ export default function DashboardScreen() {
           icon="trending-up-outline"
           iconColor="#34C759"
           label="المعدل التراكمي"
-          value={loading ? null : `${gpa} / 4.0`}
+          value={loading ? null : `${gpa} / 5.0`}
           loading={loading}
           onPress={() => router.push('/(screens)/transcript')}
         />

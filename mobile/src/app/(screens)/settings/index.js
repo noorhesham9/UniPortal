@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Switch,
@@ -8,16 +10,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAppTheme } from "../../../context/ThemeContext";
 import { logoutUser } from "../../../store/slices/authSlice";
+import apiClient from "../../../utils/api";
 
 export default function SettingsScreen() {
   const { isDark, toggleTheme } = useAppTheme();
   const dispatch = useDispatch();
   const router = useRouter();
+  const { user } = useSelector((state) => state.auth);
 
-  // Dynamic colors based on theme
+  const isAdmin = ["admin", "super_admin"].includes(user?.role?.name);
+
+  const [siteLocked, setSiteLocked] = useState(false);
+  const [lockLoading, setLockLoading] = useState(false);
+
   const bg = isDark ? "#0d1b2e" : "#ffffff";
   const cardBg = isDark ? "#0f172a" : "#ffffff";
   const border = isDark ? "#1e293b" : "#E5E5EA";
@@ -25,10 +33,29 @@ export default function SettingsScreen() {
   const subText = isDark ? "#94a3b8" : "#8E8E93";
   const iconColor = isDark ? "#94a3b8" : "#555";
 
+  useEffect(() => {
+    if (isAdmin) {
+      apiClient
+        .get("/admin/site-lock")
+        .then((res) => setSiteLocked(res.data.locked))
+        .catch(() => {});
+    }
+  }, [isAdmin]);
+
+  const handleToggleLock = async (value) => {
+    setLockLoading(true);
+    try {
+      const res = await apiClient.post("/admin/site-lock", { locked: value });
+      setSiteLocked(res.data.locked);
+    } catch (e) {
+      console.error("Failed to toggle site lock", e);
+    } finally {
+      setLockLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     dispatch(logoutUser());
-    // Navigation is handled automatically by TabLayout's useEffect
-    // when isAuthenticated becomes false
   };
 
   const SettingItem = ({
@@ -39,6 +66,7 @@ export default function SettingsScreen() {
     isSwitch,
     onPress,
     subTitle,
+    switchDisabled,
   }) => (
     <TouchableOpacity
       style={[styles.row, { borderColor: border }]}
@@ -55,12 +83,16 @@ export default function SettingsScreen() {
         </View>
       </View>
       {isSwitch ? (
-        <Switch
-          value={value}
-          onValueChange={onValueChange}
-          trackColor={{ false: "#e2e8f0", true: "#facc15" }}
-          thumbColor={value ? "#0f172a" : "#ffffff"}
-        />
+        switchDisabled ? (
+          <ActivityIndicator size="small" color="#facc15" />
+        ) : (
+          <Switch
+            value={value}
+            onValueChange={onValueChange}
+            trackColor={{ false: "#e2e8f0", true: "#facc15" }}
+            thumbColor={value ? "#0f172a" : "#ffffff"}
+          />
+        )
       ) : (
         <Ionicons name="chevron-forward" size={20} color={subText} />
       )}
@@ -87,6 +119,32 @@ export default function SettingsScreen() {
           onPress={() => {}}
         />
       </View>
+
+      {isAdmin && (
+        <>
+          <Text style={[styles.sectionTitle, { color: subText }]}>
+            إدارة النظام
+          </Text>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: cardBg, borderColor: border },
+            ]}
+          >
+            <SettingItem
+              icon={siteLocked ? "lock-closed-outline" : "lock-open-outline"}
+              title="قفل التسجيل"
+              subTitle={
+                siteLocked ? "الموقع مغلق أمام الطلاب" : "الموقع مفتوح للطلاب"
+              }
+              isSwitch
+              value={siteLocked}
+              onValueChange={handleToggleLock}
+              switchDisabled={lockLoading}
+            />
+          </View>
+        </>
+      )}
 
       <Text style={[styles.sectionTitle, { color: subText }]}>الحساب</Text>
       <View

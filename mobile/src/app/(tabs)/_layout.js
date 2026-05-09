@@ -59,6 +59,7 @@ export default function TabLayout() {
           name="registration"
           options={{
             title: "التسجيل",
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="add-circle-outline" size={24} color={color} />
             ),
@@ -77,6 +78,7 @@ export default function TabLayout() {
           name="grades"
           options={{
             title: "الدرجات",
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="bar-chart" size={24} color={color} />
             ),
@@ -86,6 +88,7 @@ export default function TabLayout() {
           name="final-grades"
           options={{
             title: "الدرجات النهائية",
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="trophy-outline" size={24} color={color} />
             ),
@@ -95,6 +98,7 @@ export default function TabLayout() {
           name="academic-summary"
           options={{
             title: "السجل الأكاديمي",
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="school-outline" size={24} color={color} />
             ),
@@ -104,6 +108,7 @@ export default function TabLayout() {
           name="current-enrollments"
           options={{
             title: "المواد المسجلة",
+            href: isAdmin ? null : undefined,
             tabBarIcon: ({ color }) => (
               <Ionicons name="book-outline" size={24} color={color} />
             ),
